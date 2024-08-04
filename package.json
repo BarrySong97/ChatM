@@ -1,0 +1,68 @@
+{
+  "name": "meta-analysis",
+  "version": "1.0.0",
+  "main": "dist-electron/main/index.js",
+  "author": "Barry Song",
+  "license": "MIT",
+  "private": true,
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && electron-builder",
+    "build:mac": "vite build && electron-builder -m",
+    "build:linux": "vite build && electron-builder -l",
+    "build:win": "vite build && electron-builder -w"
+  },
+  "dependencies": {
+    "@glideapps/glide-data-grid": "^6.0.3",
+    "@nextui-org/react": "^2.2.9",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "ahooks": "^3.7.10",
+    "antd": "^5.14.2",
+    "axios": "^1.6.7",
+    "better-sqlite3": "^9.6.0",
+    "csv-writer": "^1.6.0",
+    "drizzle-orm": "^0.30.10",
+    "drizzle-zod": "^0.5.1",
+    "electron-updater": "^6.1.1",
+    "framer-motion": "^11.0.6",
+    "jotai": "^2.7.1",
+    "lodash": "^4.17.21",
+    "marked": "^13.0.3",
+    "react-antd-column-resize": "^1.0.3",
+    "react-loading": "^2.0.3",
+    "react-pdf": "^7.7.1",
+    "react-query": "^3.39.3",
+    "react-resizable-panels": "^2.0.11",
+    "react-responsive-carousel": "^3.2.23",
+    "react-router-dom": "^6.22.1",
+    "react-virtualized-auto-sizer": "^1.0.23",
+    "recharts": "^2.12.7",
+    "use-dark-mode": "^2.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.37.1",
+    "@types/lodash": "^4.17.0",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.4",
+    "autoprefixer": "^10.4.16",
+    "drizzle-kit": "^0.20.18",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.6.3",
+    "electron-rebuild": "^3.2.9",
+    "postcss": "^8.4.31",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.1.6",
+    "vite": "^5.0.10",
+    "vite-plugin-electron": "^0.28.0",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  }
+}

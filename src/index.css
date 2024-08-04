@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+    }
+
+    .dark {
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+    }
+}
+
+body {
+    margin: 0;
+}
+
+#root {
+    overflow: hidden;
+}
+
+*:not(.anticon-check-circle):not(svg):not(path) {
+    /* @apply dark:text-foreground */
+}
+
+.scrollbar::-webkit-scrollbar {
+    background-color: #fff;
+    width: 16px;
+    @apply dark:bg-transparent dark:w-[6px] dark:h-[12px]
+}
+
+/* background of the scrollbar except button or resizer */
+.scrollbar::-webkit-scrollbar-track {
+    background-color: #fff;
+    @apply dark:bg-transparent
+}
+
+.scrollbar::-webkit-scrollbar-track:hover {
+    background-color: transparent
+}
+
+/* scrollbar itself */
+.scrollbar::-webkit-scrollbar-thumb {
+    background-color: #babac0;
+    border-radius: 16px;
+    border: 5px solid #fff;
+    @apply dark:border-transparent dark:bg-default-400
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #a0a0a5;
+    border: 4px solid #f4f4f4;
+    @apply dark:border-transparent dark:bg-default-500
+}
+
+.ant-message-notice-content {
+    /* @apply dark:!bg-[#1f1f1f] dark:text-foreground */
+}
+
+.ant-message-custom-content {}
+
+/* set button(top and bottom of the scrollbar) */
+.scrollbar::-webkit-scrollbar-button {
+    display: none
+}
+
+.mult-line-truncate {
+    -webkit-line-clamp: 5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.app-draggable {
+    -webkit-app-region: drag;
+}
+
+.no-drag {
+    -webkit-app-region: no-drag;
+}

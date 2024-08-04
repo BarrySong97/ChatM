@@ -1,0 +1,75 @@
+import { MaterialSymbolsSearch } from "@/assets/icon";
+import { ChartConfig } from "@/components/ui/chart";
+import { Divider, Input } from "@nextui-org/react";
+import React, { FC } from "react";
+import { Trend } from "./components/trend";
+import Category from "./components/category";
+import { atom } from "jotai";
+import { useQuery } from "react-query";
+import { database } from "@/db";
+import Transactions from "./components/transacrtions";
+export const flowAtom = atom<"expense" | "income">("expense");
+export interface IndexProps {}
+const Greeting: React.FC = () => {
+  const currentHour = new Date().getHours();
+  let greeting = "早上好";
+
+  if (currentHour >= 12 && currentHour < 18) {
+    greeting = "中午好";
+  } else if (currentHour >= 18 || currentHour < 6) {
+    greeting = "晚上好";
+  }
+
+  return <h1 className="text-lg font-medium">{greeting}</h1>;
+};
+
+const DateDisplay: React.FC = () => {
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("zh-cn", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  return <p className="text-gray-500 text-sm">{formattedDate}</p>;
+};
+
+const Index: FC<IndexProps> = () => {
+  const { data } = useQuery("accounts", {
+    queryFn: async () => {
+      return database.query.accounts.findMany();
+    },
+  });
+  return (
+    <div className="px-12 py-8  mx-auto overflow-auto">
+      <div className="flex justify-between items-end">
+        <div>
+          <Greeting />
+          <DateDisplay />
+        </div>
+        <Input
+          className="max-w-[200px] "
+          radius="full"
+          endContent={
+            <MaterialSymbolsSearch className="text-gray-400 text-xl" />
+          }
+          placeholder="Search Transactions"
+          size="sm"
+          labelPlacement="outside"
+        />
+      </div>
+      <Divider className="my-8" />
+      <div className="flex gap-8 h-[240px] mb-8">
+        <Trend />
+        <Category />
+      </div>
+      <div className="space-y-8">
+        {data?.map((v) => {
+          return <Transactions key={v.id} account={v} />;
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default Index;
