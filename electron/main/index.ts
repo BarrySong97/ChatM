@@ -131,6 +131,7 @@ async function createWindow() {
   await runMigrate();
   // 把所有通信的代码都挂载上面
   new AppManager(win, indexHtml, preload, url);
+  // win.webContents.openDevTools();
   // Apply electron-updater
   update(win);
 }

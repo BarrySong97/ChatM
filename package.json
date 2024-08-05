@@ -36,6 +36,7 @@
     "jotai": "^2.7.1",
     "lodash": "^4.17.21",
     "marked": "^13.0.3",
+    "openai": "^4.54.0",
     "papaparse": "^5.4.1",
     "react-antd-column-resize": "^1.0.3",
     "react-loading": "^2.0.3",
