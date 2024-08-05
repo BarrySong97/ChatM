@@ -1,1 +1,0 @@
-ALTER TABLE accounts ADD `test` text DEFAULT '' NOT NULL;

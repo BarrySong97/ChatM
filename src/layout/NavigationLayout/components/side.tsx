@@ -1,4 +1,5 @@
 import {
+  BxsCategory,
   MaterialSymbolsHome,
   MaterialSymbolsToolsWrench,
   SolarCardBoldDuotone,
@@ -18,6 +19,12 @@ const Side: FC<SideProps> = () => {
       href: "/",
       title: "Home",
       icon: <MaterialSymbolsHome />,
+    },
+    {
+      key: "Category",
+      href: "/category",
+      title: "Category",
+      icon: <BxsCategory />,
     },
     {
       key: "Account",

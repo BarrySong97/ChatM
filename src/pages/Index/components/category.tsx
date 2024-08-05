@@ -8,9 +8,18 @@ interface ItemProps {
   category: string;
   price?: number;
   percent?: number;
+  onContextMenu?: () => void;
+  type?: number;
 }
 
-const Item: React.FC<ItemProps> = ({ category, price, percent }) => {
+const color = ["text-green-500", "text-red-500", "text-yellow-500"];
+export const Item: React.FC<ItemProps> = ({
+  category,
+  price,
+  percent,
+  onContextMenu,
+  type = 1,
+}) => {
   const [showPrice] = useAtom(showPriceAtom);
   const [flow] = useAtom(flowAtom);
   const displayValue =
@@ -22,9 +31,16 @@ const Item: React.FC<ItemProps> = ({ category, price, percent }) => {
       ? `${percent}%`
       : "";
 
-  const valueClass = flow === "expense" ? "text-red-500" : "text-green-500";
+  const valueClass = color[type];
   return (
-    <div className="flex justify-between items-center py-2 text-sm">
+    <div
+      onContextMenu={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onContextMenu?.();
+      }}
+      className="flex justify-between items-center py-2 text-sm"
+    >
       <span className="text-gray-500  xl:w-full truncate w-[120px] ">
         {category}
       </span>
@@ -83,7 +99,7 @@ const Category: FC<CategoryProps> = () => {
           }}
           className="text-xs select-none cursor-pointer text-gray-400 underline underline-offset-4"
         >
-          {showPrice ? "百分比" : "金额"}
+          显示{showPrice ? "百分比" : "金额"}
         </div>
       </CardHeader>
       <CardBody className="py-0">

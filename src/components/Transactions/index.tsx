@@ -1,5 +1,5 @@
 import "@glideapps/glide-data-grid/dist/index.css";
-import type { Account } from "../../../../electron/db/schema";
+import type { Account } from "../../../electron/db/schema";
 import {
   DataEditor,
   DrawCellCallback,
@@ -163,7 +163,7 @@ function getData([col, row]: Item): GridCell {
   }
 }
 
-export default function Transactions({ account }: { account: Account }) {
+export default function Transactions() {
   const [colsMap, setColsMap] = React.useState(columns);
   const onColumnResize = React.useCallback(
     (column: GridColumn, newSize: number) => {
@@ -184,30 +184,23 @@ export default function Transactions({ account }: { account: Account }) {
     const { ctx, rect } = args;
   }, []);
   return (
-    <div>
-      <h3 className="mb-2">{account.title}</h3>
-      <Card radius="sm" shadow="sm">
-        <CardBody className="p-0">
-          <DataEditor
-            columns={colsMap}
-            // maxColumnAutoWidth={500}
-            theme={React.useMemo(
-              () => ({
-                baseFontStyle: "0.8125rem",
-                headerFontStyle: "600 0.8125rem",
-                editorFontSize: "0.8125rem",
-              }),
-              []
-            )}
-            verticalBorder={false}
-            drawCell={drawCell}
-            // scaleToRem={true}
-            getCellContent={getData}
-            rows={data.length}
-            onColumnResize={onColumnResize}
-          />
-        </CardBody>
-      </Card>
-    </div>
+    <DataEditor
+      columns={colsMap}
+      // maxColumnAutoWidth={500}
+      theme={React.useMemo(
+        () => ({
+          baseFontStyle: "0.8125rem",
+          headerFontStyle: "600 0.8125rem",
+          editorFontSize: "0.8125rem",
+        }),
+        []
+      )}
+      verticalBorder={false}
+      drawCell={drawCell}
+      // scaleToRem={true}
+      getCellContent={getData}
+      rows={data.length}
+      onColumnResize={onColumnResize}
+    />
   );
 }
