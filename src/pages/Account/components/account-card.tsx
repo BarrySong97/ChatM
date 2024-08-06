@@ -6,6 +6,7 @@ import { database } from "@/db";
 import { MingcuteAlipayLine, RiWechatPayLine } from "@/assets/icon";
 export interface AccountProps {
   data: AccountCard;
+  onClick?: () => void;
 }
 const iconMap = {
   微信: <RiWechatPayLine />,
@@ -13,12 +14,13 @@ const iconMap = {
 } as const;
 type MapKey = keyof typeof iconMap;
 
-const AccountCard: FC<AccountProps> = ({ data }) => {
+const AccountCard: FC<AccountProps> = ({ data, onClick }) => {
   return (
     <Card
       className="h-[130px]"
       isHoverable
       isPressable
+      onClick={onClick}
       style={{
         backgroundColor: data.color ?? "",
       }}

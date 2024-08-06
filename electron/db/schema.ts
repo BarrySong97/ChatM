@@ -42,5 +42,5 @@ export const transactions = sqliteTable("transactions", {
   updated_at: int("updated_at").$onUpdate(() => new Date().getTime()),
 });
 export type Account = InferSelectModel<typeof accounts>;
-export type Transation = InferSelectModel<typeof transactions>;
+export type Transaction = InferSelectModel<typeof transactions>;
 export type Category = InferSelectModel<typeof category>;

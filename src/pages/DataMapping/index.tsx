@@ -1,4 +1,5 @@
 import { Divider, Steps, notification } from "antd";
+import { type Transaction } from "../../../electron/db/schema";
 import { Edge, HandleType, OnReconnect } from "@xyflow/react";
 import {
   Node,
@@ -31,7 +32,8 @@ import Step1 from "./components/step1";
 import Step2 from "./components/step2";
 import Step3 from "./components/step3";
 import Display from "./components/display";
-const accountAtom = atom<Account | undefined>(undefined);
+import { CN_ACCOUNTS, CN_ACCOUNTS_TEMPLATE } from "@/constant";
+export const accountAtom = atom<Account | undefined>(undefined);
 export interface DataMappingProps {}
 const client = new OpenAI({
   apiKey: "sk-710bf3fdf2fe4fa6bca027e50b7c5007", // This is the default and can be omitted
@@ -41,7 +43,8 @@ const client = new OpenAI({
 function convertData(
   sourceData: string[][],
   conversionRules: Edge[],
-  columns: string[]
+  columns: string[],
+  account?: Account
 ) {
   // 创建源列名到目标列名的映射
   const columnMap = new Map<string, { target: string; index: number }>();
@@ -50,51 +53,64 @@ function convertData(
     columnMap.set(rule.source, { target: rule.target, index: sourceIndex });
   });
 
+  sourceData.forEach((item, index) => {
+    if (item.length < columns.length) {
+      sourceData[index] = [
+        ...item,
+        ...new Array(columns.length - item.length).fill(""),
+      ];
+    }
+  });
+
   // 转换数据
   return sourceData.map((row, rowIndex) => {
     const resultRow: any = {};
+    const amountRulesLenght = conversionRules.filter(
+      (item) => item.target === "amount"
+    ).length;
+
     conversionRules.forEach((rule) => {
       const sourceIndex = columnMap.get(rule.source)?.index;
       if (sourceIndex !== undefined) {
-        row[sourceIndex] = row[sourceIndex].trim();
+        row[sourceIndex] = row[sourceIndex]?.trim();
         // 特殊处理当tartget为type和amount的时候的时候, 并且有两个target为type和amount的时候
         if (rule.target === "amount" || rule.target === "type") {
           // 如果source的里面包含支出那么type是1，如果是收入那么type是0,并且amount里面必须是数字
-          if (rule.target === "amount") {
-            if (rowIndex === 2) {
-              console.log(
-                sourceIndex,
-                columns[sourceIndex].includes("支出"),
-                !!row[sourceIndex],
-                row[sourceIndex],
-                Number(row[sourceIndex].replace(/,/g, ""))
-              );
-
-              console.log(
+          if (amountRulesLenght === 2) {
+            if (rule.target === "amount") {
+              row[sourceIndex] = row[sourceIndex].replace(/,/g, "");
+              if (
                 columns[sourceIndex].includes("支出") &&
-                  row[sourceIndex] &&
-                  !isNaN(Number(row[sourceIndex]))
-              );
+                row[sourceIndex] &&
+                !isNaN(Number(row[sourceIndex]))
+              ) {
+                resultRow["amount"] = row[sourceIndex];
+                resultRow["type"] = 1;
+              } else if (
+                columns[sourceIndex].includes("收入") &&
+                row[sourceIndex] &&
+                !isNaN(Number(row[sourceIndex]))
+              ) {
+                console.log(222, row[sourceIndex]);
+
+                resultRow["amount"] = row[sourceIndex];
+                resultRow["type"] = 0;
+              }
             }
-            if (
-              columns[sourceIndex].includes("支出") &&
-              row[sourceIndex] &&
-              !isNaN(Number(row[sourceIndex].replace(/,/g, "")))
-            ) {
-              resultRow["amount"] = row[sourceIndex].replace(/,/g, "");
-              resultRow["type"] = 1;
-            }
-            if (
-              columns[sourceIndex].includes("收入") &&
-              row[sourceIndex] &&
-              !isNaN(Number(row[sourceIndex].replace(/,/g, "")))
-            ) {
-              resultRow["amount"] = row[sourceIndex].replace(/,/g, "");
-              resultRow["type"] = 0;
+          } else {
+            if (rule.target === "type") {
+              if (row[sourceIndex] === "/") {
+                resultRow[rule.target] = 1;
+              } else {
+                resultRow[rule.target] =
+                  row[sourceIndex]?.trim() === "支出" ? 1 : 0;
+              }
+            } else if (rule.target === "amount") {
+              resultRow[rule.target] = row[sourceIndex].replace("¥", "");
             }
           }
         } else {
-          resultRow[rule.target] = row[sourceIndex].trim();
+          resultRow[rule.target] = row[sourceIndex];
         }
       }
     });
@@ -242,10 +258,12 @@ const DataMapping: FC<DataMappingProps> = () => {
   // 从第二行到最后一行是数据，并且数组长度和column长度一致,并且utf-8编码
   const rows = data
     .filter((item, index) => index >= headerIndex + 1)
-    .filter((item) => item.length === columns.length);
+    .filter((item) => item.length > 10);
 
-  const convertedData = convertData(rows, edges, columns);
-  console.log(columns, edges, convertedData, rows);
+  const convertedData = useMemo(() => {
+    return convertData(rows, edges, columns, currentAccount);
+  }, [edges, columns, currentAccount]);
+  console.log(convertedData);
 
   const renderSteps = () => {
     switch (current) {
@@ -264,7 +282,7 @@ const DataMapping: FC<DataMappingProps> = () => {
           />
         );
       case 1:
-        return <Display />;
+        return <Display data={convertedData as unknown as Transaction[]} />;
       case 2:
         return <Step2 />;
       case 3:
@@ -273,13 +291,20 @@ const DataMapping: FC<DataMappingProps> = () => {
         return null;
     }
   };
-
+  const [showAccountModal, setShowAccountModal] = useState(true);
   return (
     <div className="px-12 py-8  mx-auto overflow-auto">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold">
-            数据导入 - {currentAccount?.title}
+          <h1 className="text-2xl font-bold flex items-center gap-4">
+            <div>数据导入</div>
+            <Button
+              onClick={() => setShowAccountModal(true)}
+              variant="flat"
+              radius="sm"
+            >
+              {currentAccount?.title}
+            </Button>
           </h1>
         </div>
       </div>
@@ -314,6 +339,9 @@ const DataMapping: FC<DataMappingProps> = () => {
               radius="sm"
               color="primary"
               className="mt-4"
+              onClick={() => {
+                setCurrent(current - 1);
+              }}
               size="sm"
               variant="flat"
             >
@@ -323,6 +351,9 @@ const DataMapping: FC<DataMappingProps> = () => {
           {current < 2 ? (
             <Button
               radius="sm"
+              onClick={() => {
+                setCurrent(current + 1);
+              }}
               color="primary"
               className="mt-4"
               size="sm"
@@ -333,7 +364,12 @@ const DataMapping: FC<DataMappingProps> = () => {
           ) : null}
         </div>
       </div>
-      <Modal hideCloseButton defaultOpen>
+      <Modal
+        hideCloseButton
+        defaultOpen
+        isOpen={showAccountModal}
+        onOpenChange={setShowAccountModal}
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -380,6 +416,11 @@ const DataMapping: FC<DataMappingProps> = () => {
                       });
                     } else {
                       setCurrentAccount(selectValue);
+                      setEdges(
+                        JSON.parse(
+                          CN_ACCOUNTS_TEMPLATE[selectValue.title as CN_ACCOUNTS]
+                        )
+                      );
                       onClose();
                     }
                   }}
