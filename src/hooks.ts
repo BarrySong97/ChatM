@@ -51,14 +51,11 @@ const useColumnsAndRows = <T extends HTMLElement>(
 
   useEffect(() => {
     function handleResize() {
-      console.log(222);
-
       if (ref.current) {
         const containerWidth = ref.current.offsetWidth;
         const containerHeight = ref.current.offsetHeight - 80;
         const gapWidth = gap;
         const gapHeight = gap;
-        console.log(containerHeight);
 
         const columns = calculateColumns(
           elementWidth,

@@ -17,19 +17,19 @@ const Side: FC<SideProps> = () => {
     {
       key: "home",
       href: "/",
-      title: "Home",
+      title: "首页",
       icon: <MaterialSymbolsHome />,
     },
     {
       key: "Category",
       href: "/category",
-      title: "Category",
+      title: "分类",
       icon: <BxsCategory />,
     },
     {
       key: "Account",
       href: "/account",
-      title: "Account",
+      title: "资产/账户",
       icon: <SolarCardBoldDuotone />,
     },
     {

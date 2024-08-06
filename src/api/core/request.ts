@@ -359,7 +359,6 @@ export const request = <T>(
           statusText: response.statusText,
           body: responseHeader ?? responseBody,
         };
-        console.log(response, response.headers?.get?.("content-type"));
 
         if (
           response.headers &&

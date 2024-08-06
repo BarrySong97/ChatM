@@ -27,7 +27,7 @@ export function Trend() {
   return (
     <Card shadow="sm" className="flex-1" radius="sm">
       <CardHeader className="flex gap-3 justify-between">
-        <h2 className="text-base text-stone-900 font-medium">消费走势</h2>
+        <h2 className="text-base text-stone-900 font-medium">支出走势</h2>
       </CardHeader>
       <CardBody>
         <ChartContainer config={chartConfig}>

@@ -67,7 +67,6 @@ const Category: FC<CategoryProps> = () => {
       key: "1",
     },
   ];
-  console.log(contextMenuShow);
 
   return (
     <div className="px-12 py-8 mt-6  mx-auto">

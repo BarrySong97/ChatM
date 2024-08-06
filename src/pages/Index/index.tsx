@@ -96,13 +96,18 @@ const Index: FC<IndexProps> = () => {
         </div>
       </div>
       <Divider className="my-8" />
-      <div className="flex gap-8 h-[240px] mb-8">
-        <Trend />
-        <Category />
-      </div>
       <div className="space-y-8">
         {data?.map((v) => {
-          return <Transactions key={v.id} account={v} />;
+          return (
+            <>
+              <h3>{v.title}</h3>
+              <div className="flex gap-8 h-[240px] mb-8">
+                <Trend />
+                <Category />
+              </div>
+              <Transactions key={v.id} account={v} />
+            </>
+          );
         })}
       </div>
     </div>

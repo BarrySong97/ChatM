@@ -1,5 +1,5 @@
 import "@glideapps/glide-data-grid/dist/index.css";
-import type { Account } from "../../../../electron/db/schema";
+import { type Transation } from "../../../../electron/db/schema";
 import {
   DataEditor,
   DrawCellCallback,
@@ -8,8 +8,8 @@ import {
   GridColumn,
   Item,
 } from "@glideapps/glide-data-grid";
-import { Card, CardBody } from "@nextui-org/react";
 import React from "react";
+import { Card, CardBody } from "@nextui-org/react";
 
 const data = [
   {
@@ -106,7 +106,7 @@ const data = [
 
 // Grid columns may also provide icon, overlayIcon, menu, style, and theme overrides
 const columns: GridColumn[] = [
-  { title: "ID", id: "id", themeOverride: { borderColor: "transparent" } },
+  { title: "分类", id: "category" },
   { title: "收/支", id: "type" },
   { title: "内容", id: "content" },
   { title: "金额", id: "amount" },
@@ -163,7 +163,7 @@ function getData([col, row]: Item): GridCell {
   }
 }
 
-export default function Transactions({ account }: { account: Account }) {
+export default function Transactions({ data }: { data: Transation[] }) {
   const [colsMap, setColsMap] = React.useState(columns);
   const onColumnResize = React.useCallback(
     (column: GridColumn, newSize: number) => {
@@ -184,28 +184,25 @@ export default function Transactions({ account }: { account: Account }) {
     const { ctx, rect } = args;
   }, []);
   return (
-    <div>
-      <Card radius="sm" shadow="sm">
-        <CardBody className="p-0">
-          <DataEditor
-            columns={colsMap}
-            // maxColumnAutoWidth={500}
-            theme={React.useMemo(
-              () => ({
-                baseFontStyle: "0.8125rem",
-                headerFontStyle: "600 0.8125rem",
-                editorFontSize: "0.8125rem",
-              }),
-              []
-            )}
-            verticalBorder={false}
-            drawCell={drawCell}
-            // scaleToRem={true}
-            getCellContent={getData}
-            rows={data.length}
-            onColumnResize={onColumnResize}
-          />
-        </CardBody>
+    <div style={{ width: "", height: "calc(100vh - 280px)" }}>
+      <Card className="h-full">
+        <DataEditor
+          columns={colsMap}
+          // maxColumnAutoWidth={500}
+          theme={React.useMemo(
+            () => ({
+              baseFontStyle: "0.8125rem",
+              headerFontStyle: "600 0.8125rem",
+              editorFontSize: "0.8125rem",
+            }),
+            []
+          )}
+          verticalBorder={false}
+          drawCell={drawCell}
+          getCellContent={getData}
+          rows={data?.length ?? 0}
+          onColumnResize={onColumnResize}
+        />
       </Card>
     </div>
   );

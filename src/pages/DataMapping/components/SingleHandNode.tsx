@@ -20,7 +20,9 @@ const SingleHandleNodeTarget = ({ data }: Node) => {
       <CustomHandle
         type="target"
         position={Position.Left}
-        connectionCount={1}
+        connectionCount={
+          ["金额(自动判断)", "收/支(自动判断)"].includes(data.label) ? 2 : 1
+        }
       />
       <div
         className="p-2.5 rounded-small w-[150px] text-center"
