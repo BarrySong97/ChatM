@@ -91,8 +91,6 @@ function convertData(
                 row[sourceIndex] &&
                 !isNaN(Number(row[sourceIndex]))
               ) {
-                console.log(222, row[sourceIndex]);
-
                 resultRow["amount"] = row[sourceIndex];
                 resultRow["type"] = 0;
               }
@@ -263,8 +261,10 @@ const DataMapping: FC<DataMappingProps> = () => {
   const convertedData = useMemo(() => {
     return convertData(rows, edges, columns, currentAccount);
   }, [edges, columns, currentAccount]);
-  console.log(convertedData);
-
+  const [editData, seteditData] = useState<Transaction[]>();
+  useEffect(() => {
+    seteditData(convertedData as unknown as Transaction[]);
+  }, [convertedData]);
   const renderSteps = () => {
     switch (current) {
       case 0:
@@ -282,7 +282,7 @@ const DataMapping: FC<DataMappingProps> = () => {
           />
         );
       case 1:
-        return <Display data={convertedData as unknown as Transaction[]} />;
+        return <Display data={editData} />;
       case 2:
         return <Step2 />;
       case 3:
@@ -315,11 +315,11 @@ const DataMapping: FC<DataMappingProps> = () => {
         items={[
           {
             title: "数据匹配",
-            description: "AI匹配表头",
+            description: "匹配表头",
           },
           {
             title: "数据展示",
-            description: "显示转换数据",
+            description: "显示转换数据，调整",
           },
           {
             title: "自动分类",
