@@ -1,8 +1,7 @@
-import { createHashRouter, redirect } from "react-router-dom";
+import { createHashRouter } from "react-router-dom";
 import AppLayout from "./layout/NavigationLayout";
 import Index from "./pages/Index";
-import Account from "./pages/Account";
-import Category from "./pages/Category";
+import Assets from "./pages/Assets";
 import DataMapping from "./pages/DataMapping";
 
 const router = createHashRouter([
@@ -16,13 +15,13 @@ const router = createHashRouter([
         element: <Index />,
       },
       {
-        path: "/account",
-        element: <Account />,
+        path: "/assets",
+        element: <Assets />,
       },
-      {
-        path: "/category",
-        element: <Category />,
-      },
+      // {
+      //   path: "/category",
+      //   element: <Category />,
+      // },
       {
         path: "/mapping",
         element: <DataMapping />,

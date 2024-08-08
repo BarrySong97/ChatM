@@ -8,16 +8,18 @@ import NumberEditor from "@/components/Editor/components/number-editor";
 import InputEditor from "@/components/Editor/components/input";
 import DateEditor from "@/components/Editor/components/date-editor";
 import SelectEditor from "@/components/Editor/components/select-editor";
+import { useAtom } from "jotai";
+import { accountAtom } from "..";
 
 type TransactionKey = keyof Transaction;
 // Grid columns may also provide icon, overlayIcon, menu, style, and theme overrides
 const columns: GridColumn[] = [
   { title: "列数", id: "index" },
-  { title: "内容", id: "content", width: 80 },
+  { title: "内容", id: "content" },
   { title: "金额", id: "amount" },
   { title: "收/支", id: "type" },
-  { title: "账户", id: "category" },
-  { title: "类别", id: "type" },
+  { title: "类别", id: "category" },
+  { title: "账户", id: "account" },
   { title: "描述", id: "description" },
   { title: "源文本", id: "source" },
 ];
@@ -25,10 +27,6 @@ const columns: GridColumn[] = [
 // If fetching data is slow you can use the DataEditor ref to send updates for cells
 // once data is loaded.
 
-const inputEditor = new InputEditor();
-const numberEditor = new NumberEditor();
-const dateEditor = new DateEditor();
-const selectEditor = new SelectEditor();
 interface CellRange {
   start: CellAddress;
   end: CellAddress;
@@ -37,19 +35,28 @@ interface CellAddress {
   col: number;
   row: number;
 }
-ReactVTable.VTable.register.editor("input-editor", inputEditor);
-ReactVTable.VTable.register.editor("number-editor", numberEditor);
-ReactVTable.VTable.register.editor("date-editor", dateEditor);
-ReactVTable.VTable.register.editor("select-editor", selectEditor);
 export default function Transactions({
   data: transactions = [],
 }: {
   data?: Transaction[];
 }) {
+  const [account] = useAtom(accountAtom);
   const tableData = transactions.map((transaction, index) => ({
     index: index + 1,
     ...transaction,
+    type: transaction.type === 1 ? "支出" : "收入",
+    account: account?.title,
   }));
+  useEffect(() => {
+    const inputEditor = new InputEditor();
+    const numberEditor = new NumberEditor();
+    const dateEditor = new DateEditor();
+    const selectEditor = new SelectEditor();
+    ReactVTable.VTable.register.editor("input-editor", inputEditor);
+    ReactVTable.VTable.register.editor("number-editor", numberEditor);
+    ReactVTable.VTable.register.editor("date-editor", dateEditor);
+    ReactVTable.VTable.register.editor("select-editor", selectEditor);
+  }, []);
 
   const [selectedRow, setSelectedRow] = useState<number[]>([]);
   const option = {
@@ -92,10 +99,15 @@ export default function Transactions({
         },
         editor: "number-editor",
       },
-      { field: "type", title: "收/支", disableHeaderSelect: true },
-      { field: "category", title: "账户", disableHeaderSelect: true },
       {
         field: "type",
+        title: "收/支",
+        disableHeaderSelect: true,
+        editor: "select-editor",
+      },
+      { field: "account", title: "账户", disableHeaderSelect: true },
+      {
+        field: "category",
         title: "类别",
         disableHeaderSelect: true,
         editor: "select-editor",
@@ -106,7 +118,7 @@ export default function Transactions({
         disableHeaderSelect: true,
         editor: "input-editor",
       },
-      { field: "source", title: "源文本", disableHeaderSelect: true },
+      // { field: "source", title: "源数据", disableHeaderSelect: true },
     ],
     select: {
       highlightMode: "row", // 可以配置为'cross' 或者 'row' 或者 'column'

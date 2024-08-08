@@ -35,16 +35,11 @@ import Display from "./components/display";
 import { CN_ACCOUNTS, CN_ACCOUNTS_TEMPLATE } from "@/constant";
 export const accountAtom = atom<Account | undefined>(undefined);
 export interface DataMappingProps {}
-const client = new OpenAI({
-  apiKey: "sk-710bf3fdf2fe4fa6bca027e50b7c5007", // This is the default and can be omitted
-  dangerouslyAllowBrowser: true,
-  baseURL: "https://api.deepseek.com",
-});
 function convertData(
   sourceData: string[][],
   conversionRules: Edge[],
   columns: string[],
-  account?: Account
+  sourceObjArray: any[]
 ) {
   // 创建源列名到目标列名的映射
   const columnMap = new Map<string, { target: string; index: number }>();
@@ -108,10 +103,21 @@ function convertData(
             }
           }
         } else {
-          resultRow[rule.target] = row[sourceIndex];
+          if (rule.target === "content") {
+            console.log(resultRow[rule.target]);
+
+            resultRow[rule.target] = `${
+              resultRow[rule.target]
+                ? resultRow[rule.target] + "_" + row[sourceIndex]
+                : row[sourceIndex]
+            }`;
+          } else {
+            resultRow[rule.target] = row[sourceIndex];
+          }
         }
       }
     });
+    resultRow["source"] = JSON.stringify(sourceObjArray[rowIndex]);
     return resultRow;
   });
 }
@@ -187,6 +193,8 @@ const DataMapping: FC<DataMappingProps> = () => {
   ];
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  console.log(JSON.stringify(edges));
+
   useEffect(() => {
     // generateEdgeByAI(columns).then((v) => {
     //   if (v) {
@@ -257,14 +265,82 @@ const DataMapping: FC<DataMappingProps> = () => {
   const rows = data
     .filter((item, index) => index >= headerIndex + 1)
     .filter((item) => item.length > 10);
+  const combinedData = useMemo(() => {
+    return rows.map((row) => {
+      const obj: { [key: string]: string } = {};
+      columns.forEach((column, index) => {
+        if (index < row.length) {
+          obj[column] = row[index].trim();
+        }
+      });
+      return obj;
+    });
+  }, [rows, columns]);
 
   const convertedData = useMemo(() => {
-    return convertData(rows, edges, columns, currentAccount);
-  }, [edges, columns, currentAccount]);
+    const test = [
+      "i76ktup7y3sj4w7lm85x8rx1", // 美团平台商户 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 合力超市 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "burk6nx6usqlg2u14k2ls079", // API2D -> 学习办公
+      "i76ktup7y3sj4w7lm85x8rx1", // 塔斯汀中国汉堡 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 波仔炒饭档丨修文县 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 金元宝 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文县太牛粉面馆 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 塔斯汀中国汉堡 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文县太牛粉面馆 -> 餐饮
+      "w67h3d5kjqdr9senvsbvlrk0", // 罗荣 -> 人情
+      "s7y77pijxlycy17ja4dbui51", // 零钱通转出-到工商银行(0854) -> 转账
+      "s7y77pijxlycy17ja4dbui51", // 零钱通转出-到工商银行(0854) -> 转账
+      "s7y77pijxlycy17ja4dbui51", // 零钱通转出-到工商银行(0854) -> 转账
+      "s7y77pijxlycy17ja4dbui51", // 转账-退款 -> 转账
+      "s7y77pijxlycy17ja4dbui51", // 转账 -> 转账
+      "phaxkl5fdpqfhhkwbuyj27n3", // 贵AU4198 -> 交通
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文县太牛粉面馆 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 杨国福 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 杨国福 -> 餐饮
+      "s7y77pijxlycy17ja4dbui51", // 转账 -> 转账
+      "y2vixkcip9x9o5xrj4u8k79q", // 生活缴费 -> 固定支出
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 杨国福 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 波仔炒饭档丨修文县 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 美团平台商户 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 那扇窗 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 杨国福 -> 餐饮
+      "i76ktup7y3sj4w7lm85x8rx1", // 修文彭记餐饮店 -> 餐饮
+    ];
+    const temp = convertData(rows, edges, columns, combinedData);
+    if (categoryList && categoryList.length > 0) {
+      return temp.map((item, index) => {
+        const categoryId = test[index];
+        if (categoryId) {
+          const category = categoryList
+            .flat()
+            .find((cat) => cat.id === categoryId);
+          if (category) {
+            return {
+              ...item,
+              category: category.title,
+            };
+          }
+        }
+        return item;
+      });
+    }
+    return temp;
+  }, [edges, columns, currentAccount, categoryList]);
   const [editData, seteditData] = useState<Transaction[]>();
+  console.log(JSON.stringify(combinedData));
+
   useEffect(() => {
     seteditData(convertedData as unknown as Transaction[]);
   }, [convertedData]);
+
   const renderSteps = () => {
     switch (current) {
       case 0:
@@ -318,11 +394,7 @@ const DataMapping: FC<DataMappingProps> = () => {
             description: "匹配表头",
           },
           {
-            title: "数据展示",
-            description: "显示转换数据，调整",
-          },
-          {
-            title: "自动分类",
+            title: "AI分类",
             description: "AI自动分类",
           },
           {
@@ -352,6 +424,23 @@ const DataMapping: FC<DataMappingProps> = () => {
             <Button
               radius="sm"
               onClick={() => {
+                if (current !== 1) {
+                  setCurrent(current + 1);
+                } else {
+                }
+              }}
+              color="primary"
+              className="mt-4"
+              size="sm"
+              variant="flat"
+            >
+              {current === 1 ? "开启AI分类" : "下一步"}
+            </Button>
+          ) : null}
+          {current === 1 ? (
+            <Button
+              radius="sm"
+              onClick={() => {
                 setCurrent(current + 1);
               }}
               color="primary"
@@ -359,7 +448,7 @@ const DataMapping: FC<DataMappingProps> = () => {
               size="sm"
               variant="flat"
             >
-              下一步
+              直接入库
             </Button>
           ) : null}
         </div>

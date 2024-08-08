@@ -1,9 +1,10 @@
 import {
-  BxsCategory,
+  MaterialSymbolsAccountBalanceWallet,
   MaterialSymbolsHome,
   MaterialSymbolsToolsWrench,
+  MdiArrowDownCircle,
+  MdiArrowUpCircle,
   SolarCardBoldDuotone,
-  SolarFolderBold,
   SolarSettingsBold,
 } from "@/assets/icon";
 import DarkModeButton from "@/components/DarkModeButton";
@@ -21,15 +22,27 @@ const Side: FC<SideProps> = () => {
       icon: <MaterialSymbolsHome />,
     },
     {
-      key: "Category",
-      href: "/category",
-      title: "分类",
-      icon: <BxsCategory />,
+      key: "Account",
+      href: "/assets",
+      title: "资产",
+      icon: <MaterialSymbolsAccountBalanceWallet />,
     },
     {
       key: "Account",
       href: "/account",
-      title: "资产/账户",
+      title: "支出",
+      icon: <MdiArrowUpCircle />,
+    },
+    {
+      key: "Account",
+      href: "/account",
+      title: "收入",
+      icon: <MdiArrowDownCircle />,
+    },
+    {
+      key: "Account",
+      href: "/account",
+      title: "负债",
       icon: <SolarCardBoldDuotone />,
     },
     {

@@ -80,6 +80,209 @@ export function MaterialSymbolsSearch(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function MaterialSymbolsAccountBalanceWallet(
+  props: SVGProps<SVGSVGElement>
+) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5h-8q-1.775 0-2.887 1.113T9 9v6q0 1.775 1.113 2.888T13 19h8q0 .825-.587 1.413T19 21zm8-4q-.825 0-1.412-.587T11 15V9q0-.825.588-1.412T13 7h7q.825 0 1.413.588T22 9v6q0 .825-.587 1.413T20 17zm3-3.5q.65 0 1.075-.425T17.5 12t-.425-1.075T16 10.5t-1.075.425T14.5 12t.425 1.075T16 13.5"
+      ></path>
+    </svg>
+  );
+}
+
+export function IconParkIncome(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 48 48"
+      {...props}
+    >
+      <g
+        fill="none"
+        stroke="#000"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="4"
+      >
+        <path d="M31 34L43 34"></path>
+        <path d="M43 26V10C43 8.34315 41.6569 7 40 7H8C6.34315 7 5 8.34315 5 10V38C5 39.6569 6.34315 41 8 41H28.4706"></path>
+        <path d="M36 39L31 34L35.9996 29"></path>
+        <path d="M15 15L20 21L25 15"></path>
+        <path d="M14 27H26"></path>
+        <path d="M14 21H26"></path>
+        <path d="M20 21V33"></path>
+      </g>
+    </svg>
+  );
+}
+
+export function MdiArrowTopRight(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M5 17.59L15.59 7H9V5h10v10h-2V8.41L6.41 19z"
+      ></path>
+    </svg>
+  );
+}
+export function MdiArrowBottomLeft(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M19 6.41L17.59 5L7 15.59V9H5v10h10v-2H8.41z"
+      ></path>
+    </svg>
+  );
+}
+export function MdiArrowBottomRight(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M5 6.41L6.41 5L17 15.59V9h2v10H9v-2h6.59z"
+      ></path>
+    </svg>
+  );
+}
+export function MdiArrowDown(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M11 4h2v12l5.5-5.5l1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5L11 16z"
+      ></path>
+    </svg>
+  );
+}
+export function MdiArrowUp(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M13 20h-2V8l-5.5 5.5l-1.42-1.42L12 4.16l7.92 7.92l-1.42 1.42L13 8z"
+      ></path>
+    </svg>
+  );
+}
+export function MdiArrowDownCircle(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M11 6v8l-3.5-3.5l-1.42 1.42L12 17.84l5.92-5.92l-1.42-1.42L13 14V6zm1 16A10 10 0 0 1 2 12A10 10 0 0 1 12 2a10 10 0 0 1 10 10a10 10 0 0 1-10 10"
+      ></path>
+    </svg>
+  );
+}
+export function MdiArrowUpCircle(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M13 18v-8l3.5 3.5l1.42-1.42L12 6.16l-5.92 5.92L7.5 13.5L11 10v8zM12 2a10 10 0 0 1 10 10a10 10 0 0 1-10 10A10 10 0 0 1 2 12A10 10 0 0 1 12 2"
+      ></path>
+    </svg>
+  );
+}
+export function MaterialSymbolsShoppingBag(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M6 22q-.825 0-1.412-.587T4 20V8q0-.825.588-1.412T6 6h2q0-1.65 1.175-2.825T12 2t2.825 1.175T16 6h2q.825 0 1.413.588T20 8v12q0 .825-.587 1.413T18 22zm4-16h4q0-.825-.587-1.412T12 4t-1.412.588T10 6m5 5q.425 0 .713-.288T16 10V8h-2v2q0 .425.288.713T15 11m-6 0q.425 0 .713-.288T10 10V8H8v2q0 .425.288.713T9 11"
+      ></path>
+    </svg>
+  );
+}
+export function IconParkExpenses(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      viewBox="0 0 48 48"
+      {...props}
+    >
+      <g
+        fill="none"
+        stroke="#000"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="4"
+      >
+        <path d="M31 34L43 34"></path>
+        <path d="M38 39L43 34L38.0004 29"></path>
+        <path d="M43 26V10C43 8.34315 41.6569 7 40 7H8C6.34315 7 5 8.34315 5 10V38C5 39.6569 6.34315 41 8 41H28.4706"></path>
+        <path d="M15 15L20 21L25 15"></path>
+        <path d="M14 27H26"></path>
+        <path d="M14 21H26"></path>
+        <path d="M20 21V33"></path>
+      </g>
+    </svg>
+  );
+}
 export function SolarCardBoldDuotone(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

@@ -30,6 +30,9 @@ export interface CategoryProps {}
 const Category: FC<CategoryProps> = () => {
   const categoryList = [
     {
+      title: "资产",
+    },
+    {
       title: "收入",
     },
     {
@@ -41,6 +44,7 @@ const Category: FC<CategoryProps> = () => {
   ];
   const { data } = useQuery("category", {
     queryFn: async () => {
+      const accounts = await database.query.accounts.findMany();
       const res1 = (await database.select().from(category)).filter(
         (item) => item.type === 0
       );
@@ -50,7 +54,7 @@ const Category: FC<CategoryProps> = () => {
       const res3 = (await database.select().from(category)).filter(
         (item) => item.type === 2
       );
-      return [res1, res2, res3];
+      return [accounts, res1, res2, res3];
     },
   });
   const [showPrice, setShowPrice] = useAtom(showPriceAtom);
@@ -72,7 +76,7 @@ const Category: FC<CategoryProps> = () => {
     <div className="px-12 py-8 mt-6  mx-auto">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold">分类</h1>
+          <h1 className="text-2xl font-bold">账户管理</h1>
         </div>
       </div>
       <Divider className="my-6" />

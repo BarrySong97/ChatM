@@ -25,41 +25,34 @@ const chartConfig = {
 
 export function Trend() {
   return (
-    <Card shadow="sm" className="flex-1" radius="sm">
-      <CardHeader className="flex gap-3 justify-between">
-        <h2 className="text-base text-stone-900 font-medium">支出走势</h2>
-      </CardHeader>
-      <CardBody>
-        <ChartContainer config={chartConfig}>
-          <AreaChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <Area
-              dataKey="desktop"
-              type="natural"
-              fill="var(--color-desktop)"
-              fillOpacity={0.4}
-              stroke="var(--color-desktop)"
-            />
-          </AreaChart>
-        </ChartContainer>
-      </CardBody>
-    </Card>
+    <ChartContainer config={chartConfig} className="flex-1">
+      <AreaChart
+        accessibilityLayer
+        data={chartData}
+        margin={{
+          left: 12,
+          right: 12,
+        }}
+      >
+        <XAxis
+          dataKey="month"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          tickFormatter={(value) => value.slice(0, 3)}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={<ChartTooltipContent indicator="line" />}
+        />
+        <Area
+          dataKey="desktop"
+          type="natural"
+          fill="var(--color-desktop)"
+          fillOpacity={0.4}
+          stroke="var(--color-desktop)"
+        />
+      </AreaChart>
+    </ChartContainer>
   );
 }
