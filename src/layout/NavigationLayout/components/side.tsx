@@ -24,7 +24,7 @@ const Side: FC<SideProps> = () => {
     {
       key: "Account",
       href: "/assets",
-      title: "资产/负债",
+      title: "资产",
       icon: <MaterialSymbolsAccountBalanceWallet />,
     },
     {
@@ -61,7 +61,7 @@ const Side: FC<SideProps> = () => {
     navigate("/");
   };
   return (
-    <div className="dark:bg-default-100 no-drag flex flex-col justify-between pb-4 w-12">
+    <div className="dark:bg-default-100 no-drag flex flex-col justify-between pb-4 w-full">
       {menuList.map((item) => {
         const isActive =
           pathname === item.href ||

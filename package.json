@@ -19,6 +19,7 @@
     "build:win": "vite build && electron-builder -w"
   },
   "dependencies": {
+    "@douyinfe/semi-ui": "^2.63.1",
     "@glideapps/glide-data-grid": "^6.0.3",
     "@nextui-org/react": "^2.4.6",
     "@paralleldrive/cuid2": "^2.2.2",

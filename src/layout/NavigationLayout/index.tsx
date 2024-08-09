@@ -12,14 +12,16 @@ import { FC } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Side from "./components/side";
 import TrafficLight from "@/components/TrafficLight";
+import SideBar from "./components/testSide";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
   return (
     <NextUIProvider navigate={navigate}>
       <div className="flex h-screen overflow-hidden">
-        <aside className="dark:bg-default-100 bg-[#F3F3F4] app-draggable h-screen w-[280px] pt-12 flex flex-col items-center justify-center">
-          <Side />
+        <aside className="dark:bg-default-100 bg-white border-r-1 app-draggable h-screen w-[280px] pt-12 ">
+          {/* <Side /> */}
+          <SideBar />
         </aside>
         <div className="flex-1">
           <div
