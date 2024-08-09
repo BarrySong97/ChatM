@@ -24,7 +24,7 @@ const Side: FC<SideProps> = () => {
     {
       key: "Account",
       href: "/assets",
-      title: "资产",
+      title: "资产/负债",
       icon: <MaterialSymbolsAccountBalanceWallet />,
     },
     {

@@ -18,7 +18,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
   return (
     <NextUIProvider navigate={navigate}>
       <div className="flex h-screen overflow-hidden">
-        <aside className="dark:bg-default-100 bg-[#F3F3F4] app-draggable h-screen w-12 pt-12 flex flex-col items-center justify-center">
+        <aside className="dark:bg-default-100 bg-[#F3F3F4] app-draggable h-screen w-[280px] pt-12 flex flex-col items-center justify-center">
           <Side />
         </aside>
         <div className="flex-1">
@@ -32,7 +32,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
               <TrafficLight isDev={false} />
             </DragTitle>
           </div>
-          <div className="absolute top-0 bottom-0 overflow-auto left-12 right-0 dark:bg-transparent">
+          <div className="absolute top-0 bottom-0 overflow-auto left-[280px] right-0 dark:bg-transparent">
             <Outlet />
           </div>
         </div>

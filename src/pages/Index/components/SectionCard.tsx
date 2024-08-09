@@ -97,7 +97,7 @@ const generateMockData = (period: string, dateRange?: Date[]) => {
 };
 
 const SectionCard: FC<SectionCardProps> = () => {
-  const timeFilter = ["当前月", "1月", "3月", "1年", "3年", "5年"];
+  const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
   const [time, setTime] = useState(timeFilter[0]);
   let [value, setValue] = React.useState<RangeValue<DateValue>>();
   const chartData = React.useMemo(() => {
@@ -112,7 +112,7 @@ const SectionCard: FC<SectionCardProps> = () => {
   return (
     <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
       <CardHeader className="!mb-0 flex justify-between">
-        <h3 className="font-semibold">支出</h3>
+        <h3 className="font-semibold pl-2">{time}共支出1000</h3>
         <div className="flex items-center gap-2">
           {timeFilter.map((item) => (
             <Button
