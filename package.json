@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@glideapps/glide-data-grid": "^6.0.3",
-    "@nextui-org/react": "^2.2.9",
+    "@nextui-org/react": "^2.4.6",
     "@paralleldrive/cuid2": "^2.2.2",
     "@visactor/react-vtable": "^1.5.4",
     "@visactor/vtable-editors": "^1.5.4",

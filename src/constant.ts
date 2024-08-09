@@ -25,6 +25,27 @@ export enum TRAFFIC_LIGHT {
   CLOSE = "close",
 }
 export const CN_ACCOUNTS = ["微信", "支付宝", "工商银行"];
+
+export enum ACCOUNT_TYPE {
+  INCOME = 0,
+  EXPENSE = 1,
+  ASSET = 2,
+  LIABILITY = 3,
+}
+
+export enum TRANSACTION_FLOW {
+  INCOME_TO_ASSET = 0,
+  ASSET_TO_EXPENSE = 1,
+  LIABILITY_TO_EXPENSE = 2,
+  ASSET_TO_LIABILITY = 3,
+  ASSET_TO_ASSET = 4,
+}
+
+export enum TRANSACTION_TYPE {
+  INCOME = 0,
+  EXPENSE = 1,
+}
+
 export const CN_ACCOUNTS_TEMPLATE = {
   微信: '[{"source":"交易时间","target":"date","animated":true,"id":"xy-edge__交易时间-date"},{"source":"商品","target":"content","animated":true,"id":"xy-edge__商品-content"},{"source":"收/支","target":"type","animated":true,"id":"xy-edge__收/支-type"},{"source":"金额(元)","target":"amount","animated":true,"id":"xy-edge__金额(元)-amount"},{"source":"备注","target":"description","animated":true,"id":"xy-edge__备注-description"},{"source":"交易类型","target":"content","animated":true,"id":"xy-edge__交易类型-content"}]',
   支付宝:

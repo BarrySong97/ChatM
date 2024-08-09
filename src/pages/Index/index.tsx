@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom";
 import FinancialItem from "./components/metic-card";
 import StockItem from "./components/category";
 import { Tabs, TabsProps } from "antd";
+import SectionCard from "./components/SectionCard";
+import { Test } from "./components/test";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -71,64 +73,12 @@ const Index: FC<IndexProps> = () => {
       });
     }
   };
+  const timeFilter = ["1月", "3月", "1年", "3年", "5年"];
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: "支出",
-      children: (
-        <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0">
-            <h3 className="font-semibold">支出</h3>
-          </CardHeader>
-          <CardBody className="flex-row gap-8 h-[300px]">
-            <div className="space-y-4 w-[300px]">
-              <StockItem
-                title="NVDA"
-                percent={2.18}
-                amount={13000}
-                color="bg-purple-500"
-              />
-              <StockItem
-                title="INTC"
-                percent={2.18}
-                amount={1.32}
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="INTC"
-                percent={2.18}
-                amount={1.32}
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="QCOM"
-                color="bg-green-600"
-                percent={2.18}
-                amount={1.32}
-              />
-              <StockItem
-                title="AMD"
-                color="bg-red-600"
-                percent={2.18}
-                amount={1.32}
-              />
-              <StockItem
-                title="AVGO"
-                color="bg-pink-800"
-                percent={2.18}
-                amount={1.32}
-              />
-              <StockItem
-                title="AVGO"
-                color="bg-pink-800"
-                percent={2.18}
-                amount={1.32}
-              />
-            </div>
-            <Trend />
-          </CardBody>
-        </Card>
-      ),
+      children: <SectionCard />,
     },
     {
       key: "2",
@@ -360,6 +310,7 @@ const Index: FC<IndexProps> = () => {
       <div className="space-y-8 mt-8">
         <Tabs defaultActiveKey="1" items={items} />
       </div>
+      {/* <Test /> */}
     </div>
   );
 };

@@ -23,30 +23,35 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Trend() {
+interface TrendProps {
+  data: any;
+}
+export function Trend(props: TrendProps) {
   return (
-    <ChartContainer config={chartConfig} className="flex-1">
+    <ChartContainer config={chartConfig} className="flex-1 aspect-auto">
       <AreaChart
         accessibilityLayer
-        data={chartData}
+        data={props.data}
         margin={{
           left: 12,
           right: 12,
         }}
       >
+        <CartesianGrid vertical={false} stroke="#e5e7eb" />
         <XAxis
-          dataKey="month"
+          dataKey="label"
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(value) => value.slice(0, 3)}
+          minTickGap={32}
+          // tickFormatter={(value) => value.slice(0, 3)}
         />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent indicator="line" />}
         />
         <Area
-          dataKey="desktop"
+          dataKey="data"
           type="natural"
           fill="var(--color-desktop)"
           fillOpacity={0.4}
