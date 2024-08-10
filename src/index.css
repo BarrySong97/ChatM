@@ -97,6 +97,10 @@ body {
     padding-right: 8px !important;
 }
 
+.transactions-table .ant-table-cell {
+    border: none !important;
+}
+
 .account_item:hover .account_options {
     opacity: 1;
 }

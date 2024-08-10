@@ -14,6 +14,7 @@ import {
   MaterialSymbolsArrowForwardIosRounded,
 } from "@/assets/icon";
 import { CategoryListLineChart } from "./components/line";
+import { useNavigate } from "react-router-dom";
 export interface PageProps {}
 interface DataType {
   key: string;
@@ -23,6 +24,7 @@ interface DataType {
   tags: string[];
 }
 const Page: FC<PageProps> = () => {
+  const navigate = useNavigate();
   const columns: TableProps<DataType>["columns"] = [
     {
       title: "Name",
@@ -69,7 +71,15 @@ const Page: FC<PageProps> = () => {
       key: "address",
       render(value, record, index) {
         return (
-          <Button isIconOnly size="sm" variant="light" radius="sm">
+          <Button
+            onClick={() => {
+              navigate("/category/1");
+            }}
+            isIconOnly
+            size="sm"
+            variant="light"
+            radius="sm"
+          >
             <MaterialSymbolsArrowForwardIosRounded />
           </Button>
         );

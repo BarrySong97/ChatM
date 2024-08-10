@@ -28,6 +28,7 @@ import DateFilter from "./date-filter";
 
 export interface SectionCardProps {
   title: string | React.ReactNode;
+  showLeft: boolean;
 }
 type DataItem = {
   amount: number;
@@ -98,7 +99,7 @@ const generateMockData = (period: string, dateRange?: Date[]) => {
   return data.reverse();
 };
 
-const SectionCard: FC<SectionCardProps> = ({ title }) => {
+const SectionCard: FC<SectionCardProps> = ({ title, showLeft = true }) => {
   const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
   const [time, setTime] = useState(timeFilter[0]);
   let [value, setValue] = React.useState<RangeValue<DateValue>>();
@@ -163,9 +164,11 @@ const SectionCard: FC<SectionCardProps> = ({ title }) => {
         </div>
       </CardHeader>
       <CardBody className="flex-row gap-8 h-[300px]">
-        <div className="space-y-4 w-[280px]">
-          <Category />
-        </div>
+        {showLeft && (
+          <div className="space-y-4 w-[280px]">
+            <Category />
+          </div>
+        )}
         <Trend data={chartData} />
       </CardBody>
     </Card>

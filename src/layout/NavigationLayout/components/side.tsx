@@ -52,7 +52,7 @@ const Side: FC<SideProps> = () => {
     {
       key: "transactions",
       href: "/transactions",
-      title: "交易记录",
+      title: "流水",
       icon: <TablerTransactionDollar />,
     },
     {
