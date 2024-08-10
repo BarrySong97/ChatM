@@ -15,6 +15,9 @@ import {
 } from "@/assets/icon";
 import DarkModeButton from "@/components/DarkModeButton";
 import { cn } from "@/lib/utils";
+import type { DateValue } from "@react-types/calendar";
+import { parseDate } from "@internationalized/date";
+
 import {
   AppstoreOutlined,
   MailOutlined,
@@ -26,11 +29,15 @@ import {
   Avatar,
   Button,
   ButtonGroup,
+  Calendar,
   Listbox,
   ListboxItem,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Tooltip,
 } from "@nextui-org/react";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
@@ -65,6 +72,9 @@ const Side: FC<SideProps> = () => {
   };
   const items1: MenuItem[] = [
     {
+      onTitleClick: () => {
+        navigate("/assets");
+      },
       key: "assets",
       label: (
         <div className="flex items-center justify-between">
@@ -139,6 +149,40 @@ const Side: FC<SideProps> = () => {
       children: [{ key: "new", label: "新增支出" }],
     },
   ];
+  const [month, setMonth] = useState<[Date, Date]>(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return [start, end];
+  });
+
+  const changeMonth = (direction: "prev" | "next") => {
+    setMonth(([start, end]) => {
+      const newStart = new Date(start);
+      newStart.setMonth(start.getMonth() + (direction === "prev" ? -1 : 1));
+      const newEnd = new Date(
+        newStart.getFullYear(),
+        newStart.getMonth() + 1,
+        0
+      );
+      return [newStart, newEnd];
+    });
+  };
+
+  const formatDateRange = (start: Date, end: Date) => {
+    return `${start.getFullYear()}/${String(start.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}/${String(start.getDate()).padStart(
+      2,
+      "0"
+    )} - ${end.getFullYear()}/${String(end.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}/${String(end.getDate()).padStart(2, "0")}`;
+  };
+  const [showPopover, setShowPopover] = useState(false);
+
   return (
     <div className="dark:bg-default-100 h-screen no-drag  p-6 pb-20 w-full overflow-auto ">
       <div className="flex items-center justify-between">
@@ -153,6 +197,9 @@ const Side: FC<SideProps> = () => {
               className={cn("justify-start", {
                 "font-semibold": pathname === item.href,
               })}
+              onClick={() => {
+                navigate(item.href);
+              }}
               startContent={<span className="text-xl">{item.icon}</span>}
               variant={pathname !== item.href ? "light" : "flat"}
               radius="sm"
@@ -178,11 +225,73 @@ const Side: FC<SideProps> = () => {
       </div>
       <div className="pl-2 mt-8">
         <div className="mb-4 text-sm text-default-600 flex items-center justify-between">
-          <Button variant="light" radius="sm" size="sm" isIconOnly>
+          <Button
+            variant="light"
+            radius="sm"
+            size="sm"
+            isIconOnly
+            onClick={() => changeMonth("prev")}
+          >
             <MaterialSymbolsArrowBackIosNewRounded />
           </Button>
-          <div>2024/03/01 - 2024/03/31</div>
-          <Button variant="light" radius="sm" size="sm" isIconOnly>
+          <Popover
+            isOpen={showPopover}
+            onOpenChange={setShowPopover}
+            placement="bottom"
+            showArrow
+          >
+            <PopoverTrigger>
+              <Button size="sm" variant="light" radius="sm">
+                {formatDateRange(month[0], month[1])}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Calendar
+                showShadow={false}
+                showMonthAndYearPickers
+                value={parseDate(month[1].toISOString().slice(0, 10))}
+                classNames={{
+                  base: "shadow-none",
+                }}
+                isHeaderExpanded={true}
+                onFocusChange={(date) => {
+                  const _month = date.month;
+                  const year = date.year;
+                  console.log(_month, year);
+
+                  if (
+                    month[1].getFullYear() !== year ||
+                    month[1].getMonth() + 1 !== _month
+                  ) {
+                    setMonth([
+                      new Date(year, _month - 1, 1),
+                      new Date(year, _month, 0),
+                    ]);
+                  }
+                }}
+                aria-label="Date (No Selection)"
+              />
+              <Button
+                variant="flat"
+                radius="full"
+                size="sm"
+                onClick={() => {
+                  setMonth([new Date(), new Date()]);
+                  setShowPopover(false);
+                }}
+                className="my-2"
+              >
+                当前月
+              </Button>
+            </PopoverContent>
+          </Popover>
+          <Button
+            variant="light"
+            radius="sm"
+            size="sm"
+            isIconOnly
+            onClick={() => changeMonth("next")}
+          >
             <MaterialSymbolsArrowForwardIosRounded />
           </Button>
         </div>
@@ -194,7 +303,7 @@ const Side: FC<SideProps> = () => {
           <div>
             <Menu
               className="!border-none"
-              defaultOpenKeys={["sub1"]}
+              defaultSelectedKeys={["assets"]}
               mode="inline"
               items={items1}
             />

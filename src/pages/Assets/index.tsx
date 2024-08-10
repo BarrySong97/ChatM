@@ -1,56 +1,134 @@
-import { Divider } from "@nextui-org/react";
-import React, { Children, FC } from "react";
-import FinancialItem from "../Index/components/metic-card";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Divider,
+} from "@nextui-org/react";
+import { FC } from "react";
 import SectionCard from "../Index/components/SectionCard";
-import { Tabs, TabsProps } from "antd";
+import { Space, Table, TableProps } from "antd";
+import {
+  IcBaselineWechat,
+  MaterialSymbolsArrowForwardIosRounded,
+} from "@/assets/icon";
+import { CategoryListLineChart } from "./components/line";
 export interface PageProps {}
+interface DataType {
+  key: string;
+  name: string;
+  age: number;
+  address: string;
+  tags: string[];
+}
 const Page: FC<PageProps> = () => {
-  const items: TabsProps["items"] = [
+  const columns: TableProps<DataType>["columns"] = [
     {
-      key: "1",
-      label: "支出",
-      children: <SectionCard />,
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render(value, record, index) {
+        return (
+          <Chip
+            variant="flat"
+            avatar={<IcBaselineWechat className="!text-green-500 text-xl" />}
+          >
+            <div>微信</div>
+          </Chip>
+        );
+      },
     },
     {
-      key: "4",
-      label: "负债",
-      children: <SectionCard />,
+      title: "Age",
+      dataIndex: "age",
+      key: "age",
+      render(value, record, index) {
+        return `${13}%`;
+      },
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render(value, record, index) {
+        return `100K`;
+      },
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render(value, record, index) {
+        return <CategoryListLineChart />;
+      },
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      key: "address",
+      render(value, record, index) {
+        return (
+          <Button isIconOnly size="sm" variant="light" radius="sm">
+            <MaterialSymbolsArrowForwardIosRounded />
+          </Button>
+        );
+      },
+    },
+  ];
+  const data: DataType[] = [
+    {
+      key: "1",
+      name: "John Brown",
+      age: 32,
+      address: "New York No. 1 Lake Park",
+      tags: ["nice", "developer"],
+    },
+    {
+      key: "2",
+      name: "Jim Green",
+      age: 42,
+      address: "London No. 1 Lake Park",
+      tags: ["loser"],
+    },
+    {
+      key: "3",
+      name: "Joe Black",
+      age: 32,
+      address: "Sydney No. 1 Lake Park",
+      tags: ["cool", "teacher"],
     },
   ];
   return (
     <div className="px-12 py-8 mt-6  mx-auto">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold">资产/负债</h1>
+          <h1 className="text-2xl font-bold">资产</h1>
         </div>
         {/* <Button onClick={onOpen} size="sm" color="primary">
           添加
         </Button> */}
       </div>
       <Divider className="my-6" />
-      <div className="grid grid-cols-3 gap-4">
-        <FinancialItem
-          title="净资产"
-          value={359.71}
-          percentage={2.18}
-          changed={1.32}
-        />
-        <FinancialItem
-          title="总资产"
-          value={35265}
-          percentage={1.32}
-          changed={1.32}
-        />
-        <FinancialItem
-          title="总负债"
-          value={458.96}
-          percentage={-2.58}
-          changed={-1.32}
-        />
-      </div>
       <div className="mt-8">
-        <Tabs defaultActiveKey="1" items={items} />
+        <SectionCard
+          title={
+            <div>
+              <div className="text-sm font-medium text-gray-500"> 总资产 </div>
+              <div className="text-gray-900 text-3xl font-medium">100M</div>
+            </div>
+          }
+        />
       </div>
+      <Card shadow="sm" radius="sm">
+        <Table
+          bordered={false}
+          showHeader={false}
+          columns={columns}
+          dataSource={data}
+          pagination={false}
+        />
+      </Card>
     </div>
   );
 };

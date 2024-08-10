@@ -22,11 +22,13 @@ import {
   RangeValue,
   DateValue,
 } from "@nextui-org/react";
-import StockItem, { Category } from "./category";
+import { Category } from "./category";
 import { Trend } from "./trend";
 import DateFilter from "./date-filter";
 
-export interface SectionCardProps {}
+export interface SectionCardProps {
+  title: string | React.ReactNode;
+}
 type DataItem = {
   amount: number;
   date: string;
@@ -96,7 +98,7 @@ const generateMockData = (period: string, dateRange?: Date[]) => {
   return data.reverse();
 };
 
-const SectionCard: FC<SectionCardProps> = () => {
+const SectionCard: FC<SectionCardProps> = ({ title }) => {
   const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
   const [time, setTime] = useState(timeFilter[0]);
   let [value, setValue] = React.useState<RangeValue<DateValue>>();
@@ -111,8 +113,8 @@ const SectionCard: FC<SectionCardProps> = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   return (
     <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
-      <CardHeader className="!mb-0 flex justify-between">
-        <h3 className="font-semibold pl-2">{time}共支出1000</h3>
+      <CardHeader className="!mb-0 flex justify-between items-start">
+        <h3 className="font-semibold pl-2">{title}</h3>
         <div className="flex items-center gap-2">
           {timeFilter.map((item) => (
             <Button

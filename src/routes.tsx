@@ -3,6 +3,7 @@ import AppLayout from "./layout/NavigationLayout";
 import Index from "./pages/Index";
 import Assets from "./pages/Assets";
 import DataMapping from "./pages/DataMapping";
+import Category from "./pages/Category";
 
 const router = createHashRouter([
   // 导航界面路由
@@ -19,7 +20,7 @@ const router = createHashRouter([
         element: <Assets />,
       },
       // {
-      //   path: "/category",
+      //   path: "/category/:id",
       //   element: <Category />,
       // },
       {
