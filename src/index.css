@@ -81,6 +81,22 @@ body {
     opacity: 0;
 }
 
+.ant-menu-submenu-arrow {
+    left: 8px;
+}
+
+.ant-menu-sub {
+    @apply !bg-transparent
+}
+
+.ant-menu-submenu-title {
+    @apply !pl-6 !pr-2
+}
+
+.ant-menu-item-only-child {
+    padding-right: 8px !important;
+}
+
 .account_item:hover .account_options {
     opacity: 1;
 }

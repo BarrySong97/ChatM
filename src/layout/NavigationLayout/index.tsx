@@ -10,18 +10,16 @@ import {
 } from "@nextui-org/react";
 import { FC } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import Side from "./components/side";
 import TrafficLight from "@/components/TrafficLight";
-import SideBar from "./components/testSide";
+import Side from "./components/side";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
   return (
     <NextUIProvider navigate={navigate}>
       <div className="flex h-screen overflow-hidden">
-        <aside className="dark:bg-default-100 bg-white border-r-1 app-draggable h-screen w-[280px] pt-12 ">
-          {/* <Side /> */}
-          <SideBar />
+        <aside className="dark:bg-default-100 bg-white border-r-1 app-draggable h-screen w-[368px]  ">
+          <Side />
         </aside>
         <div className="flex-1">
           <div
@@ -34,7 +32,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
               <TrafficLight isDev={false} />
             </DragTitle>
           </div>
-          <div className="absolute top-0 bottom-0 overflow-auto left-[280px] right-0 dark:bg-transparent">
+          <div className="absolute top-0 bottom-0 overflow-auto left-[368px] right-0 dark:bg-transparent">
             <Outlet />
           </div>
         </div>
