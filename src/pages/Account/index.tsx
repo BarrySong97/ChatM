@@ -1,4 +1,3 @@
-import { database } from "@/db";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -30,7 +29,8 @@ type FormType = {
 const Account: FC<AccountProps> = () => {
   const { data } = useQuery("accounts", {
     queryFn: async () => {
-      return database.query.accounts.findMany();
+      // return database.query.accounts.findMany();
+      return [];
     },
   });
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

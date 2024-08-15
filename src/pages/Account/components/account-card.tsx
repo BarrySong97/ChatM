@@ -2,7 +2,6 @@ import { Card, CardBody } from "@nextui-org/react";
 import type { Account as AccountCard } from "../../../../electron/db/schema";
 import React, { FC } from "react";
 import { useQuery } from "react-query";
-import { database } from "@/db";
 import { MingcuteAlipayLine, RiWechatPayLine } from "@/assets/icon";
 export interface AccountProps {
   data: AccountCard;

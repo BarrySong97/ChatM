@@ -122,13 +122,16 @@ async function createWindow() {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
 
+  win.webContents.openDevTools({
+    mode: "detach",
+  });
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("https:")) shell.openExternal(url);
     return { action: "deny" };
   });
 
-  await runMigrate();
+  // await runMigrate();
   // 把所有通信的代码都挂载上面
   new AppManager(win, indexHtml, preload, url);
   // win.webContents.openDevTools();
@@ -137,7 +140,7 @@ async function createWindow() {
 }
 app.whenReady().then(() => {
   createWindow();
-  ipcMain.handle("db:execute", execute);
+  // ipcMain.handle("db:execute", execute);
 });
 
 app.on("window-all-closed", () => {

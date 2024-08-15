@@ -29,21 +29,19 @@ const FinancialItem: React.FC<FinancialItemProps> = ({
   const bgColorClass = isPositive ? "bg-green-500" : "bg-red-500";
 
   return (
-    <Card
-      shadow="sm"
-      radius="sm"
-      className="bg-white p-4 rounded-lg flex flex-row justify-between"
-    >
-      <div>
-        <div className="text-black text-base font-medium">{title}</div>
-        <div className="text-gray-400 text-[15px]">{value.toFixed(2)}</div>
-      </div>
-      <div className={`flex items-center ${colorClass}`}>
-        <div className="text-right">
-          <div className="text-base">{changed}</div>
-          <div className="flex items-center gap-1">
-            <span className="text-sm">{percentage.toFixed(2)}%</span>{" "}
-            {percentage > 0 ? <MdiArrowTopRight /> : <MdiArrowBottomRight />}
+    <Card shadow="sm" radius="sm" className="bg-white p-4 rounded-lg h-full">
+      <div className="flex  justify-between">
+        <div>
+          <div className="text-black text-base font-medium">{title}</div>
+          <div className="text-gray-400 text-[15px]">{value.toFixed(2)}</div>
+        </div>
+        <div className={`flex items-center ${colorClass}`}>
+          <div className="text-right">
+            <div className="text-base">{changed}</div>
+            <div className="flex items-center gap-1">
+              <span className="text-sm">{percentage.toFixed(2)}%</span>{" "}
+              {percentage > 0 ? <MdiArrowTopRight /> : <MdiArrowBottomRight />}
+            </div>
           </div>
         </div>
       </div>

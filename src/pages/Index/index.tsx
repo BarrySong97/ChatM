@@ -8,17 +8,17 @@ import {
   Divider,
   Input,
 } from "@nextui-org/react";
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { Trend } from "./components/trend";
 import { atom } from "jotai";
 import { useQuery } from "react-query";
-import { database } from "@/db";
 import { useNavigate } from "react-router-dom";
 import FinancialItem from "./components/metic-card";
 import StockItem from "./components/category";
 import { Tabs, TabsProps } from "antd";
 import SectionCard from "./components/SectionCard";
 import { Test } from "./components/test";
+import { AssetsService } from "@/api/services/AssetsSevice";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -48,9 +48,10 @@ const DateDisplay: React.FC = () => {
 const Index: FC<IndexProps> = () => {
   const { data } = useQuery("accounts", {
     queryFn: async () => {
-      return database.query.accounts.findMany();
+      // return database.query.accounts.findMany();
     },
   });
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
@@ -275,39 +276,43 @@ const Index: FC<IndexProps> = () => {
         </div>
       </div>
       <Divider className="my-8" />
-      <div className="grid grid-cols-5 gap-4">
-        <FinancialItem
-          title="净资产"
-          value={359.71}
-          percentage={2.18}
-          changed={1.32}
-        />
-        <FinancialItem
-          title="总资产"
-          value={35265}
-          percentage={1.32}
-          changed={1.32}
-        />
-        <FinancialItem
-          title="总负债"
-          value={458.96}
-          percentage={-2.58}
-          changed={-1.32}
-        />
-        <FinancialItem
-          title="总收入"
-          value={211.37}
-          percentage={2.18}
-          changed={1.32}
-        />
-        <FinancialItem
-          title="总支出"
-          value={211.37}
-          percentage={2.18}
-          changed={1.32}
-        />
+      <div className="flex gap-4 ">
+        <div className="flex-1">
+          <FinancialItem
+            title="净资产"
+            value={359.71}
+            percentage={2.18}
+            changed={1.32}
+          />
+        </div>
+        <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1">
+          <FinancialItem
+            title="总资产"
+            value={35265}
+            percentage={1.32}
+            changed={1.32}
+          />
+          <FinancialItem
+            title="总负债"
+            value={458.96}
+            percentage={-2.58}
+            changed={-1.32}
+          />
+          <FinancialItem
+            title="总收入"
+            value={211.37}
+            percentage={2.18}
+            changed={1.32}
+          />
+          <FinancialItem
+            title="总支出"
+            value={211.37}
+            percentage={2.18}
+            changed={1.32}
+          />
+        </div>
       </div>
-      <div className="space-y-8 mt-8">
+      <div className="mt-8">
         <Tabs defaultActiveKey="1" items={items} />
       </div>
       {/* <Test /> */}

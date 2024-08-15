@@ -39,6 +39,10 @@ import {
 } from "@nextui-org/react";
 import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import AccountModal from "@/components/AccountModal";
+import { useQuery } from "react-query";
+import { AssetsService } from "@/api/services/AssetsSevice";
+import { useAssetsService } from "@/api/hooks/assets";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
@@ -70,6 +74,9 @@ const Side: FC<SideProps> = () => {
     await ipcSignout();
     navigate("/");
   };
+  const [showAccountModal, setShowAccountModal] = useState(false);
+  const { assets } = useAssetsService();
+
   const items1: MenuItem[] = [
     {
       onTitleClick: () => {
@@ -84,27 +91,18 @@ const Side: FC<SideProps> = () => {
       ),
       icon: <MaterialSymbolsAccountBalanceWallet className="!text-xl" />,
       children: [
-        {
-          key: "wechat",
-          label: (
-            <div className="flex items-center justify-between">
-              <div>微信</div>
-              <span className="text-sm text-default-500">30k</span>
-            </div>
-          ),
-        },
-        {
-          key: "alipay",
-          label: (
-            <div className="flex items-center justify-between">
-              <div>支付宝</div>
-              <span className="text-sm text-default-500">30k</span>
-            </div>
-          ),
-        },
+        ...(assets || []).map((item) => {
+          return {
+            key: item.id,
+            label: item.name,
+          };
+        }),
         {
           key: "new_assets",
           label: "新增资产",
+          onClick: () => {
+            setShowAccountModal(true);
+          },
           icon: <MaterialSymbolsAddRounded />,
         },
       ],
@@ -325,6 +323,10 @@ const Side: FC<SideProps> = () => {
           </div>
         </div>
       </div>
+      <AccountModal
+        isOpen={showAccountModal}
+        onOpenChange={() => setShowAccountModal(false)}
+      />
     </div>
   );
 };

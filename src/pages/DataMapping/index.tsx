@@ -24,7 +24,6 @@ import {
 import { GridColumn } from "@glideapps/glide-data-grid";
 import OpenAI from "openai";
 import { useQuery } from "react-query";
-import { database } from "@/db";
 import { atom, useAtom } from "jotai";
 import { category, type Account } from "../../../electron/db/schema";
 import { FC, useMemo, useState, useEffect, useRef, useCallback } from "react";
