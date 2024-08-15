@@ -5,7 +5,7 @@ import SectionCard from "../Index/components/SectionCard";
 export interface CategoryProps {}
 const Category: FC<CategoryProps> = () => {
   return (
-    <div className="px-12 py-8 mt-6  mx-auto">
+    <div className="px-12 py-8   mx-auto">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">资产 - 微信</h1>

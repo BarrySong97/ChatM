@@ -45,7 +45,7 @@ const Account: FC<AccountProps> = () => {
     }
   }, [isOpen]);
   return (
-    <div className="px-12 py-8 mt-6  mx-auto">
+    <div className="px-12 py-8   mx-auto">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">账户</h1>

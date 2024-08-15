@@ -18,21 +18,21 @@ const AppLayout: FC<AppLayoutProps> = () => {
   return (
     <NextUIProvider navigate={navigate}>
       <div className="flex h-screen overflow-hidden">
-        <aside className="dark:bg-default-100 bg-white border-r-1 app-draggable h-screen w-[368px]  ">
+        <aside className="dark:bg-default-100 bg-white  app-draggable h-screen w-[308px]  ">
           <Side />
         </aside>
-        <div className="flex-1">
+        <div className="flex-1 bg-[#ECECEC]">
           <div
             style={{
               width: "100%",
             }}
-            className="relative dark:bg-transparent h-6"
+            className="relative dark:bg-transparent "
           >
-            <DragTitle className="absolute dark:bg-transparent z-[99] top-0 w-full  py-3 flex justify-end  ">
+            <DragTitle className="absolute bg-[#ECECEC] dark:bg-transparent  z-[99] top-0 w-full  py-3.5 flex justify-end  ">
               <TrafficLight isDev={false} />
             </DragTitle>
           </div>
-          <div className="absolute top-0 bottom-0 overflow-auto left-[368px] right-0 dark:bg-transparent">
+          <div className="absolute top-6 bottom-2 bg-white rounded-large overflow-auto left-[308px] right-2 dark:bg-transparent">
             <Outlet />
           </div>
         </div>

@@ -58,5 +58,4 @@ create table transaction (
 );
 `,
   `alter table transaction add column source text;`,
-  ``,
 ];

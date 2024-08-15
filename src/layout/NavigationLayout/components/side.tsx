@@ -1,10 +1,8 @@
 import {
-  BitcoinIconsTransactionsFilled,
   MaterialSymbolsAccountBalanceWallet,
   MaterialSymbolsAddRounded,
   MaterialSymbolsArrowBackIosNewRounded,
   MaterialSymbolsArrowForwardIosRounded,
-  MaterialSymbolsDateRange,
   MaterialSymbolsHome,
   MaterialSymbolsToolsWrench,
   MdiArrowDownCircle,
@@ -13,36 +11,28 @@ import {
   SolarSettingsBold,
   TablerTransactionDollar,
 } from "@/assets/icon";
-import DarkModeButton from "@/components/DarkModeButton";
 import { cn } from "@/lib/utils";
-import type { DateValue } from "@react-types/calendar";
 import { parseDate } from "@internationalized/date";
 
-import {
-  AppstoreOutlined,
-  MailOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { Menu, type MenuProps, type MenuTheme } from "antd";
-import { ipcDevtoolMain, ipcSignout } from "@/service/ipc";
+import { Menu, type MenuProps } from "antd";
 import {
   Avatar,
   Button,
-  ButtonGroup,
   Calendar,
-  Listbox,
-  ListboxItem,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Tooltip,
+  User,
 } from "@nextui-org/react";
 import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccountModal from "@/components/AccountModal";
-import { useQuery } from "react-query";
-import { AssetsService } from "@/api/services/AssetsSevice";
 import { useAssetsService } from "@/api/hooks/assets";
+import { useLiabilityService } from "@/api/hooks/liability";
+import { useIncomeService } from "@/api/hooks/income";
+import { useExpenseService } from "@/api/hooks/expense";
+import { ipcDevtoolMain } from "@/service/ipc";
+import { MaterialSymbolsEditDocumentOutlineRounded } from "./icon";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
@@ -70,12 +60,16 @@ const Side: FC<SideProps> = () => {
   const pathname = location.pathname;
   const navigate = useNavigate();
 
-  const signout = async () => {
-    await ipcSignout();
-    navigate("/");
-  };
   const [showAccountModal, setShowAccountModal] = useState(false);
   const { assets } = useAssetsService();
+  const { liabilities } = useLiabilityService();
+  const { incomes } = useIncomeService();
+  const { expenses } = useExpenseService();
+
+  const [modalType, setModalType] = useState<
+    "income" | "expense" | "asset" | "liability"
+  >();
+  console.log(assets, liabilities, incomes, expenses);
 
   const items1: MenuItem[] = [
     {
@@ -84,12 +78,12 @@ const Side: FC<SideProps> = () => {
       },
       key: "assets",
       label: (
-        <div className="flex items-center justify-between">
+        <div className="flex text-xs items-center justify-between">
           <div>资产</div>
-          <span className="text-sm text-default-500">30k</span>
+          <span className=" text-default-500">30k</span>
         </div>
       ),
-      icon: <MaterialSymbolsAccountBalanceWallet className="!text-xl" />,
+      icon: <MaterialSymbolsAccountBalanceWallet className="!text-base" />,
       children: [
         ...(assets || []).map((item) => {
           return {
@@ -102,6 +96,7 @@ const Side: FC<SideProps> = () => {
           label: "新增资产",
           onClick: () => {
             setShowAccountModal(true);
+            setModalType("asset");
           },
           icon: <MaterialSymbolsAddRounded />,
         },
@@ -110,16 +105,27 @@ const Side: FC<SideProps> = () => {
     {
       key: "liabilities",
       label: (
-        <div className="flex items-center justify-between">
+        <div className="flex text-xs items-center justify-between">
           <div>负债</div>
-          <span className="text-sm text-default-500">-30k</span>
+          <span className=" text-default-500">-30k</span>
         </div>
       ),
-      icon: <SolarCardBoldDuotone className="!text-xl" />,
+      icon: <SolarCardBoldDuotone className="!text-base" />,
       children: [
-        { key: "baitiao", label: "白条" },
-        { key: "huabei", label: "花呗" },
-        { key: "new", label: "新增负债" },
+        ...(liabilities || []).map((item) => {
+          return {
+            key: item.id,
+            label: item.name,
+          };
+        }),
+        {
+          key: "new_liability",
+          label: "新增负债",
+          onClick: () => {
+            setShowAccountModal(true);
+            setModalType("liability");
+          },
+        },
       ],
     },
   ];
@@ -127,24 +133,54 @@ const Side: FC<SideProps> = () => {
     {
       key: "income",
       label: (
-        <div className="flex items-center justify-between">
+        <div className="flex text-xs items-center justify-between">
           <div>收入</div>
-          <span className="text-sm text-default-500">30k</span>
+          <span className=" text-default-500">30k</span>
         </div>
       ),
-      icon: <MdiArrowDownCircle className="!text-xl" />,
-      children: [{ key: "new", label: "新增收入" }],
+      icon: <MdiArrowDownCircle className="!text-base" />,
+      children: [
+        ...(incomes || []).map((item) => {
+          return {
+            key: item.id,
+            label: item.name,
+          };
+        }),
+        {
+          key: "new_income",
+          label: "新增收入",
+          onClick: () => {
+            setShowAccountModal(true);
+            setModalType("income");
+          },
+        },
+      ],
     },
     {
       key: "expenses",
       label: (
-        <div className="flex items-center justify-between">
+        <div className="flex text-xs items-center justify-between">
           <div>支出</div>
-          <span className="text-sm text-default-500">-30k</span>
+          <span className=" text-default-500">-30k</span>
         </div>
       ),
-      icon: <MdiArrowUpCircle className="!text-xl" />,
-      children: [{ key: "new", label: "新增支出" }],
+      icon: <MdiArrowUpCircle className="!text-base" />,
+      children: [
+        ...(expenses || []).map((item) => {
+          return {
+            key: item.id,
+            label: item.name,
+          };
+        }),
+        {
+          key: "new_expense",
+          label: "新增支出",
+          onClick: () => {
+            setShowAccountModal(true);
+            setModalType("expense");
+          },
+        },
+      ],
     },
   ];
   const [month, setMonth] = useState<[Date, Date]>(() => {
@@ -180,14 +216,27 @@ const Side: FC<SideProps> = () => {
     )}/${String(end.getDate()).padStart(2, "0")}`;
   };
   const [showPopover, setShowPopover] = useState(false);
+  const [selectKeys, setSelectKeys] = useState<string>();
 
   return (
-    <div className="dark:bg-default-100 h-screen no-drag  p-6 pb-20 w-full overflow-auto ">
-      <div className="flex items-center justify-between">
-        <div className="text-2xl font-bold">记点</div>
-        <Avatar src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
+    <div className="dark:bg-default-100 bg-[#ECECEC] h-screen no-drag  py-6 px-4  w-full overflow-auto ">
+      <div className="flex items-center justify-between ">
+        <User
+          name="BarrySong97"
+          description="BarrySong97@gmail.com"
+          avatarProps={{
+            radius: "sm",
+            size: "sm",
+            src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+          }}
+        />
+        <div>
+          <Button isIconOnly variant="flat" size="sm" className="bg-white">
+            <MaterialSymbolsEditDocumentOutlineRounded className="text-lg" />
+          </Button>
+        </div>
       </div>
-      <div className="flex flex-col gap-2 mt-8 justify-start">
+      <div className="flex flex-col gap-2 mt-4 justify-start">
         {menuList.map((item) => {
           return (
             <Button
@@ -198,8 +247,11 @@ const Side: FC<SideProps> = () => {
               onClick={() => {
                 navigate(item.href);
               }}
-              startContent={<span className="text-xl">{item.icon}</span>}
+              startContent={
+                <span className="text-lg text-[#575859]">{item.icon}</span>
+              }
               variant={pathname !== item.href ? "light" : "flat"}
+              size="sm"
               radius="sm"
               // color={pathname === item.href ? "primary" : "default"}
             >
@@ -211,17 +263,16 @@ const Side: FC<SideProps> = () => {
           onClick={ipcDevtoolMain}
           radius="sm"
           className="justify-start"
+          size="sm"
           startContent={
-            <span className="text-xl" style={{}}>
-              <MaterialSymbolsToolsWrench />
-            </span>
+            <MaterialSymbolsToolsWrench className="text-lg text-[#575859]" />
           }
           variant="light"
         >
           开发者工具
         </Button>
       </div>
-      <div className="pl-2 mt-8">
+      <div className="pl-2 mt-4">
         <div className="mb-4 text-sm text-default-600 flex items-center justify-between">
           <Button
             variant="light"
@@ -294,21 +345,25 @@ const Side: FC<SideProps> = () => {
           </Button>
         </div>
         <div className="mb-4">
-          <div className="flex items-center justify-between text-sm font-medium text-default-500 mb-2">
+          <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
             <div className="">资产/负债</div>
             <div className=" pr-3">净资产: 30k</div>
           </div>
           <div>
             <Menu
               className="!border-none"
-              defaultSelectedKeys={["assets"]}
+              multiple={false}
+              selectedKeys={[selectKeys ?? ""]}
+              onSelect={({ key }) => {
+                setSelectKeys(key);
+              }}
               mode="inline"
               items={items1}
             />
           </div>
         </div>
         <div>
-          <div className="flex items-center justify-between text-sm font-medium text-default-500 mb-2">
+          <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
             <div className="">支出/收入</div>
             <div className=" pr-3">结余: 30k</div>
           </div>
@@ -316,8 +371,12 @@ const Side: FC<SideProps> = () => {
           <div>
             <Menu
               className="!border-none"
-              defaultOpenKeys={["sub1"]}
+              multiple={false}
               mode="inline"
+              selectedKeys={[selectKeys ?? ""]}
+              onSelect={({ key }) => {
+                setSelectKeys(key);
+              }}
               items={items2}
             />
           </div>
@@ -326,6 +385,7 @@ const Side: FC<SideProps> = () => {
       <AccountModal
         isOpen={showAccountModal}
         onOpenChange={() => setShowAccountModal(false)}
+        type={modalType ?? "income"}
       />
     </div>
   );

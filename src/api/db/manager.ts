@@ -24,21 +24,24 @@ class DatabaseManager {
     }
   }
   public async migrate(): Promise<void> {
-    const lastMigration = migrateArr.pop();
-    if (this.db) {
-      const result = await this.db.exec(
-        "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'transaction'"
-      );
-      const count = result[0].rows[0].count;
+    // Get the migrate_index from localStorage
+    const storedMigrateIndex = localStorage.getItem("migrate_index");
+    let migrateIndex: number;
 
-      if (count === 0) {
-        await this.db?.exec(migrateArr.join(";\n"));
-      } else {
-        if (lastMigration) {
-          await this.db?.exec(lastMigration);
-        }
+    if (storedMigrateIndex === null) {
+      // If migrate_index doesn't exist in localStorage, migrate all
+      await this.db?.exec(migrateArr.join(";\n"));
+      migrateIndex = migrateArr.length - 1;
+    } else {
+      // If migrate_index exists, migrate all subsequent migrations
+      migrateIndex = parseInt(storedMigrateIndex, 10);
+      const remainingMigrations = migrateArr.slice(migrateIndex + 1);
+      if (remainingMigrations.length > 0) {
+        await this.db?.exec(remainingMigrations.join(";\n"));
+        migrateIndex = migrateArr.length - 1;
       }
     }
+    localStorage.setItem("migrate_index", migrateIndex.toString());
   }
 
   public getDatabase(): PGlite {

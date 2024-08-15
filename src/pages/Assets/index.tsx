@@ -110,7 +110,7 @@ const Page: FC<PageProps> = () => {
     },
   ];
   return (
-    <div className="px-12 py-8 mt-6  mx-auto">
+    <div className="px-12 py-8   mx-auto">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">资产</h1>

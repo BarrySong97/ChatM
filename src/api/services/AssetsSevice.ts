@@ -10,7 +10,7 @@ import { EditAsset } from "../hooks/assets";
 import { eq } from "drizzle-orm";
 export class AssetsService {
   // 创建assets
-  public static async createAsset(body: { name: string }) {
+  public static async createAsset(body: EditAsset) {
     const res = await db
       .insert(assets)
       .values({

@@ -77,6 +77,10 @@ body {
     border-radius: 6px;
 }
 
+.ant-menu {
+    @apply text-xs
+}
+
 .account_item .account_options {
     opacity: 0;
 }
@@ -95,6 +99,10 @@ body {
 
 .ant-menu-item-only-child {
     padding-right: 8px !important;
+}
+
+.ant-menu-light {
+    @apply !bg-transparent
 }
 
 .transactions-table .ant-table-cell {

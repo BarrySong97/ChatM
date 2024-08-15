@@ -1,10 +1,9 @@
 import { useAssetsService } from "@/api/hooks/assets";
-import { AssetsService } from "@/api/services/AssetsSevice";
+import { useExpenseService } from "@/api/hooks/expense";
+import { useIncomeService } from "@/api/hooks/income";
+import { useLiabilityService } from "@/api/hooks/liability";
 import {
-  Avatar,
   Button,
-  Card,
-  Chip,
   Input,
   Modal,
   ModalBody,
@@ -14,51 +13,55 @@ import {
 } from "@nextui-org/react";
 import { Form } from "antd";
 import to from "await-to-js";
-import React, { FC, useState } from "react";
-import { TwitterPicker, SketchPicker } from "react-color";
+import { FC } from "react";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-}
-interface ColorPickerProps {
-  colors: string[];
-  selectedColor?: string;
-  onSelectColor: (color: string) => void;
+  type: "income" | "expense" | "asset" | "liability";
 }
 
-const ColorPicker: React.FC<ColorPickerProps> = ({
-  colors,
-  selectedColor,
-  onSelectColor,
+const AccountModal: FC<AccountModalProps> = ({
+  isOpen,
+  onOpenChange,
+  type,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="relative">
-      <Card radius="sm" shadow="sm" className="mt-2 w-full  shadow-lg p-4">
-        <div className="grid grid-cols-7 gap-2">
-          {colors.map((color) => (
-            <button
-              key={color}
-              className={`w-8 h-8 rounded-full ${color} ${
-                selectedColor === color ? "ring-2 ring-white" : ""
-              }`}
-              onClick={() => {
-                onSelectColor(color);
-                setIsOpen(false);
-              }}
-            />
-          ))}
-        </div>
-      </Card>
-    </div>
-  );
-};
-
-const AccountModal: FC<AccountModalProps> = ({ isOpen, onOpenChange }) => {
   const [form] = Form.useForm();
   const { createAsset, editAsset, isCreateLoading, isEditLoading } =
     useAssetsService();
+  const { createIncome } = useIncomeService();
+  const { createExpense } = useExpenseService();
+  const { createLiability } = useLiabilityService();
+
+  const getModalTitle = (type: string) => {
+    switch (type) {
+      case "income":
+        return "添加收入账户";
+      case "expense":
+        return "添加支出账户";
+      case "asset":
+        return "添加资产账户";
+      case "liability":
+        return "添加负债账户";
+    }
+  };
+  const onCreate = async () => {
+    const [err, value] = await to(form.validateFields());
+    if (err) return;
+    switch (type) {
+      case "income":
+        await createIncome({ income: { name: value.name } });
+        break;
+      case "expense":
+        await createExpense({ expense: { name: value.name } });
+        break;
+      case "asset":
+        await createAsset({ asset: { name: value.name } });
+        break;
+      case "liability":
+        await createLiability({ liability: { name: value.name } });
+        break;
+    }
+  };
 
   return (
     <Modal size="3xl" isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -66,7 +69,7 @@ const AccountModal: FC<AccountModalProps> = ({ isOpen, onOpenChange }) => {
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              添加资产账户
+              {getModalTitle(type)}
             </ModalHeader>
             <ModalBody>
               <Form form={form}>
@@ -96,8 +99,8 @@ const AccountModal: FC<AccountModalProps> = ({ isOpen, onOpenChange }) => {
                 color="primary"
                 isLoading={isCreateLoading || isEditLoading}
                 onPress={async () => {
-                  const [err, value] = await to(form.validateFields());
-                  await createAsset({ asset: { name: value.name } });
+                  await onCreate();
+                  form.resetFields();
                   onClose();
                 }}
               >
