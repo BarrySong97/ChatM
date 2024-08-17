@@ -32,7 +32,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
               <TrafficLight isDev={false} />
             </DragTitle>
           </div>
-          <div className="absolute top-6 bottom-2 bg-white rounded-large overflow-auto left-[308px] right-2 dark:bg-transparent">
+          <div className="absolute top-6 bottom-2 bg-white rounded-large overflow-hidden left-[308px] right-2 dark:bg-transparent">
             <Outlet />
           </div>
         </div>

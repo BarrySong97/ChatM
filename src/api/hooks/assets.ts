@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Asset } from "../db";
+import { Asset } from "@db/schema";
 import { AssetsService } from "../services/AssetsSevice";
 import { useState } from "react";
 import { message } from "antd";

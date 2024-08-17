@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Liability } from "../db";
+import { Liability } from "@db/schema";
 import { LiabilityService } from "../services/LiabilityService";
 import { useState } from "react";
 import { message } from "antd";

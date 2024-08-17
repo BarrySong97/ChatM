@@ -64,7 +64,7 @@ const AccountModal: FC<AccountModalProps> = ({
   };
 
   return (
-    <Modal size="3xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>

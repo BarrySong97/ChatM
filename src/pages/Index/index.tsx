@@ -244,7 +244,7 @@ const Index: FC<IndexProps> = () => {
   ];
 
   return (
-    <div className="px-12 py-8  mx-auto overflow-auto">
+    <div className="px-12 py-8  mx-auto overflow-auto scrollbar h-full">
       <div className="flex justify-between items-end">
         <div>
           <Greeting />

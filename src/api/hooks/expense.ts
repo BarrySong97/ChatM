@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Expense } from "../db";
+import { Expense } from "@db/schema";
 import { ExpenseService } from "../services/ExpenseService";
 import { useState } from "react";
 import { message } from "antd";

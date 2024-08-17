@@ -1,0 +1,1 @@
+ALTER TABLE assets ADD `initial_balance` integer;

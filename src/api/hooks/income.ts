@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { Income } from "../db";
+import { Income } from "@db/schema";
 import { IncomeService } from "../services/IncomeService";
 import { useState } from "react";
 import { message } from "antd";

@@ -32,6 +32,7 @@ import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { ipcDevtoolMain } from "@/service/ipc";
 import { MaterialSymbolsEditDocumentOutlineRounded } from "./icon";
+import TransactionModal from "@/components/TransactionModal";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
@@ -68,7 +69,6 @@ const Side: FC<SideProps> = () => {
   const [modalType, setModalType] = useState<
     "income" | "expense" | "asset" | "liability"
   >();
-  console.log(assets, liabilities, incomes, expenses);
 
   const items1: MenuItem[] = [
     {
@@ -216,6 +216,7 @@ const Side: FC<SideProps> = () => {
   };
   const [showPopover, setShowPopover] = useState(false);
   const [selectKeys, setSelectKeys] = useState<string>();
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
 
   return (
     <ConfigProvider
@@ -243,7 +244,13 @@ const Side: FC<SideProps> = () => {
             }}
           />
           <div>
-            <Button isIconOnly variant="flat" size="sm" className="bg-white">
+            <Button
+              isIconOnly
+              variant="flat"
+              size="sm"
+              className="bg-white"
+              onClick={() => setShowTransactionModal(true)}
+            >
               <MaterialSymbolsEditDocumentOutlineRounded className="text-lg" />
             </Button>
           </div>
@@ -398,6 +405,10 @@ const Side: FC<SideProps> = () => {
           isOpen={showAccountModal}
           onOpenChange={() => setShowAccountModal(false)}
           type={modalType ?? "income"}
+        />
+        <TransactionModal
+          isOpen={showTransactionModal}
+          onChange={(value) => setShowTransactionModal(value)}
         />
       </div>
     </ConfigProvider>
