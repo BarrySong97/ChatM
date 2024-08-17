@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { request as __request } from "../core/request";
-import { income } from "../db";
+import { income } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditIncome } from "../hooks/income";

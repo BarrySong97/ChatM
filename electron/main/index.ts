@@ -131,7 +131,7 @@ async function createWindow() {
     return { action: "deny" };
   });
 
-  // await runMigrate();
+  await runMigrate();
   // 把所有通信的代码都挂载上面
   new AppManager(win, indexHtml, preload, url);
   // win.webContents.openDevTools();
@@ -140,7 +140,7 @@ async function createWindow() {
 }
 app.whenReady().then(() => {
   createWindow();
-  // ipcMain.handle("db:execute", execute);
+  ipcMain.handle("db:execute", execute);
 });
 
 app.on("window-all-closed", () => {

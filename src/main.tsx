@@ -6,26 +6,23 @@ import router from "./routes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ModalProvider } from "./components/GlobalConfirmModal";
 import { DarkModeProvider } from "./pages/providers";
-import { DbProvider } from "./api/db/provider";
 // import { seed } from "./db";
 const queryClient = new QueryClient();
 window.global = globalThis;
 // seed();
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <DbProvider>
-    <DarkModeProvider>
-      <NextUIProvider>
-        <QueryClientProvider client={queryClient}>
-          <ModalProvider>
-            <RouterProvider
-              router={router}
-              fallbackElement={<p>Initial Load...</p>}
-            />
-          </ModalProvider>
-        </QueryClientProvider>
-      </NextUIProvider>
-    </DarkModeProvider>
-  </DbProvider>
+  <DarkModeProvider>
+    <NextUIProvider>
+      <QueryClientProvider client={queryClient}>
+        <ModalProvider>
+          <RouterProvider
+            router={router}
+            fallbackElement={<p>Initial Load...</p>}
+          />
+        </ModalProvider>
+      </QueryClientProvider>
+    </NextUIProvider>
+  </DarkModeProvider>
 );
 
 postMessage({ payload: "removeLoading" }, "*");

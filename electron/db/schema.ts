@@ -1,46 +1,80 @@
-import {
-  SQLiteTableWithColumns,
-  int,
-  sqliteTable,
-  text,
-} from "drizzle-orm/sqlite-core";
-import { desc, type InferSelectModel } from "drizzle-orm";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { InferSelectModel, relations } from "drizzle-orm";
 
-export const accounts = sqliteTable("accounts", {
+export const transaction = sqliteTable("transaction", {
   id: text("id").primaryKey(),
-  title: text("title").notNull().default(""),
-  color: text("color").default(""),
-  created_at: int("created_at"),
-  updated_at: int("updated_at").$onUpdate(() => new Date().getTime()),
+  name: text("name"),
+  created_at: integer("created_at"),
+  updated_at: integer("updated_at"),
+  color: text("color"),
+  type: text("type"),
+  source: text("source"),
+  source_account_id: text("source_account_id"),
+  destination_account_id: text("destination_account_id"),
+  amount: integer("amount"),
 });
-/**
- * type 0: 收入 1: 支出, 2: 负债
- */
-export const category = sqliteTable("category", {
+
+export const transactionRelations = relations(transaction, ({ one }) => ({
+  sourceAccount: one(assets, {
+    fields: [transaction.source_account_id],
+    references: [assets.id],
+  }),
+  destinationAccount: one(assets, {
+    fields: [transaction.destination_account_id],
+    references: [assets.id],
+  }),
+}));
+
+export const assets = sqliteTable("assets", {
   id: text("id").primaryKey(),
-  title: text("title").notNull().default(""),
-  color: text("color").default(""),
-  type: int("type").notNull().default(0),
-  created_at: int("created_at"),
-  updated_at: int("updated_at").$onUpdate(() => new Date().getTime()),
+  created_at: integer("created_at"),
+  name: text("name"),
+  color: text("color"),
+  icon: text("icon"),
+  tags: text("tags"),
 });
-/**
- * type 0: 收入 1: 支出 2: 负债
- */
-export const transactions = sqliteTable("transactions", {
+
+export const assetsRelations = relations(assets, ({ many }) => ({
+  sourceTransactions: many(transaction, { relationName: "sourceAccount" }),
+  destinationTransactions: many(transaction, {
+    relationName: "destinationAccount",
+  }),
+}));
+
+export const liability = sqliteTable("liability", {
   id: text("id").primaryKey(),
-  transaction_id: text("transaction_id").notNull().default(""),
-  type: int("type").notNull(),
-  date: int("date").notNull().default(0),
-  content: text("content").default(""),
-  amount: int("amount").default(0),
-  source: text("source").default(""),
-  description: text("description").default(""),
-  category_id: text("category_id").references(() => category.id),
-  account_id: text("account_id").references(() => accounts.id),
-  created_at: int("created_at"),
-  updated_at: int("updated_at").$onUpdate(() => new Date().getTime()),
+  created_at: integer("created_at"),
+  name: text("name"),
+  color: text("color"),
+  icon: text("icon"),
+  tags: text("tags"),
 });
-export type Account = InferSelectModel<typeof accounts>;
-export type Transaction = InferSelectModel<typeof transactions>;
-export type Category = InferSelectModel<typeof category>;
+
+export const expense = sqliteTable("expense", {
+  id: text("id").primaryKey(),
+  created_at: integer("created_at"),
+  name: text("name"),
+  color: text("color"),
+  icon: text("icon"),
+  tags: text("tags"),
+});
+
+export const income = sqliteTable("income", {
+  id: text("id").primaryKey(),
+  created_at: integer("created_at"),
+  name: text("name"),
+  color: text("color"),
+  icon: text("icon"),
+  tags: text("tags"),
+});
+
+export type Asset = InferSelectModel<typeof assets>;
+export type Assets = Asset[];
+export type Liability = InferSelectModel<typeof liability>;
+export type Liabilities = Liability[];
+export type Expense = InferSelectModel<typeof expense>;
+export type Expenses = Expense[];
+export type Income = InferSelectModel<typeof income>;
+export type Incomes = Income[];
+export type Transaction = InferSelectModel<typeof transaction>;
+export type Transactions = Transaction[];

@@ -13,6 +13,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "generate": "drizzle-kit generate:sqlite",
     "build": "vite build && electron-builder",
     "build:mac": "vite build && electron-builder -m",
     "build:linux": "vite build && electron-builder -l",
@@ -52,11 +53,9 @@
     "react-virtualized-auto-sizer": "^1.0.23",
     "recharts": "^2.12.7",
     "use-dark-mode": "^2.3.1",
-    "uuid": "^10.0.0",
-    "vite-plugin-top-level-await": "^1.4.4"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@electric-sql/pglite": "^0.2.0",
     "@playwright/test": "^1.37.1",
     "@types/lodash": "^4.17.0",
     "@types/papaparse": "^5.3.14",
@@ -77,7 +76,6 @@
     "typescript": "^5.1.6",
     "vite": "^5.0.10",
     "vite-plugin-electron": "^0.28.0",
-    "vite-plugin-electron-renderer": "^0.14.5",
-    "vite-plugin-wasm": "^3.3.0"
+    "vite-plugin-electron-renderer": "^0.14.5"
   }
 }

@@ -1,6 +1,5 @@
 import { Divider } from "@nextui-org/react";
 import { FC } from "react";
-import { type Category, category } from "../../../electron/db/schema";
 import SectionCard from "../Index/components/SectionCard";
 export interface CategoryProps {}
 const Category: FC<CategoryProps> = () => {

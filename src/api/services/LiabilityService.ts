@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { request as __request } from "../core/request";
-import { assets, liability } from "../db";
+import { liability } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditLiability } from "../hooks/liability";

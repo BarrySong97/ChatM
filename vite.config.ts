@@ -4,8 +4,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import electron from "vite-plugin-electron/simple";
 import pkg from "./package.json";
-import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   rmSync("dist-electron", { recursive: true, force: true });
@@ -18,11 +16,10 @@ export default defineConfig(({ command }) => {
     resolve: {
       alias: {
         "@": path.join(__dirname, "src"),
+        "@db": path.join(__dirname, "electron/db"),
       },
     },
     plugins: [
-      wasm(),
-      topLevelAwait(),
       react(),
       electron({
         main: {
@@ -73,9 +70,6 @@ export default defineConfig(({ command }) => {
         renderer: {},
       }),
     ],
-    optimizeDeps: {
-      exclude: ["@electric-sql/pglite"],
-    },
     server:
       process.env.VSCODE_DEBUG &&
       (() => {

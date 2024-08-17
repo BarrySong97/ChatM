@@ -2,7 +2,7 @@ import { createHashRouter } from "react-router-dom";
 import AppLayout from "./layout/NavigationLayout";
 import Index from "./pages/Index";
 import Assets from "./pages/Assets";
-import DataMapping from "./pages/DataMapping";
+// import DataMapping from "./pages/DataMapping";
 import Category from "./pages/Category";
 import Transactions from "./pages/Transactions";
 
@@ -28,10 +28,10 @@ const router = createHashRouter([
         path: "/transactions",
         element: <Transactions />,
       },
-      {
-        path: "/mapping",
-        element: <DataMapping />,
-      },
+      // {
+      //   path: "/mapping",
+      //   element: <DataMapping />,
+      // },
     ],
   },
   // 登录页面路由

@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { request as __request } from "../core/request";
-import { assets } from "../db";
+import { assets } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
