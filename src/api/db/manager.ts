@@ -1,5 +1,13 @@
 import { drizzle } from "drizzle-orm/sqlite-proxy";
 import * as schema from "@db/schema";
+export enum FinancialOperation {
+  Income = "Income",
+  Expenditure = "Expenditure",
+  Transfer = "Transfer",
+  RepayLoan = "RepayLoan",
+  Borrow = "Borrow",
+  LoanExpenditure = "LoanExpenditure",
+}
 export const db = drizzle(
   async (...args) => {
     try {

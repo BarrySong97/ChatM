@@ -6,6 +6,7 @@ import { message } from "antd";
 
 export type EditLiability = {
   name: string;
+  initial_balance: string;
 };
 
 export function useLiabilityService() {
@@ -36,7 +37,7 @@ export function useLiabilityService() {
         queryClient.setQueryData<Array<Liability>>(
           queryKey,
           (oldLiabilities: Array<Liability> = []) => {
-            return oldLiabilities;
+            return [...oldLiabilities];
           }
         );
         return { previousLiabilities };

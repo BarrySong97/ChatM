@@ -3,8 +3,8 @@ CREATE TABLE `assets` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text,
-	`tags` text
+	`initial_balance` text,
+	`icon` text
 );
 --> statement-breakpoint
 CREATE TABLE `expense` (
@@ -12,8 +12,7 @@ CREATE TABLE `expense` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text,
-	`tags` text
+	`icon` text
 );
 --> statement-breakpoint
 CREATE TABLE `income` (
@@ -21,8 +20,7 @@ CREATE TABLE `income` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text,
-	`tags` text
+	`icon` text
 );
 --> statement-breakpoint
 CREATE TABLE `liability` (
@@ -30,19 +28,29 @@ CREATE TABLE `liability` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text,
-	`tags` text
+	`initial_balance` text,
+	`icon` text
 );
 --> statement-breakpoint
-CREATE TABLE `transaction` (
+CREATE TABLE `tags` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text
+);
+--> statement-breakpoint
+CREATE TABLE `transactions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text,
 	`created_at` integer,
 	`updated_at` integer,
+	`transaction_date` integer,
 	`color` text,
 	`type` text,
 	`source` text,
 	`source_account_id` text,
+	`remark` text,
 	`destination_account_id` text,
-	`amount` integer
+	`test` text,
+	`test1` text,
+	`tags` text,
+	`amount` text
 );

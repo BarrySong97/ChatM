@@ -25,7 +25,7 @@ export class IncomeService {
   }
 
   // edit income
-  public static async editIncome(id: string, body: EditIncome) {
+  public static async editIncome(id: string, body: Partial<EditIncome>) {
     const res = await db
       .update(income)
       .set({ name: body.name })

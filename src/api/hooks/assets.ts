@@ -5,6 +5,7 @@ import { useState } from "react";
 import { message } from "antd";
 export type EditAsset = {
   name: string;
+  initial_balance: string;
 };
 export function useAssetsService() {
   const queryClient = useQueryClient();
@@ -49,6 +50,7 @@ export function useAssetsService() {
         setisCreateLoading(false);
       },
       onError: (_error, { asset }, context) => {
+        message.error("创建失败: " + (_error as Error).message);
         if (context?.previousAssets) {
           queryClient.setQueryData(queryKey, context.previousAssets);
         }

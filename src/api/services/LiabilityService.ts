@@ -7,11 +7,12 @@ import { EditLiability } from "../hooks/liability";
 export class LiabilityService {
   // 创建liability
   public static async createLiability(body: EditLiability) {
+    const now = Date.now();
     const res = await db
       .insert(liability)
       .values({
         id: uuidv4(),
-        name: body.name,
+        ...body,
       })
       .returning();
     return res[0];
@@ -24,10 +25,12 @@ export class LiabilityService {
   }
 
   // edit liability
-  public static async editLiability(id: string, body: EditLiability) {
+  public static async editLiability(id: string, body: Partial<EditLiability>) {
+    const now = Date.now();
     const res = await db
       .update(liability)
-      .set({ name: body.name })
+      .set({ ...body })
+
       .where(eq(liability.id, id));
     return res;
   }

@@ -87,7 +87,12 @@ const Side: FC<SideProps> = () => {
         ...(assets || []).map((item) => {
           return {
             key: item.id,
-            label: item.name,
+            label: (
+              <div className="flex items-center justify-between">
+                <div>{item.name}</div>
+                <div>333</div>
+              </div>
+            ),
           };
         }),
         {

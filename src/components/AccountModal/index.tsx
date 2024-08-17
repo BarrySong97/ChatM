@@ -14,6 +14,7 @@ import {
 import { Form } from "antd";
 import to from "await-to-js";
 import { FC } from "react";
+import Decimal from "decimal.js";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
@@ -55,11 +56,69 @@ const AccountModal: FC<AccountModalProps> = ({
         await createExpense({ expense: { name: value.name } });
         break;
       case "asset":
-        await createAsset({ asset: { name: value.name } });
+        await createAsset({
+          asset: {
+            name: value.name,
+            initial_balance: value.initial_balance
+              ? new Decimal(value.initial_balance).mul(100).toString()
+              : "0",
+          },
+        });
         break;
       case "liability":
-        await createLiability({ liability: { name: value.name } });
+        await createLiability({
+          liability: {
+            name: value.name,
+            initial_balance: value.initial_balance
+              ? new Decimal(value.initial_balance).mul(100).toString()
+              : "0",
+          },
+        });
         break;
+    }
+  };
+  const renderAssetsForm = () => {
+    return (
+      <Form.Item name="initial_balance">
+        <Input
+          label="账户初始金额"
+          radius="sm"
+          type="number"
+          placeholder="请输入账户初始金额"
+        />
+      </Form.Item>
+    );
+  };
+  const renderIncomeForm = () => {
+    return <div></div>;
+  };
+  const renderExpenseForm = () => {
+    return <div></div>;
+  };
+  const renderLiabilityForm = () => {
+    return (
+      <div>
+        <Form.Item name="initial_balance">
+          <Input
+            label="账户初始金额"
+            radius="sm"
+            type="number"
+            placeholder="请输入账户初始金额"
+          />
+        </Form.Item>
+      </div>
+    );
+  };
+  const renderForm = () => {
+    switch (type) {
+      case "income":
+        return renderIncomeForm();
+      case "expense":
+        return renderExpenseForm();
+      case "asset":
+        return renderAssetsForm();
+      case "liability":
+        return renderLiabilityForm();
     }
   };
 
@@ -89,6 +148,7 @@ const AccountModal: FC<AccountModalProps> = ({
                     placeholder="请输入账户名称"
                   />
                 </Form.Item>
+                {renderForm()}
               </Form>
             </ModalBody>
             <ModalFooter>

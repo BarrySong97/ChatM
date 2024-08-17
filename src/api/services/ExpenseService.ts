@@ -23,7 +23,7 @@ export class ExpenseService {
   }
 
   // edit expense
-  public static async editExpense(id: string, body: EditExpense) {
+  public static async editExpense(id: string, body: Partial<EditExpense>) {
     const res = await db
       .update(expense)
       .set({ name: body.name })

@@ -11,11 +11,21 @@ import { eq } from "drizzle-orm";
 export class AssetsService {
   // 创建assets
   public static async createAsset(body: EditAsset) {
+    // Check if an asset with the same name already exists
+    const existingAsset = await db
+      .select()
+      .from(assets)
+      .where(eq(assets.name, body.name))
+      .limit(1);
+
+    if (existingAsset.length > 0) {
+      throw new Error("An asset with this name already exists");
+    }
     const res = await db
       .insert(assets)
       .values({
         id: uuidv4(),
-        name: body.name,
+        ...body,
       })
       .returning();
 
@@ -28,7 +38,7 @@ export class AssetsService {
   }
 
   // edit asset
-  public static async editAsset(assetId: string, asset: EditAsset) {
+  public static async editAsset(assetId: string, asset: Partial<EditAsset>) {
     const res = await db
       .update(assets)
       .set(asset)

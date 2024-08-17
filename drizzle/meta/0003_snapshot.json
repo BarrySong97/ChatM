@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "4099c0c7-64be-4ca7-ab77-b6fcdc951576",
-  "prevId": "ffc41e7e-e839-491c-941e-a3efda481406",
+  "id": "5d36ad60-8cd2-4253-aff1-a90946700b1e",
+  "prevId": "01e686fb-e09f-420c-86f5-7a0c73cc0113",
   "tables": {
     "assets": {
       "name": "assets",
@@ -37,7 +37,7 @@
         },
         "initial_balance": {
           "name": "initial_balance",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -174,6 +174,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "initial_balance": {
+          "name": "initial_balance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "icon": {
           "name": "icon",
           "type": "text",
@@ -210,8 +217,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "transaction": {
-      "name": "transaction",
+    "transactions": {
+      "name": "transactions",
       "columns": {
         "id": {
           "name": "id",
@@ -220,8 +227,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "content": {
+          "name": "content",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -236,6 +243,13 @@
         },
         "updated_at": {
           "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "transaction_date": {
+          "name": "transaction_date",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -269,6 +283,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "remark": {
+          "name": "remark",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "destination_account_id": {
           "name": "destination_account_id",
           "type": "text",
@@ -276,9 +297,16 @@
           "notNull": false,
           "autoincrement": false
         },
+        "tags": {
+          "name": "tags",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "amount": {
           "name": "amount",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "c6ad71be-80e7-49af-ab54-817ef37f9a90",
-  "prevId": "0cb7d5f3-e0e8-44f9-90fa-9b16e64338e6",
+  "id": "d7880edb-b811-4d76-bee7-f36179835c8b",
+  "prevId": "5d36ad60-8cd2-4253-aff1-a90946700b1e",
   "tables": {
     "assets": {
       "name": "assets",
@@ -227,8 +227,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "content": {
+          "name": "content",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -251,13 +251,6 @@
         "transaction_date": {
           "name": "transaction_date",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "color": {
-          "name": "color",
-          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -297,29 +290,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "test": {
-          "name": "test",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "test1": {
-          "name": "test1",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "tags": {
           "name": "tags",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "text": {
-          "name": "text",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

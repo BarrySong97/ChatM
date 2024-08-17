@@ -1,17 +1,19 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { InferSelectModel, relations } from "drizzle-orm";
 
-export const transaction = sqliteTable("transaction", {
+export const transaction = sqliteTable("transactions", {
   id: text("id").primaryKey(),
-  name: text("name"),
+  content: text("content"),
   created_at: integer("created_at"),
   updated_at: integer("updated_at"),
-  color: text("color"),
+  transaction_date: integer("transaction_date"),
   type: text("type"),
   source: text("source"),
   source_account_id: text("source_account_id"),
+  remark: text("remark"),
   destination_account_id: text("destination_account_id"),
-  amount: integer("amount"),
+  tags: text("tags"),
+  amount: text("amount"),
 });
 
 export const tags = sqliteTable("tags", {
@@ -35,7 +37,7 @@ export const assets = sqliteTable("assets", {
   created_at: integer("created_at"),
   name: text("name"),
   color: text("color"),
-  initial_balance: integer("initial_balance"),
+  initial_balance: text("initial_balance"),
   icon: text("icon"),
 });
 
@@ -51,6 +53,7 @@ export const liability = sqliteTable("liability", {
   created_at: integer("created_at"),
   name: text("name"),
   color: text("color"),
+  initial_balance: text("initial_balance"),
   icon: text("icon"),
 });
 
