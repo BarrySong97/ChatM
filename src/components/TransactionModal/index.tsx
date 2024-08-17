@@ -81,6 +81,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   const type = Form.useWatch("type", form);
   const renderSource = () => {
     switch (type) {
+      case FinancialOperation.RepayLoan:
+        return (
+          <SelectSection title="还款来源">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
       case FinancialOperation.Income:
         return (
           <SelectSection title="收入来源">
@@ -107,16 +117,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             {assets?.map((asset) => (
               <SelectItem key={asset.id} value={asset.id}>
                 {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
-      case FinancialOperation.RepayLoan:
-        return (
-          <SelectSection title="借入来源">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
               </SelectItem>
             )) ?? []}
           </SelectSection>
@@ -179,10 +179,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         );
       case FinancialOperation.RepayLoan:
         return (
-          <SelectSection title="贷款收入账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
+          <SelectSection title="还款账户">
+            {liabilities?.map((liability) => (
+              <SelectItem key={liability.id} value={liability.id}>
+                {liability.name}
               </SelectItem>
             )) ?? []}
           </SelectSection>
@@ -285,7 +285,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                       贷款消费(白条，花呗，信用卡，房贷)
                     </SelectItem>
                     <SelectItem key={FinancialOperation.RepayLoan} value="5">
-                      贷款(现金流入)
+                      还款
+                    </SelectItem>
+                    <SelectItem key={FinancialOperation.Borrow} value="6">
+                      借款
                     </SelectItem>
                   </Select>
                 </Form.Item>

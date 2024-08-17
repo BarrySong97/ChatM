@@ -1,8 +1,10 @@
 import { Card, CardBody, Divider } from "@nextui-org/react";
 import React, { FC } from "react";
 import TransactionsTable from "./components/table";
+import { useTransactionService } from "@/api/hooks/transaction";
 export interface TransactionsProps {}
 const Transactions: FC<TransactionsProps> = () => {
+  const { transactions } = useTransactionService();
   return (
     <div className="px-12 py-8   mx-auto">
       <div className="flex justify-between items-end">
@@ -13,7 +15,7 @@ const Transactions: FC<TransactionsProps> = () => {
       <Divider className="my-6" />
       <Card radius="sm" shadow="sm">
         <CardBody>
-          <TransactionsTable />
+          <TransactionsTable data={transactions} />
         </CardBody>
       </Card>
     </div>

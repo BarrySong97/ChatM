@@ -1,9 +1,10 @@
 import { eq } from "drizzle-orm";
 import { request as __request } from "../core/request";
-import { expense } from "@db/schema";
-import { db } from "../db/manager";
+import { expense, transaction } from "@db/schema";
+import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditExpense } from "../hooks/expense";
+import Decimal from "decimal.js";
 export class ExpenseService {
   // 创建expense
   public static async createExpense(body: EditExpense) {
@@ -20,6 +21,38 @@ export class ExpenseService {
   public static async listExpense() {
     const res = await db.select().from(expense);
     return res;
+  }
+  public static async getExpenseSumAmount() {
+    // Calculate the sum of all expense amounts
+    const expenseResults = await db.select().from(expense);
+
+    // Get all transactions
+    const transactionResults = await db.select().from(transaction);
+
+    let totalExpenseAmount = new Decimal(0);
+
+    const expensesData = new Map<string, string>();
+    for (const exp of expenseResults) {
+      let expenseAmount = new Decimal(0);
+
+      // Calculate outflows (asset to expense)
+      const outflows = transactionResults.filter(
+        (t) =>
+          t.destination_account_id === exp.id &&
+          t.type === FinancialOperation.Expenditure
+      );
+      for (const outflow of outflows) {
+        expenseAmount = expenseAmount.add(new Decimal(outflow.amount || "0"));
+      }
+
+      totalExpenseAmount = totalExpenseAmount.add(expenseAmount);
+      expensesData.set(exp.id, expenseAmount.div(100).toFixed(2));
+    }
+
+    return {
+      totalAmount: totalExpenseAmount.div(100).toFixed(2),
+      expenseAmounts: expensesData,
+    };
   }
 
   // edit expense

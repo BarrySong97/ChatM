@@ -21,6 +21,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Tooltip,
   User,
 } from "@nextui-org/react";
 import { FC, useState } from "react";
@@ -31,8 +32,12 @@ import { useLiabilityService } from "@/api/hooks/liability";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { ipcDevtoolMain } from "@/service/ipc";
-import { MaterialSymbolsEditDocumentOutlineRounded } from "./icon";
+import {
+  MaterialSymbolsEditDocumentOutlineRounded,
+  MaterialSymbolsHelpOutline,
+} from "./icon";
 import TransactionModal from "@/components/TransactionModal";
+import { useSideData } from "@/api/hooks/side";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
@@ -70,6 +75,13 @@ const Side: FC<SideProps> = () => {
     "income" | "expense" | "asset" | "liability"
   >();
 
+  const [month, setMonth] = useState<[Date, Date]>(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return [start, end];
+  });
+  const { assetsData } = useSideData();
   const items1: MenuItem[] = [
     {
       onTitleClick: () => {
@@ -79,7 +91,9 @@ const Side: FC<SideProps> = () => {
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>资产</div>
-          <span className=" text-default-500">30k</span>
+          <span className=" text-default-500 flex items-center gap-1">
+            <div>{assetsData?.totalAmount}</div>
+          </span>
         </div>
       ),
       icon: <MaterialSymbolsAccountBalanceWallet className="!text-base" />,
@@ -90,7 +104,7 @@ const Side: FC<SideProps> = () => {
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
-                <div>333</div>
+                <div>{assetsData?.assetAmounts.get(item.id)}</div>
               </div>
             ),
           };
@@ -187,12 +201,6 @@ const Side: FC<SideProps> = () => {
       ],
     },
   ];
-  const [month, setMonth] = useState<[Date, Date]>(() => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    return [start, end];
-  });
 
   const changeMonth = (direction: "prev" | "next") => {
     setMonth(([start, end]) => {
@@ -222,7 +230,6 @@ const Side: FC<SideProps> = () => {
   const [showPopover, setShowPopover] = useState(false);
   const [selectKeys, setSelectKeys] = useState<string>();
   const [showTransactionModal, setShowTransactionModal] = useState(false);
-
   return (
     <ConfigProvider
       theme={{
@@ -371,7 +378,18 @@ const Side: FC<SideProps> = () => {
           <div className="mb-4">
             <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
               <div className="">资产/负债</div>
-              <div className=" pr-3">净资产: 30k</div>
+              <div className=" pr-3 ">
+                <Tooltip
+                  content={`截止${month[1].getFullYear()}/${
+                    month[1].getMonth() + 1
+                  }的净资产`}
+                >
+                  <div className="flex items-center gap-1">
+                    <MaterialSymbolsHelpOutline />
+                    <div>净资产: 30k</div>
+                  </div>
+                </Tooltip>
+              </div>
             </div>
             <div>
               <Menu
@@ -389,7 +407,18 @@ const Side: FC<SideProps> = () => {
           <div>
             <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
               <div className="">支出/收入</div>
-              <div className=" pr-3">结余: 30k</div>
+              <div className=" pr-3 ">
+                <Tooltip
+                  content={`${month[0].getFullYear()}/${
+                    month[0].getMonth() + 1
+                  } - ${month[1].getFullYear()}/${month[1].getMonth() + 1}结余`}
+                >
+                  <div className="flex items-center gap-1">
+                    <MaterialSymbolsHelpOutline />
+                    <div>结余: 30k</div>
+                  </div>
+                </Tooltip>
+              </div>
             </div>
 
             <div>

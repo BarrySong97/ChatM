@@ -14,21 +14,15 @@ import {
   SortDescriptor,
   Link,
 } from "@nextui-org/react";
-import { columns, users, statusOptions } from "./data";
+import { users, statusOptions } from "./data";
 import { capitalize } from "./utils";
-import {
-  ChevronDownIcon,
-  PlusIcon,
-  SearchIcon,
-  VerticalDotsIcon,
-} from "./PluseIcon";
+import { ChevronDownIcon, PlusIcon, SearchIcon } from "./PluseIcon";
 import { ConfigProvider, Table, TableProps, Tag } from "antd";
-
-const statusColorMap: Record<string, ChipProps["color"]> = {
-  active: "success",
-  paused: "danger",
-  vacation: "warning",
-};
+import { Transaction, Transactions } from "@db/schema";
+import { useIncomeService } from "@/api/hooks/income";
+import { useExpenseService } from "@/api/hooks/expense";
+import { useAssetsService } from "@/api/hooks/assets";
+import { useLiabilityService } from "@/api/hooks/liability";
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
@@ -40,7 +34,31 @@ interface DataType {
   address: string;
   tags: string[];
 }
-export default function TransactionsTable() {
+export interface TransactionsTableProps {
+  data?: Transactions;
+}
+import { FinancialOperation } from "@/api/db/manager";
+import Decimal from "decimal.js";
+
+const operationColors: Record<FinancialOperation, string> = {
+  [FinancialOperation.Income]: "#4CAF50", // Green
+  [FinancialOperation.Expenditure]: "#F44336", // Red
+  [FinancialOperation.Transfer]: "#2196F3", // Blue
+  [FinancialOperation.RepayLoan]: "#9C27B0", // Purple
+  [FinancialOperation.Borrow]: "#FF9800", // Orange
+  [FinancialOperation.LoanExpenditure]: "#795548", // Brown
+};
+
+const operationTranslations: Record<FinancialOperation, string> = {
+  [FinancialOperation.Income]: "收入",
+  [FinancialOperation.Expenditure]: "支出",
+  [FinancialOperation.Transfer]: "转账",
+  [FinancialOperation.RepayLoan]: "还贷",
+  [FinancialOperation.Borrow]: "借款",
+  [FinancialOperation.LoanExpenditure]: "贷款支出",
+};
+
+export default function TransactionsTable({ data }: TransactionsTableProps) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([])
@@ -218,26 +236,33 @@ export default function TransactionsTable() {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-  const columns: TableProps<DataType>["columns"] = [
+  const { incomes } = useIncomeService();
+  const { expenses } = useExpenseService();
+  const { assets } = useAssetsService();
+  const { liabilities } = useLiabilityService();
+
+  const columns: TableProps<Transaction>["columns"] = [
     {
       title: "日期",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "transaction_date",
+      key: "transaction_date",
       width: 100,
       render(value, record, index) {
-        return <div>2024/03/09</div>;
+        return <div>{new Date(value).toLocaleDateString()}</div>;
       },
     },
     {
       title: "类型",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "type",
+      key: "type",
       width: 60,
       render(value, record, index) {
+        const color = operationColors[value as FinancialOperation];
+        const text = operationTranslations[value as FinancialOperation];
         return (
           <div>
-            <Tag color="processing" bordered={false}>
-              支出
+            <Tag color={color} bordered={false}>
+              {text}
             </Tag>
           </div>
         );
@@ -245,32 +270,47 @@ export default function TransactionsTable() {
     },
     {
       title: "内容",
-      dataIndex: "age",
+      dataIndex: "content",
       width: 200,
-      key: "age",
+      key: "content",
       render(value, record, index) {
-        return <div>交易内容</div>;
+        return <div>{value}</div>;
       },
     },
     {
       title: "金额",
-      dataIndex: "address",
+      dataIndex: "amount",
       align: "right",
-      key: "address",
+      key: "amount",
       render(value, record, index) {
-        return <div>1000</div>;
+        const real = new Decimal(value).div(100);
+        return <div>{real.toString()}</div>;
       },
     },
     {
       title: "来源",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "source_account_id",
+      key: "source",
       align: "right",
-      render(value, record, index) {
+      render(value) {
+        let source = assets?.find((asset) => asset.id === value)?.name;
+        if (!source) {
+          source = liabilities?.find(
+            (liability) => liability.id === value
+          )?.name;
+        }
+        if (!source) {
+          source = expenses?.find((account) => account.id === value)?.name;
+        }
+
+        if (!source) {
+          source = incomes?.find((income) => income.id === value)?.name;
+        }
+
         return (
           <div>
             <Tag className="mr-0" color="processing" bordered={false}>
-              支付宝
+              {source}
             </Tag>
           </div>
         );
@@ -278,14 +318,29 @@ export default function TransactionsTable() {
     },
     {
       title: "流向",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "destination_account_id",
+      key: "destination_account_id",
       align: "right",
-      render(value, record, index) {
+      render(value) {
+        console.log(value);
+
+        let destination = assets?.find((asset) => asset.id === value)?.name;
+        if (!destination) {
+          destination = liabilities?.find(
+            (liability) => liability.id === value
+          )?.name;
+        }
+        if (!destination) {
+          destination = expenses?.find((account) => account.id === value)?.name;
+          console.log(destination);
+        }
+        if (!destination) {
+          destination = incomes?.find((income) => income.id === value)?.name;
+        }
         return (
           <div>
-            <Tag className="mr-0" color="green" bordered={false}>
-              健身
+            <Tag className="mr-0" color="processing" bordered={false}>
+              {destination}
             </Tag>
           </div>
         );
@@ -293,50 +348,39 @@ export default function TransactionsTable() {
     },
     {
       title: "#标签",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "tags",
+      key: "tags",
       align: "center",
-      render(value, record, index) {
+      render(value: string, record, index) {
         return (
           <div className="">
-            <Link size="sm" href="#" underline="always">
-              #Active
-            </Link>
+            {value &&
+              value.split(" ").map((tag, index) => (
+                <Link
+                  key={index}
+                  size="sm"
+                  href="#"
+                  underline="always"
+                  className="mr-1"
+                >
+                  {tag.trim()}
+                </Link>
+              ))}
           </div>
         );
       },
     },
     {
       title: "补充",
-      dataIndex: "address",
-      key: "address",
+      dataIndex: "remark",
+      key: "remark",
       align: "right",
+      render(value, record, index) {
+        return <div>{value}</div>;
+      },
     },
   ];
 
-  const data: DataType[] = [
-    {
-      key: "1",
-      name: "John Brown",
-      age: 32,
-      address: "New York No. 1 Lake Park",
-      tags: ["nice", "developer"],
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      age: 42,
-      address: "London No. 1 Lake Park",
-      tags: ["loser"],
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      age: 32,
-      address: "Sydney No. 1 Lake Park",
-      tags: ["cool", "teacher"],
-    },
-  ];
   return (
     <div>
       {topContent}
@@ -356,46 +400,5 @@ export default function TransactionsTable() {
       </div>
       {bottomContent}
     </div>
-    // <Table
-    //   isCompact
-    //   removeWrapper
-    //   aria-label="Example table with custom cells, pagination and sorting"
-    //   bottomContent={bottomContent}
-    //   bottomContentPlacement="outside"
-    //   checkboxesProps={{
-    //     classNames: {
-    //       wrapper: "after:bg-foreground after:text-background text-background",
-    //     },
-    //   }}
-    //   classNames={classNames}
-    //   selectedKeys={selectedKeys}
-    //   selectionMode="multiple"
-    //   sortDescriptor={sortDescriptor}
-    //   topContent={topContent}
-    //   topContentPlacement="outside"
-    //   onSelectionChange={setSelectedKeys}
-    //   onSortChange={setSortDescriptor}
-    // >
-    //   <TableHeader columns={headerColumns}>
-    //     {(column) => (
-    //       <TableColumn
-    //         key={column.uid}
-    //         align={column.uid === "actions" ? "center" : "start"}
-    //         allowsSorting={column.sortable}
-    //       >
-    //         {column.name}
-    //       </TableColumn>
-    //     )}
-    //   </TableHeader>
-    //   <TableBody emptyContent={"No users found"} items={sortedItems}>
-    //     {(item) => (
-    //       <TableRow key={item.id}>
-    //         {(columnKey) => (
-    //           <TableCell>{renderCell(item, columnKey)}</TableCell>
-    //         )}
-    //       </TableRow>
-    //     )}
-    //   </TableBody>
-    // </Table>
   );
 }
