@@ -25,153 +25,169 @@ import {
 import { Category } from "./category";
 import { Trend } from "./trend";
 import DateFilter from "./date-filter";
+import CategoryList from "@/components/CategoryList";
+import {
+  CategoryData,
+  TrendData,
+  useExpenseCategoryService,
+  useExpenseLineChartService,
+} from "@/api/hooks/expense";
+import dayjs from "dayjs";
 
 export interface SectionCardProps {
   title: string | React.ReactNode;
-  showLeft: boolean;
 }
 type DataItem = {
   amount: number;
   date: string;
 };
-const { RangePicker } = DatePicker;
-const generateMockData = (period: string, dateRange?: Date[]) => {
-  const currentDate = new Date();
-  const data = [];
 
-  if (dateRange) {
-    const startDate = dateRange[0];
-    const endDate = dateRange[1];
-    const dayDiff = Math.ceil(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    for (let i = 0; i <= dayDiff; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      data.push({
-        label: `${String(date.getMonth() + 1).padStart(2, "0")}/${String(
-          date.getDate()
-        ).padStart(2, "0")}`,
-        data: Math.floor(Math.random() * 1000),
-      });
-      data.reverse();
-    }
-  } else if (period === "当前月") {
-    const days = currentDate.getDate();
-    for (let i = 0; i < days; i++) {
-      const date = new Date(currentDate);
-      date.setDate(currentDate.getDate() - i);
-      data.push({
-        label: `${String(date.getMonth() + 1).padStart(2, "0")}/${String(
-          date.getDate()
-        ).padStart(2, "0")}`,
-        data: Math.floor(Math.random() * 1000),
-      });
-    }
-  } else if (period === "1月" || period === "3月") {
-    const days = period === "1月" ? 30 : 90;
-    for (let i = 0; i < days; i++) {
-      const date = new Date(currentDate);
-      date.setDate(currentDate.getDate() - i);
-      data.push({
-        label: `${String(date.getMonth() + 1).padStart(2, "0")}/${String(
-          date.getDate()
-        ).padStart(2, "0")}`,
-        data: Math.floor(Math.random() * 1000),
-      });
-    }
-  } else {
-    const years = period === "1年" ? 1 : period === "3年" ? 3 : 5;
-    for (let i = 0; i < years * 12; i++) {
-      const date = new Date(currentDate);
-      date.setMonth(currentDate.getMonth() - i);
-      data.push({
-        label: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}`,
-        data: Math.floor(Math.random() * 10000),
-      });
-    }
-  }
-
-  return data.reverse();
-};
-
-const SectionCard: FC<SectionCardProps> = ({ title, showLeft = true }) => {
+const SectionCard: FC<SectionCardProps> = ({ title }) => {
+  const date = new Date();
   const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
   const [time, setTime] = useState(timeFilter[0]);
-  let [value, setValue] = React.useState<RangeValue<DateValue>>();
-  const chartData = React.useMemo(() => {
-    if (value?.start && value?.end) {
-      const start = value.start.toDate(getLocalTimeZone());
-      const end = value.end.toDate(getLocalTimeZone());
-      return generateMockData("custom", [start, end]);
+  useEffect(() => {
+    const now = dayjs();
+    switch (time) {
+      case "当前月":
+        setValue({
+          start: now.startOf("month").valueOf(),
+          end: now.endOf("month").valueOf(),
+        });
+        break;
+      case "近1月":
+        setValue({
+          start: now.subtract(1, "month").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近3月":
+        setValue({
+          start: now.subtract(3, "months").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近1年":
+        setValue({
+          start: now.subtract(1, "year").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近3年":
+        setValue({
+          start: now.subtract(3, "years").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近5年":
+        setValue({
+          start: now.subtract(5, "years").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      default:
+        setValue({
+          start: now.startOf("month").valueOf(),
+          end: now.endOf("month").valueOf(),
+        });
     }
-    return generateMockData(time);
-  }, [value, time]);
+  }, [time]);
+  let [value, setValue] = React.useState<{
+    start: number;
+    end: number;
+  }>({
+    start: new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    ).getTime(),
+    end: new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+      0,
+      0,
+      0
+    ).getTime(),
+  });
   const [isOpen, setIsOpen] = React.useState(false);
+  const { lineData } = useExpenseLineChartService({
+    startDate: value.start,
+    endDate: value.end,
+  });
+  const { categoryData } = useExpenseCategoryService({
+    startDate: value.start,
+    endDate: value.end,
+  });
+
   return (
-    <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
-      <CardHeader className="!mb-0 flex justify-between items-start">
-        <h3 className="font-semibold pl-2">{title}</h3>
-        <div className="flex items-center gap-2">
-          {timeFilter.map((item) => (
-            <Button
-              key={item}
-              size="sm"
-              variant={time === item ? "flat" : "light"}
-              radius="sm"
-              color={time === item ? "primary" : "default"}
-              onClick={() => {
-                setTime(item);
-                setValue(undefined);
-              }}
-            >
-              {item}
-            </Button>
-          ))}
-          <Popover
-            isOpen={isOpen}
-            onOpenChange={(open) => setIsOpen(open)}
-            showArrow
+    <div>
+      <div className="flex items-center gap-2 mb-4">
+        {timeFilter.map((item) => (
+          <Button
+            key={item}
+            size="sm"
+            variant={time === item ? "flat" : "light"}
             radius="sm"
-            placement="left-start"
+            color={time === item ? "primary" : "default"}
+            onClick={() => {
+              setTime(item);
+            }}
           >
-            <PopoverTrigger>
-              <Button
-                size="sm"
-                variant={!value ? "light" : "flat"}
-                radius="sm"
-                color={!value ? "default" : "primary"}
-              >
-                {value
-                  ? `${value.start.toString()} - ${value.end.toString()}`
-                  : "自定义"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0">
-              <DateFilter
-                onChange={(v) => {
-                  setValue(v);
-                  setTime("");
-                  setIsOpen(false);
-                }}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </CardHeader>
-      <CardBody className="flex-row gap-8 h-[300px]">
-        {showLeft && (
-          <div className="space-y-4 w-[280px]">
-            <Category />
-          </div>
-        )}
-        <Trend data={chartData} />
-      </CardBody>
-    </Card>
+            {item}
+          </Button>
+        ))}
+        <Popover
+          isOpen={isOpen}
+          onOpenChange={(open) => setIsOpen(open)}
+          showArrow
+          radius="sm"
+          placement="left-start"
+        >
+          <PopoverTrigger>
+            <Button
+              size="sm"
+              variant={!value ? "light" : "flat"}
+              radius="sm"
+              color={!value ? "default" : "primary"}
+            >
+              {value
+                ? `${dayjs(value.start).format("YYYY-MM-DD")} - ${dayjs(
+                    value.end
+                  ).format("YYYY-MM-DD")}`
+                : "自定义"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0">
+            <DateFilter
+              onChange={(v) => {
+                setValue(v);
+                setTime("");
+                setIsOpen(false);
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="flex  gap-8">
+        <Card className="block gap-8 flex-[2]  mb-8" shadow="sm" radius="sm">
+          <CardHeader className="!mb-0 flex justify-between items-start">
+            <h3 className="font-semibold pl-2">{title}分类排行</h3>
+          </CardHeader>
+          <CardBody>
+            <CategoryList items={categoryData ?? []} />
+          </CardBody>
+        </Card>
+        <Card className="block gap-8 flex-[3]  mb-8" shadow="sm" radius="sm">
+          <CardHeader className="!mb-0 flex justify-between items-start">
+            <h3 className="font-semibold pl-2">{title}趋势</h3>
+          </CardHeader>
+          <CardBody className="flex-row gap-8 h-[300px]">
+            <Trend data={lineData ?? []} />
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 };
 

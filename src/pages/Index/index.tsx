@@ -19,6 +19,10 @@ import { Tabs, TabsProps } from "antd";
 import SectionCard from "./components/SectionCard";
 import { Test } from "./components/test";
 import { AssetsService } from "@/api/services/AssetsSevice";
+import { useIndexData } from "@/api/hooks";
+import Decimal from "decimal.js";
+import { useExpenseLineChartService } from "@/api/hooks/expense";
+import dayjs from "dayjs";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -79,7 +83,7 @@ const Index: FC<IndexProps> = () => {
     {
       key: "1",
       label: "支出",
-      children: <SectionCard />,
+      children: <SectionCard title="支出" />,
     },
     {
       key: "2",
@@ -242,7 +246,17 @@ const Index: FC<IndexProps> = () => {
       ),
     },
   ];
+  const {
+    assetsData,
+    liabilitiesData,
+    expenditureData,
+    incomeData,
+    netWorthData,
+  } = useIndexData();
 
+  const netWorth = new Decimal(assetsData?.totalAmount ?? 0).sub(
+    liabilitiesData?.totalAmount ?? 0
+  );
   return (
     <div className="px-12 py-8  mx-auto overflow-auto scrollbar h-full">
       <div className="flex justify-between items-end">
@@ -279,36 +293,40 @@ const Index: FC<IndexProps> = () => {
       <div className="flex gap-4 ">
         <div className="flex-1">
           <FinancialItem
+            chartData={
+              netWorthData?.map((item) => ({
+                label: item.date,
+                data: new Decimal(item.amount).toNumber(),
+              })) ?? []
+            }
             title="净资产"
-            value={359.71}
-            percentage={2.18}
-            changed={1.32}
+            value={netWorth.toFixed(2)}
           />
         </div>
         <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1">
           <FinancialItem
             title="总资产"
-            value={35265}
-            percentage={1.32}
-            changed={1.32}
+            value={assetsData?.totalAmount ?? "0.00"}
           />
           <FinancialItem
             title="总负债"
-            value={458.96}
-            percentage={-2.58}
-            changed={-1.32}
+            value={
+              liabilitiesData?.totalAmount
+                ? `-${liabilitiesData?.totalAmount}`
+                : "0.00"
+            }
           />
           <FinancialItem
             title="总收入"
-            value={211.37}
-            percentage={2.18}
-            changed={1.32}
+            value={incomeData?.totalAmount ?? "0.00"}
           />
           <FinancialItem
             title="总支出"
-            value={211.37}
-            percentage={2.18}
-            changed={1.32}
+            value={
+              expenditureData?.totalAmount
+                ? `-${expenditureData?.totalAmount}`
+                : "0.00"
+            }
           />
         </div>
       </div>

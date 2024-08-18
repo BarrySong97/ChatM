@@ -7,7 +7,20 @@ import { message } from "antd";
 export type EditExpense = {
   name: string;
 };
-
+export type CategoryData = {
+  content: string;
+  color?: string;
+  amount: string;
+};
+export type TrendData = {
+  amount: string;
+  label: string;
+};
+export type Filter = {
+  startDate: number;
+  endDate: number;
+  accountId?: string;
+};
 export function useExpenseService() {
   const queryClient = useQueryClient();
 
@@ -135,5 +148,33 @@ export function useExpenseService() {
     isEditLoading,
     isDeleteLoading,
     isCreateLoading,
+  };
+}
+
+export function useExpenseLineChartService(filter: Filter) {
+  const queryKey = ["expenses", "chart", filter];
+
+  const { data: chartData, isLoading: isLoadingChart } = useQuery<
+    TrendData[],
+    Error
+  >(queryKey, () => ExpenseService.getTrend(filter));
+
+  return {
+    lineData: chartData,
+    isLoadingChart,
+  };
+}
+
+export function useExpenseCategoryService(filter: Filter) {
+  const queryKey = ["expenses", "category", filter];
+
+  const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
+    CategoryData[],
+    Error
+  >(queryKey, () => ExpenseService.getExpenseCategory(filter));
+
+  return {
+    categoryData,
+    isLoadingCategory,
   };
 }

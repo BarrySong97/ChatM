@@ -9,41 +9,37 @@ import {
 } from "@/assets/icon";
 import { Card } from "@nextui-org/react";
 import React from "react";
+import { CardLineChart } from "./card-line-chart";
 
 interface FinancialItemProps {
   title: string;
-  value: number;
-  changed: number;
-  percentage: number;
+  value: string;
+  chartData?: {
+    label: string;
+    data: number;
+  }[];
 }
 
 const FinancialItem: React.FC<FinancialItemProps> = ({
   title,
   value,
-  changed,
-  percentage,
+  chartData,
 }) => {
-  const isPositive = percentage >= 0;
-  const arrowClass = isPositive ? "arrow-up" : "arrow-down";
-  const colorClass = isPositive ? "text-green-500" : "text-red-500";
-  const bgColorClass = isPositive ? "bg-green-500" : "bg-red-500";
-
   return (
     <Card shadow="sm" radius="sm" className="bg-white p-4 rounded-lg h-full">
-      <div className="flex  justify-between">
+      <div className="h-full flex-1 flex flex-col">
         <div>
-          <div className="text-black text-base font-medium">{title}</div>
-          <div className="text-gray-400 text-[15px]">{value.toFixed(2)}</div>
-        </div>
-        <div className={`flex items-center ${colorClass}`}>
-          <div className="text-right">
-            <div className="text-base">{changed}</div>
-            <div className="flex items-center gap-1">
-              <span className="text-sm">{percentage.toFixed(2)}%</span>{" "}
-              {percentage > 0 ? <MdiArrowTopRight /> : <MdiArrowBottomRight />}
-            </div>
+          <div className="text-gray-400 text-sm font-medium">{title}</div>
+          <div
+            style={{
+              color: "rgb(17 24 39 / 1)",
+            }}
+            className="text-2xl font-semibold"
+          >
+            {value}
           </div>
         </div>
+        {chartData ? <CardLineChart data={chartData} /> : null}
       </div>
     </Card>
   );

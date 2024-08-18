@@ -7,10 +7,12 @@ import { assets, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq, lte, gte, and } from "drizzle-orm";
+import { eq, lte, gte, and, min } from "drizzle-orm";
 
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
+import { LiabilityService } from "./LiabilityService";
+import dayjs from "dayjs";
 export class AssetsService {
   // 创建assets
   public static async createAsset(body: EditAsset) {
@@ -44,7 +46,9 @@ export class AssetsService {
       .from(transaction)
       .where(
         filter
-          ? and(lte(transaction.transaction_date, filter.endDate))
+          ? filter.endDate
+            ? and(lte(transaction.transaction_date, filter.endDate))
+            : undefined
           : undefined
       );
 
@@ -89,6 +93,51 @@ export class AssetsService {
       assetAmounts: assetsData,
     };
   }
+  // 计算networth
+  public static async getNetWorth() {
+    // Get the earliest transaction date
+    const earliestTransactionQuery = await db
+      .select({ minDate: min(transaction.transaction_date) })
+      .from(transaction);
+
+    const earliestDate = earliestTransactionQuery[0]?.minDate;
+
+    if (!earliestDate) {
+      return []; // No transactions found
+    }
+
+    // Calculate the number of days from the earliest transaction to now
+    const today = new Date();
+    const daysDifference = Math.ceil(
+      (today.getTime() - new Date(earliestDate).getTime()) / (1000 * 3600 * 24)
+    );
+
+    const netWorthData = [];
+
+    for (let i = 0; i <= daysDifference; i++) {
+      const currentDate = new Date(earliestDate);
+      currentDate.setDate(currentDate.getDate() + i);
+
+      const customFilter = {
+        endDate: currentDate.getTime(),
+      };
+
+      const { totalAmount } = await this.getAssetsSumAmount(customFilter);
+      const { totalAmount: liabilityAmount } =
+        await LiabilityService.getLiabilitySumAmount(customFilter);
+      const netWorth = new Decimal(totalAmount).sub(
+        new Decimal(liabilityAmount)
+      );
+
+      netWorthData.push({
+        date: dayjs(currentDate).format("YYYY-MM-DD"),
+        amount: netWorth,
+      });
+    }
+
+    return netWorthData;
+  }
+
   // list assets
   public static async listAssets() {
     const res = await db.select().from(assets);

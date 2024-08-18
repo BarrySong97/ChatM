@@ -44,18 +44,17 @@ export function Trend(props: TrendProps) {
           axisLine={false}
           tickMargin={8}
           minTickGap={32}
-          // tickFormatter={(value) => value.slice(0, 3)}
         />
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent indicator="line" />}
         />
         <Area
-          dataKey="data"
-          type="natural"
-          fill="var(--color-desktop)"
+          dataKey="amount"
+          type="bump"
+          fill="hsl(var(--chart-1))"
           fillOpacity={0.4}
-          stroke="var(--color-desktop)"
+          stroke="hsl(var(--chart-1))"
         />
       </AreaChart>
     </ChartContainer>

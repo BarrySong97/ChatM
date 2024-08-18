@@ -132,7 +132,7 @@ const Side: FC<SideProps> = () => {
         <div className="flex text-xs items-center justify-between">
           <div>负债</div>
           <span className=" text-default-500">
-            {liabilitiesData?.totalAmount}
+            -{liabilitiesData?.totalAmount}
           </span>
         </div>
       ),
@@ -145,7 +145,9 @@ const Side: FC<SideProps> = () => {
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
                 <div>
-                  {liabilitiesData?.liabilityAmounts?.get(item.id) ?? "0.00"}
+                  {liabilitiesData?.liabilityAmounts?.get(item.id) !== "0.00"
+                    ? `-${liabilitiesData?.liabilityAmounts?.get(item.id)}`
+                    : "0.00"}
                 </div>
               </div>
             ),
@@ -200,7 +202,7 @@ const Side: FC<SideProps> = () => {
         <div className="flex text-xs items-center justify-between">
           <div>支出</div>
           <span className=" text-default-500">
-            {expenditureData?.totalAmount}
+            -{expenditureData?.totalAmount}
           </span>
         </div>
       ),
@@ -213,7 +215,9 @@ const Side: FC<SideProps> = () => {
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
                 <div>
-                  {expenditureData?.expenseAmounts?.get(item.id) ?? "0.00"}
+                  {expenditureData?.expenseAmounts?.get(item.id) !== "0.00"
+                    ? `-${expenditureData?.expenseAmounts?.get(item.id)}`
+                    : "0.00"}
                 </div>
               </div>
             ),
