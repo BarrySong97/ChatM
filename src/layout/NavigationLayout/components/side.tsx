@@ -38,6 +38,7 @@ import {
 } from "./icon";
 import TransactionModal from "@/components/TransactionModal";
 import { useSideData } from "@/api/hooks/side";
+import Decimal from "decimal.js";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
@@ -81,7 +82,12 @@ const Side: FC<SideProps> = () => {
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     return [start, end];
   });
-  const { assetsData } = useSideData();
+  const { assetsData, liabilitiesData, expenditureData, incomeData } =
+    useSideData({
+      startDate: month[0].getTime(),
+      endDate: month[1].getTime(),
+    });
+
   const items1: MenuItem[] = [
     {
       onTitleClick: () => {
@@ -104,7 +110,7 @@ const Side: FC<SideProps> = () => {
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
-                <div>{assetsData?.assetAmounts.get(item.id)}</div>
+                <div>{assetsData?.assetAmounts?.get(item.id) ?? "0.00"}</div>
               </div>
             ),
           };
@@ -125,7 +131,9 @@ const Side: FC<SideProps> = () => {
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>负债</div>
-          <span className=" text-default-500">-30k</span>
+          <span className=" text-default-500">
+            {liabilitiesData?.totalAmount}
+          </span>
         </div>
       ),
       icon: <SolarCardBoldDuotone className="!text-base" />,
@@ -133,7 +141,14 @@ const Side: FC<SideProps> = () => {
         ...(liabilities || []).map((item) => {
           return {
             key: item.id,
-            label: item.name,
+            label: (
+              <div className="flex items-center justify-between">
+                <div>{item.name}</div>
+                <div>
+                  {liabilitiesData?.liabilityAmounts?.get(item.id) ?? "0.00"}
+                </div>
+              </div>
+            ),
           };
         }),
         {
@@ -153,7 +168,7 @@ const Side: FC<SideProps> = () => {
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>收入</div>
-          <span className=" text-default-500">30k</span>
+          <span className=" text-default-500">{incomeData?.totalAmount}</span>
         </div>
       ),
       icon: <MdiArrowDownCircle className="!text-base" />,
@@ -161,7 +176,12 @@ const Side: FC<SideProps> = () => {
         ...(incomes || []).map((item) => {
           return {
             key: item.id,
-            label: item.name,
+            label: (
+              <div className="flex items-center justify-between">
+                <div>{item.name}</div>
+                <div>{incomeData?.incomeAmounts?.get(item.id) ?? "0.00"}</div>
+              </div>
+            ),
           };
         }),
         {
@@ -179,7 +199,9 @@ const Side: FC<SideProps> = () => {
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>支出</div>
-          <span className=" text-default-500">-30k</span>
+          <span className=" text-default-500">
+            {expenditureData?.totalAmount}
+          </span>
         </div>
       ),
       icon: <MdiArrowUpCircle className="!text-base" />,
@@ -187,7 +209,14 @@ const Side: FC<SideProps> = () => {
         ...(expenses || []).map((item) => {
           return {
             key: item.id,
-            label: item.name,
+            label: (
+              <div className="flex items-center justify-between">
+                <div>{item.name}</div>
+                <div>
+                  {expenditureData?.expenseAmounts?.get(item.id) ?? "0.00"}
+                </div>
+              </div>
+            ),
           };
         }),
         {
@@ -230,6 +259,12 @@ const Side: FC<SideProps> = () => {
   const [showPopover, setShowPopover] = useState(false);
   const [selectKeys, setSelectKeys] = useState<string>();
   const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const netWorth = new Decimal(assetsData?.totalAmount || 0).sub(
+    new Decimal(liabilitiesData?.totalAmount || 0)
+  );
+  const balance = new Decimal(incomeData?.totalAmount || 0).sub(
+    new Decimal(expenditureData?.totalAmount || 0)
+  );
   return (
     <ConfigProvider
       theme={{
@@ -386,7 +421,7 @@ const Side: FC<SideProps> = () => {
                 >
                   <div className="flex items-center gap-1">
                     <MaterialSymbolsHelpOutline />
-                    <div>净资产: 30k</div>
+                    <div>净资产: {netWorth.toFixed(2)}</div>
                   </div>
                 </Tooltip>
               </div>
@@ -415,7 +450,7 @@ const Side: FC<SideProps> = () => {
                 >
                   <div className="flex items-center gap-1">
                     <MaterialSymbolsHelpOutline />
-                    <div>结余: 30k</div>
+                    <div>结余: {balance.toFixed(2)}</div>
                   </div>
                 </Tooltip>
               </div>

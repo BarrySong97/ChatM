@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
-import { request as __request } from "../core/request";
+import { eq, lte, gte, and } from "drizzle-orm";
 import { expense, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditExpense } from "../hooks/expense";
 import Decimal from "decimal.js";
+import { SideFilter } from "../hooks/side";
 export class ExpenseService {
   // 创建expense
   public static async createExpense(body: EditExpense) {
@@ -22,12 +22,22 @@ export class ExpenseService {
     const res = await db.select().from(expense);
     return res;
   }
-  public static async getExpenseSumAmount() {
+  public static async getExpenseSumAmount(filter?: SideFilter) {
     // Calculate the sum of all expense amounts
     const expenseResults = await db.select().from(expense);
 
     // Get all transactions
-    const transactionResults = await db.select().from(transaction);
+    const transactionResults = await db
+      .select()
+      .from(transaction)
+      .where(
+        filter
+          ? and(
+              gte(transaction.transaction_date, filter.startDate),
+              lte(transaction.transaction_date, filter.endDate)
+            )
+          : undefined
+      );
 
     let totalExpenseAmount = new Decimal(0);
 

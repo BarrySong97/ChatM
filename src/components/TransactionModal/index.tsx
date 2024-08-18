@@ -52,7 +52,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const { createTransaction, isCreateLoading } = useTransactionService();
-  const onCreate = async () => {
+  const onCreate = async (onClose: () => void) => {
     const [err, values] = await to<TransactionModalForm, Error>(
       form.validateFields()
     );
@@ -70,9 +70,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
       tags: values.tags,
       remark: values.remark,
     };
-    createTransaction({
+
+    await createTransaction({
       transaction,
     });
+    onClose();
   };
   const { assets } = useAssetsService();
   const { liabilities } = useLiabilityService();
@@ -212,7 +214,15 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     }
   };
   return (
-    <Modal isOpen={isOpen} onOpenChange={onChange}>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={(v) => {
+        if (!v) {
+          form.resetFields();
+        }
+        onChange(v);
+      }}
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -302,7 +312,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                   <Select
                     aria-label="source"
                     size="sm"
-                    placeholder="请选择来源"
+                    placeholder="请选择来源(先选择类型)"
                   >
                     {renderSource() ?? []}
                   </Select>
@@ -317,7 +327,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                   <Select
                     aria-label="destination"
                     size="sm"
-                    placeholder="请选择流向"
+                    placeholder="请选择流向(先选择类型)"
                   >
                     {renderDestination() ?? []}
                   </Select>
@@ -342,8 +352,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                 color="primary"
                 isLoading={isCreateLoading}
                 onPress={async () => {
-                  await onCreate();
-                  onClose();
+                  await onCreate(onClose);
                 }}
               >
                 创建

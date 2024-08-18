@@ -7,8 +7,10 @@ import { assets, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq } from "drizzle-orm";
+import { eq, lte, gte, and } from "drizzle-orm";
+
 import Decimal from "decimal.js";
+import { SideFilter } from "../hooks/side";
 export class AssetsService {
   // 创建assets
   public static async createAsset(body: EditAsset) {
@@ -32,12 +34,19 @@ export class AssetsService {
 
     return res[0];
   }
-  public static async getAssetsSumAmount() {
+  public static async getAssetsSumAmount(filter?: SideFilter) {
     // Calculate the sum of all asset amounts
     const assetResults = await db.select().from(assets);
 
     // Get all transactions
-    const transactionResults = await db.select().from(transaction);
+    const transactionResults = await db
+      .select()
+      .from(transaction)
+      .where(
+        filter
+          ? and(lte(transaction.transaction_date, filter.endDate))
+          : undefined
+      );
 
     let totalAssetAmount = new Decimal(0);
 

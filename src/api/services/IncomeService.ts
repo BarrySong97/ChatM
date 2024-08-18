@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
-import { request as __request } from "../core/request";
+import { eq, gte, lte, and } from "drizzle-orm";
 import { income, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditIncome } from "../hooks/income";
 import Decimal from "decimal.js";
+import { SideFilter } from "../hooks/side";
 // 收入服务
 export class IncomeService {
   // 创建income
@@ -25,12 +25,22 @@ export class IncomeService {
     return res;
   }
 
-  public static async getIncomeSumAmount() {
+  public static async getIncomeSumAmount(filter?: SideFilter) {
     // Calculate the sum of all income amounts
     const incomeResults = await db.select().from(income);
 
     // Get all transactions
-    const transactionResults = await db.select().from(transaction);
+    const transactionResults = await db
+      .select()
+      .from(transaction)
+      .where(
+        filter
+          ? and(
+              gte(transaction.transaction_date, filter.startDate),
+              lte(transaction.transaction_date, filter.endDate)
+            )
+          : undefined
+      );
 
     let totalIncomeAmount = new Decimal(0);
 

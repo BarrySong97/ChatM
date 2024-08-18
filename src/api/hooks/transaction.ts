@@ -50,6 +50,7 @@ export function useTransactionService() {
             return [...oldTransactions, data];
           }
         );
+        queryClient.invalidateQueries(["side"]);
       },
       onSettled() {
         setIsCreateLoading(false);
@@ -91,6 +92,7 @@ export function useTransactionService() {
       },
       onSuccess() {
         message.success("修改成功");
+        queryClient.invalidateQueries(["side"]);
       },
       onSettled() {
         setIsEditLoading(false);

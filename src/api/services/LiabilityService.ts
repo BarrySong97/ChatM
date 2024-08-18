@@ -1,10 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, lte } from "drizzle-orm";
 import { request as __request } from "../core/request";
 import { liability, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditLiability } from "../hooks/liability";
 import Decimal from "decimal.js";
+import { SideFilter } from "../hooks/side";
 export class LiabilityService {
   // 创建liability
   public static async createLiability(body: EditLiability) {
@@ -24,12 +25,17 @@ export class LiabilityService {
     const res = await db.select().from(liability);
     return res;
   }
-  public static async getLiabilitySumAmount() {
+  public static async getLiabilitySumAmount(filter?: SideFilter) {
     // Calculate the sum of all liability amounts
     const liabilityResults = await db.select().from(liability);
 
     // Get all transactions
-    const transactionResults = await db.select().from(transaction);
+    const transactionResults = await db
+      .select()
+      .from(transaction)
+      .where(
+        filter ? lte(transaction.transaction_date, filter.endDate) : undefined
+      );
 
     let totalLiabilityAmount = new Decimal(0);
 
@@ -40,7 +46,7 @@ export class LiabilityService {
       // Calculate inflows (asset to liability, liability to liability transfers)
       const inflows = transactionResults.filter(
         (t) =>
-          t.destination_account_id === liab.id &&
+          t.source_account_id === liab.id &&
           (t.type === FinancialOperation.Borrow ||
             t.type === FinancialOperation.LoanExpenditure)
       );
@@ -54,7 +60,7 @@ export class LiabilityService {
       // Calculate outflows (liability to asset, liability to liability transfers)
       const outflows = transactionResults.filter(
         (t) =>
-          t.source_account_id === liab.id &&
+          t.destination_account_id === liab.id &&
           t.type === FinancialOperation.RepayLoan
       );
 
