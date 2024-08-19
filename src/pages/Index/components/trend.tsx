@@ -28,7 +28,7 @@ interface TrendProps {
 }
 export function Trend(props: TrendProps) {
   return (
-    <ChartContainer config={chartConfig} className="flex-1 aspect-auto">
+    <ChartContainer config={chartConfig} className="h-full aspect-auto">
       <AreaChart
         accessibilityLayer
         data={props.data}

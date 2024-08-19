@@ -21,6 +21,8 @@ import {
   PopoverContent,
   RangeValue,
   DateValue,
+  Tab,
+  Tabs,
 } from "@nextui-org/react";
 import { Category } from "./category";
 import { Trend } from "./trend";
@@ -33,6 +35,12 @@ import {
   useExpenseLineChartService,
 } from "@/api/hooks/expense";
 import dayjs from "dayjs";
+import {
+  MaterialSymbolsBarChart,
+  MaterialSymbolsLightPieChart,
+  MaterialSymbolsShowChart,
+} from "../icon";
+import { BarChartComponent } from "./bar-chart";
 
 export interface SectionCardProps {
   title: string | React.ReactNode;
@@ -41,6 +49,30 @@ type DataItem = {
   amount: number;
   date: string;
 };
+const colors = [
+  "#f97316", // orange
+  "#f59e0b", // amber
+  "#eab308", // yellow
+  "#84cc16", // lime
+  "#22c55e", // green
+  "#10b981", // emerald
+  "#14b8a6", // teal
+  "#06b6d4", // cyan
+  "#0ea5e9", // sky
+  "#3b82f6", // blue
+  "#6366f1", // indigo
+  "#8b5cf6", // violet
+  "#a855f7", // purple
+  "#d946ef", // fuchsia
+  "#ec4899", // pink
+  "#f43f5e", // rose
+  "#64748b", // slate
+  "#6b7280", // gray
+  "#71717a", // zinc
+  "#737373", // neutral
+  "#78716c", // stone
+  "#ef4444", // red
+];
 
 const SectionCard: FC<SectionCardProps> = ({ title }) => {
   const date = new Date();
@@ -119,6 +151,8 @@ const SectionCard: FC<SectionCardProps> = ({ title }) => {
     startDate: value.start,
     endDate: value.end,
   });
+  const [categoryType, setCategoryType] = useState("rank");
+  const [chartType, setChartType] = useState("line");
 
   return (
     <div>
@@ -171,19 +205,94 @@ const SectionCard: FC<SectionCardProps> = ({ title }) => {
       </div>
       <div className="flex  gap-8">
         <Card className="block gap-8 flex-[2]  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0 flex justify-between items-start">
-            <h3 className="font-semibold pl-2">{title}分类排行</h3>
+          <CardHeader className="!mb-0 flex justify-end items-center">
+            <div>
+              <Tabs
+                onSelectionChange={(key) => setCategoryType(key as string)}
+                selectedKey={categoryType}
+                aria-label="Options"
+                size="sm"
+                radius="sm"
+              >
+                <Tab
+                  key="rank"
+                  title={
+                    <div className="flex items-center gap-1">
+                      <MaterialSymbolsLightPieChart className="text-base" />
+                      <div>排行</div>
+                    </div>
+                  }
+                ></Tab>
+                <Tab
+                  key="proportion"
+                  title={
+                    <div className="flex items-center gap-1">
+                      <MaterialSymbolsBarChart className="text-base rotate-90" />
+                      <div>占比</div>
+                    </div>
+                  }
+                ></Tab>
+              </Tabs>
+            </div>
           </CardHeader>
-          <CardBody>
-            <CategoryList items={categoryData ?? []} />
+          <CardBody className=" ">
+            {categoryType !== "rank" ? (
+              <div className="h-[280px]">
+                <Category
+                  data={
+                    categoryData?.map((v, index) => ({
+                      content: v.content,
+                      color: colors[index],
+                      fill: colors[index],
+                      amount: Number(v.amount) as unknown as string,
+                    })) ?? []
+                  }
+                />
+              </div>
+            ) : (
+              <CategoryList items={categoryData ?? []} />
+            )}
           </CardBody>
         </Card>
         <Card className="block gap-8 flex-[3]  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0 flex justify-between items-start">
-            <h3 className="font-semibold pl-2">{title}趋势</h3>
+          <CardHeader className="!mb-0 flex justify-end items-start">
+            <div>
+              <Tabs
+                onSelectionChange={(key) => setChartType(key as string)}
+                selectedKey={chartType}
+                aria-label="Options"
+                size="sm"
+                radius="sm"
+              >
+                <Tab
+                  key="line"
+                  title={
+                    <div className="flex items-center gap-1">
+                      <MaterialSymbolsShowChart className="text-base" />
+                      <div>折线图</div>
+                    </div>
+                  }
+                ></Tab>
+                <Tab
+                  key="bar"
+                  title={
+                    <div className="flex items-center gap-1">
+                      <MaterialSymbolsBarChart className="text-base rotate-90" />
+                      <div>柱状图</div>
+                    </div>
+                  }
+                ></Tab>
+              </Tabs>
+            </div>
           </CardHeader>
-          <CardBody className="flex-row gap-8 h-[300px]">
-            <Trend data={lineData ?? []} />
+          <CardBody className="flex-1  justify-center items-center">
+            <div className="h-[300px] w-full">
+              {chartType === "line" ? (
+                <Trend data={lineData ?? []} />
+              ) : (
+                <BarChartComponent chartData={lineData ?? []} />
+              )}
+            </div>
           </CardBody>
         </Card>
       </div>

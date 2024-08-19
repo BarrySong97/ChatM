@@ -37,7 +37,6 @@ export function CardLineChart({ data }: TrendProps) {
   const gradientOffset = () => {
     const dataMax = Math.max(...data.map((i) => i.data));
     const dataMin = Math.min(...data.map((i) => i.data));
-    console.log(dataMax, dataMin);
 
     if (dataMax <= 0) {
       return 0;

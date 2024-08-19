@@ -69,7 +69,6 @@ export default function DateFilter({ onChange }: DateFilterProps) {
   //   useEffect(() => {
   //     setValue(value);
   //   }, [_value]);
-  console.log(value);
 
   return (
     <div className="flex flex-col gap-4">

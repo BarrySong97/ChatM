@@ -322,8 +322,6 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
       key: "destination_account_id",
       align: "right",
       render(value) {
-        console.log(value);
-
         let destination = assets?.find((asset) => asset.id === value)?.name;
         if (!destination) {
           destination = liabilities?.find(
@@ -332,7 +330,6 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
         }
         if (!destination) {
           destination = expenses?.find((account) => account.id === value)?.name;
-          console.log(destination);
         }
         if (!destination) {
           destination = incomes?.find((income) => income.id === value)?.name;
