@@ -1,15 +1,4 @@
 import React, { FC, useEffect, useState } from "react";
-import type { DatePickerProps } from "antd";
-import { DatePicker } from "antd";
-
-import {
-  today,
-  getLocalTimeZone,
-  startOfWeek,
-  startOfMonth,
-  endOfWeek,
-  endOfMonth,
-} from "@internationalized/date";
 
 import {
   Card,
@@ -22,55 +11,27 @@ import {
   Tab,
   Tabs,
 } from "@nextui-org/react";
-import { Category } from "./category";
-import { Trend } from "./trend";
-import DateFilter from "./date-filter";
 import CategoryList from "@/components/CategoryList";
 import dayjs from "dayjs";
-import {
-  MaterialSymbolsBarChart,
-  MaterialSymbolsLightPieChart,
-  MaterialSymbolsShowChart,
-} from "../icon";
-import { BarChartComponent } from "./bar-chart";
 import {
   useAssetCategoryService,
   useAssetTrendService,
 } from "@/api/hooks/assets";
+import DateFilter from "@/pages/Index/components/date-filter";
+import {
+  MaterialSymbolsBarChart,
+  MaterialSymbolsLightPieChart,
+  MaterialSymbolsShowChart,
+} from "@/pages/Index/icon";
+import { Trend } from "@/pages/Index/components/trend";
+import { BarChartComponent } from "@/pages/Index/components/bar-chart";
+import { Category } from "@/pages/Index/components/category";
 
 export interface SectionCardProps {
   title: string | React.ReactNode;
 }
-type DataItem = {
-  amount: number;
-  date: string;
-};
-const colors = [
-  "#f97316", // orange
-  "#f59e0b", // amber
-  "#eab308", // yellow
-  "#84cc16", // lime
-  "#22c55e", // green
-  "#10b981", // emerald
-  "#14b8a6", // teal
-  "#06b6d4", // cyan
-  "#0ea5e9", // sky
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet
-  "#a855f7", // purple
-  "#d946ef", // fuchsia
-  "#ec4899", // pink
-  "#f43f5e", // rose
-  "#64748b", // slate
-  "#6b7280", // gray
-  "#71717a", // zinc
-  "#737373", // neutral
-  "#78716c", // stone
-  "#ef4444", // red
-];
 
-const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
+const AssetsDetailSectionCard: FC<SectionCardProps> = ({ title }) => {
   const date = new Date();
   const timeFilter = ["近1年", "近3年", "近5年", "近10年"];
   const [time, setTime] = useState(timeFilter[0]);
@@ -188,58 +149,9 @@ const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
         </Popover>
       </div>
       <div className="flex  gap-8">
-        <Card className="block gap-8 flex-[2]  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0 flex justify-end items-center">
-            <div>
-              <Tabs
-                onSelectionChange={(key) => setCategoryType(key as string)}
-                selectedKey={categoryType}
-                aria-label="Options"
-                size="sm"
-                radius="sm"
-              >
-                <Tab
-                  key="rank"
-                  title={
-                    <div className="flex items-center gap-1">
-                      <MaterialSymbolsLightPieChart className="text-base" />
-                      <div>排行</div>
-                    </div>
-                  }
-                ></Tab>
-                <Tab
-                  key="proportion"
-                  title={
-                    <div className="flex items-center gap-1">
-                      <MaterialSymbolsBarChart className="text-base rotate-90" />
-                      <div>占比</div>
-                    </div>
-                  }
-                ></Tab>
-              </Tabs>
-            </div>
-          </CardHeader>
-          <CardBody className=" ">
-            {categoryType !== "rank" ? (
-              <div className="h-[280px]">
-                <Category
-                  data={
-                    categoryData?.map((v, index) => ({
-                      content: v.content,
-                      color: colors[index],
-                      fill: colors[index],
-                      amount: Number(v.amount) as unknown as string,
-                    })) ?? []
-                  }
-                />
-              </div>
-            ) : (
-              <CategoryList items={categoryData ?? []} />
-            )}
-          </CardBody>
-        </Card>
         <Card className="block gap-8 flex-[3]  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0 flex justify-end items-start">
+          <CardHeader className="!mb-0 flex justify-between items-start">
+            <div>{title}</div>
             <div>
               <Tabs
                 onSelectionChange={(key) => setChartType(key as string)}
@@ -270,7 +182,7 @@ const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
             </div>
           </CardHeader>
           <CardBody className="flex-1  justify-center items-center">
-            <div className="h-[300px] w-full">
+            <div className="h-[200px] w-full">
               {chartType === "line" ? (
                 <Trend data={lineData ?? []} />
               ) : (
@@ -284,4 +196,4 @@ const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
   );
 };
 
-export default AssetsSectionCard;
+export default AssetsDetailSectionCard;

@@ -16,13 +16,7 @@ export type NetWorthData = {
 export function useIndexData() {
   const queryKey = ["index"];
 
-  const { data: sideData } = useQuery<{
-    assetsData: AssetsData;
-    liabilitiesData: LiabilitiesData;
-    expenditureData: ExpenditureData;
-    incomeData: IncomeData;
-    netWorthData: NetWorthData[];
-  }>(queryKey, {
+  const { data: sideData } = useQuery(queryKey, {
     queryFn: async () => {
       const assetsData = await AssetsService.getAssetsSumAmount();
       const liabilitiesData = await LiabilityService.getLiabilitySumAmount();

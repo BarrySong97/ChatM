@@ -11,15 +11,6 @@ const Category: FC<CategoryProps> = () => {
         </div>
       </div>
       <Divider className="my-6" />
-      <ExpenseSectionCard
-        showLeft={false}
-        title={
-          <div>
-            <div className="text-sm font-medium text-gray-500"> 微信 </div>
-            <div className="text-gray-900 text-3xl font-medium">100M</div>
-          </div>
-        }
-      />
     </div>
   );
 };
