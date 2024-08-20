@@ -22,8 +22,8 @@ export type IncomeData = {
   incomeAmounts: Map<string, string>;
 };
 export type SideFilter = {
-  startDate?: number;
-  endDate?: number;
+  startDate: number;
+  endDate: number;
 };
 
 export function useSideData(filter: SideFilter) {

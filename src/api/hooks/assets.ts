@@ -3,6 +3,7 @@ import { Asset } from "@db/schema";
 import { AssetsService } from "../services/AssetsSevice";
 import { useState } from "react";
 import { message } from "antd";
+import { CategoryData, Filter, TrendData } from "./expense";
 export type EditAsset = {
   name: string;
   initial_balance: string;
@@ -128,5 +129,31 @@ export function useAssetsService() {
     isEditLoading,
     isDeleteLoading,
     isCreateLoading,
+  };
+}
+
+export function useAssetCategoryService(filter: Filter) {
+  const queryKey = ["assets", "category", filter];
+
+  const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
+    CategoryData[],
+    Error
+  >(queryKey, () => AssetsService.getCategory(filter));
+
+  return {
+    categoryData,
+    isLoadingCategory,
+  };
+}
+export function useAssetTrendService(filter: Filter) {
+  const queryKey = ["assets", "trend", filter];
+  const { data: trendData, isLoading: isLoadingTrend } = useQuery<
+    TrendData[],
+    Error
+  >(queryKey, () => AssetsService.getTrend(filter));
+
+  return {
+    lineData: trendData,
+    isLoadingTrend,
   };
 }

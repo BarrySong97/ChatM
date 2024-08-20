@@ -7,7 +7,7 @@ import { assets, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq, lte, gte, and, min } from "drizzle-orm";
+import { eq, lte, gte, and, min, or } from "drizzle-orm";
 
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
@@ -138,6 +138,151 @@ export class AssetsService {
     return netWorthData;
   }
 
+  public static async getCategory(filter?: SideFilter) {
+    // Fetch all asset-related transactions within the date range
+    const transactions = await db
+      .select({
+        amount: transaction.amount,
+        source_account_id: transaction.source_account_id,
+        destination_account_id: transaction.destination_account_id,
+        type: transaction.type,
+      })
+      .from(transaction)
+      .where(
+        filter?.endDate
+          ? lte(transaction.transaction_date, filter.endDate)
+          : undefined
+      );
+
+    // Fetch all asset accounts
+    const assetAccounts = await db.select().from(assets);
+
+    // Create a map of asset account IDs to names and initial balances
+    const accountMap = new Map(assetAccounts.map((acc) => [acc.id, acc]));
+
+    // Calculate asset totals
+    const assetTotals = new Map<string, Decimal>();
+
+    assetAccounts.forEach((asset) => {
+      assetTotals.set(asset.id, new Decimal(asset.initial_balance || "0"));
+    });
+
+    transactions.forEach((t) => {
+      const amount = new Decimal(t.amount || "0");
+      if (
+        t.destination_account_id &&
+        accountMap.has(t.destination_account_id)
+      ) {
+        // Inflow
+        assetTotals.set(
+          t.destination_account_id,
+          (assetTotals.get(t.destination_account_id) || new Decimal(0)).add(
+            amount
+          )
+        );
+      }
+      if (t.source_account_id && accountMap.has(t.source_account_id)) {
+        // Outflow
+        assetTotals.set(
+          t.source_account_id,
+          (assetTotals.get(t.source_account_id) || new Decimal(0)).sub(amount)
+        );
+      }
+    });
+
+    // Convert the grouped data to the required format
+    const categoryData = Array.from(
+      assetTotals,
+      ([accountId, totalAmount]) => ({
+        content: accountMap.get(accountId)?.name || "Unknown",
+        amount: totalAmount.div(100).toNumber(),
+        color: accountMap.get(accountId)?.color ?? "",
+      })
+    );
+
+    // Sort the categoryData by amount in descending order
+    categoryData.sort((a, b) => b.amount - a.amount);
+
+    return categoryData.map((item) => ({
+      ...item,
+      amount: item.amount.toFixed(2),
+    }));
+  }
+  public static async getTrend(filter: SideFilter) {
+    // Get the start and end dates from the filter
+    const startDate = filter.startDate;
+    const endDate = filter.endDate;
+    const assets = await this.listAssets();
+
+    // Fetch relevant transactions
+    const transactions = await db
+      .select({
+        amount: transaction.amount,
+        type: transaction.type,
+        transaction_date: transaction.transaction_date,
+        source_account_id: transaction.source_account_id,
+        destination_account_id: transaction.destination_account_id,
+      })
+      .from(transaction)
+      .where(
+        and(
+          lte(transaction.transaction_date, endDate),
+          or(
+            eq(transaction.type, FinancialOperation.Income),
+            eq(transaction.type, FinancialOperation.Expenditure),
+            eq(transaction.type, FinancialOperation.Transfer),
+            eq(transaction.type, FinancialOperation.RepayLoan),
+            eq(transaction.type, FinancialOperation.Borrow)
+          )
+        )
+      );
+
+    // Initialize the result array
+    const trendData: { label: string; amount: string }[] = [];
+
+    // Create a map to store daily totals
+    const dailyTotals = new Map<string, Decimal>();
+
+    // Process transactions
+    const assetIds = new Set(assets.map((asset) => asset.id));
+    transactions.forEach((t) => {
+      const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
+      const amount = new Decimal(t.amount || "0");
+
+      if (!dailyTotals.has(date)) {
+        dailyTotals.set(date, new Decimal(0));
+      }
+
+      if (assetIds.has(t.source_account_id ?? "")) {
+        dailyTotals.set(date, dailyTotals.get(date)!.minus(amount));
+      }
+      if (assetIds.has(t.destination_account_id ?? "")) {
+        dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
+      }
+    });
+
+    // Fill in the trend data
+    let currentDate = dayjs(startDate);
+    const endDateDayjs = dayjs(endDate);
+    let runningTotal = new Decimal(0);
+
+    while (
+      currentDate.isBefore(endDateDayjs) ||
+      currentDate.isSame(endDateDayjs)
+    ) {
+      const dateString = currentDate.format("YYYY-MM-DD");
+      if (dailyTotals.has(dateString)) {
+        runningTotal = runningTotal.add(dailyTotals.get(dateString)!);
+      }
+      trendData.push({
+        label: dateString,
+        amount: runningTotal.div(100).toFixed(2),
+      });
+      currentDate = currentDate.add(1, "day");
+    }
+
+    return trendData;
+  }
   // list assets
   public static async listAssets() {
     const res = await db.select().from(assets);

@@ -24,6 +24,7 @@ import { useExpenseLineChartService } from "@/api/hooks/expense";
 import dayjs from "dayjs";
 import IncomeSectionCard from "./components/income-section-card";
 import AssetsSectionCard from "./components/assets-section-card";
+import LiabilitySectionCard from "./components/liability-section-card";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -99,7 +100,7 @@ const Index: FC<IndexProps> = () => {
     {
       key: "4",
       label: "负债",
-      children: null,
+      children: <LiabilitySectionCard title="负债" />,
     },
   ];
   const {

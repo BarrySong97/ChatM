@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EditLiability } from "../hooks/liability";
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
+import dayjs from "dayjs";
 export class LiabilityService {
   // 创建liability
   public static async createLiability(body: EditLiability) {
@@ -93,7 +94,91 @@ export class LiabilityService {
     return res;
   }
 
-  public static async getTrend(filter?: SideFilter) {}
+  public static async getTrend(filter?: SideFilter) {
+    const transactions = await db
+      .select({
+        amount: transaction.amount,
+        source_account_id: transaction.source_account_id,
+        destination_account_id: transaction.destination_account_id,
+        transaction_date: transaction.transaction_date,
+        type: transaction.type,
+      })
+      .from(transaction)
+      .where(
+        and(
+          filter?.endDate
+            ? lte(transaction.transaction_date, filter.endDate)
+            : undefined,
+          or(
+            eq(transaction.type, FinancialOperation.Borrow),
+            eq(transaction.type, FinancialOperation.LoanExpenditure),
+            eq(transaction.type, FinancialOperation.RepayLoan)
+          )
+        )
+      );
+
+    // Initialize the result array
+    const trendData: { label: string; amount: string }[] = [];
+
+    // Create a map to store daily totals
+    const dailyTotals = new Map<string, Decimal>();
+
+    // Process transactions
+    const liabilityIds = new Set(
+      await this.listLiability().then((liabilities) =>
+        liabilities.map((l) => l.id)
+      )
+    );
+    transactions.forEach((t) => {
+      const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
+      const amount = new Decimal(t.amount || "0");
+
+      if (!dailyTotals.has(date)) {
+        dailyTotals.set(date, new Decimal(0));
+      }
+
+      if (
+        t.type === FinancialOperation.Borrow &&
+        liabilityIds.has(t.source_account_id ?? "")
+      ) {
+        dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
+      } else if (
+        t.type === FinancialOperation.RepayLoan &&
+        liabilityIds.has(t.destination_account_id ?? "")
+      ) {
+        dailyTotals.set(date, dailyTotals.get(date)!.minus(amount));
+      } else if (
+        t.type === FinancialOperation.LoanExpenditure &&
+        liabilityIds.has(t.source_account_id ?? "")
+      ) {
+        dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
+      }
+    });
+
+    // Fill in the trend data
+    let currentDate = dayjs(
+      filter?.startDate ?? transactions[0]?.transaction_date
+    );
+    const endDateDayjs = dayjs(filter?.endDate ?? new Date());
+    let runningTotal = new Decimal(0);
+
+    while (
+      currentDate.isBefore(endDateDayjs) ||
+      currentDate.isSame(endDateDayjs)
+    ) {
+      const dateString = currentDate.format("YYYY-MM-DD");
+      if (dailyTotals.has(dateString)) {
+        runningTotal = runningTotal.add(dailyTotals.get(dateString)!);
+      }
+      trendData.push({
+        label: dateString,
+        amount: runningTotal.div(100).toFixed(2),
+      });
+      currentDate = currentDate.add(1, "day");
+    }
+
+    return trendData;
+  }
 
   public static async getCategory(filter?: SideFilter) {
     // Fetch all liability-related transactions within the date range
@@ -107,15 +192,13 @@ export class LiabilityService {
       .from(transaction)
       .where(
         and(
-          filter?.startDate
-            ? gte(transaction.transaction_date, filter.startDate)
-            : undefined,
           filter?.endDate
             ? lte(transaction.transaction_date, filter.endDate)
             : undefined,
           or(
             eq(transaction.type, FinancialOperation.Borrow),
-            eq(transaction.type, FinancialOperation.LoanExpenditure)
+            eq(transaction.type, FinancialOperation.LoanExpenditure),
+            eq(transaction.type, FinancialOperation.RepayLoan)
           )
         )
       );
@@ -136,6 +219,9 @@ export class LiabilityService {
       if (t.type === FinancialOperation.RepayLoan) {
         accountId = t.destination_account_id;
         amount = new Decimal(t.amount || "0").div(100).negated();
+      } else if (t.type === FinancialOperation.Borrow) {
+        accountId = t.source_account_id;
+        amount = new Decimal(t.amount || "0").div(100);
       } else {
         accountId = t.source_account_id;
         amount = new Decimal(t.amount || "0").div(100);

@@ -42,6 +42,10 @@ import {
 } from "../icon";
 import { BarChartComponent } from "./bar-chart";
 import EchartsTest from "./test";
+import {
+  useAssetCategoryService,
+  useAssetTrendService,
+} from "@/api/hooks/assets";
 
 export interface SectionCardProps {
   title: string | React.ReactNode;
@@ -77,29 +81,11 @@ const colors = [
 
 const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
   const date = new Date();
-  const timeFilter = ["近1年", "近3年", "近5年"];
+  const timeFilter = ["近1年", "近3年", "近5年", "近10年"];
   const [time, setTime] = useState(timeFilter[0]);
   useEffect(() => {
     const now = dayjs();
     switch (time) {
-      case "当前月":
-        setValue({
-          start: now.startOf("month").valueOf(),
-          end: now.endOf("month").valueOf(),
-        });
-        break;
-      case "近1月":
-        setValue({
-          start: now.subtract(1, "month").valueOf(),
-          end: now.valueOf(),
-        });
-        break;
-      case "近3月":
-        setValue({
-          start: now.subtract(3, "months").valueOf(),
-          end: now.valueOf(),
-        });
-        break;
       case "近1年":
         setValue({
           start: now.subtract(1, "year").valueOf(),
@@ -118,10 +104,16 @@ const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
           end: now.valueOf(),
         });
         break;
+      case "近10年":
+        setValue({
+          start: now.subtract(10, "years").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
       default:
         setValue({
-          start: now.startOf("month").valueOf(),
-          end: now.endOf("month").valueOf(),
+          start: now.subtract(1, "year").valueOf(),
+          end: now.valueOf(),
         });
     }
   }, [time]);
@@ -144,11 +136,11 @@ const AssetsSectionCard: FC<SectionCardProps> = ({ title }) => {
     ).getTime(),
   });
   const [isOpen, setIsOpen] = React.useState(false);
-  const { lineData } = useExpenseLineChartService({
+  const { lineData } = useAssetTrendService({
     startDate: value.start,
     endDate: value.end,
   });
-  const { categoryData } = useExpenseCategoryService({
+  const { categoryData } = useAssetCategoryService({
     startDate: value.start,
     endDate: value.end,
   });
