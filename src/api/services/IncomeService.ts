@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EditIncome } from "../hooks/income";
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
+import dayjs from "dayjs";
 // 收入服务
 export class IncomeService {
   // 创建income
@@ -36,8 +37,12 @@ export class IncomeService {
       .where(
         filter
           ? and(
-              gte(transaction.transaction_date, filter.startDate),
-              lte(transaction.transaction_date, filter.endDate)
+              ...(filter.startDate
+                ? [gte(transaction.transaction_date, filter.startDate)]
+                : []),
+              ...(filter.endDate
+                ? [lte(transaction.transaction_date, filter.endDate)]
+                : [])
             )
           : undefined
       );
@@ -74,6 +79,131 @@ export class IncomeService {
       .set({ name: body.name })
       .where(eq(income.id, id));
     return res;
+  }
+
+  public static async getTrend(filter?: SideFilter) {
+    // Get the start and end dates from the filter
+    const startDate = filter?.startDate
+      ? new Date(filter.startDate)
+      : new Date(0);
+    const endDate = filter?.endDate ? new Date(filter.endDate) : new Date();
+
+    // Calculate the number of days between start and end dates
+    const daysDifference = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)
+    );
+
+    const trendData = [];
+
+    // First, fetch all transactions within the date range
+    const transactions = await db
+      .select()
+      .from(transaction)
+      .where(
+        and(
+          gte(transaction.transaction_date, startDate.getTime()),
+          lte(transaction.transaction_date, endDate.getTime()),
+          eq(transaction.type, FinancialOperation.Income)
+        )
+      );
+
+    // Create a map to store daily income totals
+    const dailyIncomes = new Map<string, Decimal>();
+
+    // Calculate daily incomes from transactions
+    for (const t of transactions) {
+      const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
+      const amount = new Decimal(t.amount || "0").div(100);
+      dailyIncomes.set(
+        date,
+        (dailyIncomes.get(date) || new Decimal(0)).add(amount)
+      );
+    }
+
+    // Generate trend data for each day in the date range
+    for (let i = 0; i <= daysDifference; i++) {
+      const currentDate = dayjs(startDate).add(i, "day");
+      const formattedDate = currentDate.format("YYYY-MM-DD");
+
+      trendData.push({
+        amount: (dailyIncomes.get(formattedDate) || new Decimal(0)).toFixed(2),
+        label: formattedDate,
+      });
+    }
+
+    return trendData;
+  }
+
+  public static async getExpenseCategory(filter?: SideFilter) {
+    // Fetch all income-related transactions within the date range
+    const transactions = await db
+      .select({
+        amount: transaction.amount,
+        source_account_id: transaction.source_account_id,
+      })
+      .from(transaction)
+      .where(
+        and(
+          filter?.startDate
+            ? gte(transaction.transaction_date, filter.startDate)
+            : undefined,
+          filter?.endDate
+            ? lte(transaction.transaction_date, filter.endDate)
+            : undefined,
+          eq(transaction.type, FinancialOperation.Income)
+        )
+      );
+
+    // Fetch all income accounts
+    const incomeAccounts = await db.select().from(income);
+
+    // Create a map of income account IDs to names
+    const accountNameMap = new Map(incomeAccounts.map((acc) => [acc.id, acc]));
+
+    // Group transactions by source_account_id and sum amounts
+    const categoryTotals = transactions.reduce((acc, t) => {
+      const accountId = t.source_account_id || "";
+      const amount = new Decimal(t.amount || "0").div(100);
+      acc.set(accountId, (acc.get(accountId) || new Decimal(0)).add(amount));
+      return acc;
+    }, new Map<string, Decimal>());
+
+    // Convert the grouped data to the required format
+    const categoryData = Array.from(
+      categoryTotals,
+      ([accountId, totalAmount]) => ({
+        content: accountNameMap.get(accountId)?.name || "Unknown",
+        amount: totalAmount.toNumber(),
+        color: accountNameMap.get(accountId)?.color ?? "",
+      })
+    );
+
+    // Sort the categoryData by amount in descending order
+    categoryData.sort((a, b) => b.amount - a.amount);
+
+    // Create a set of account IDs that have transactions
+    const accountsWithTransactions = new Set(
+      categoryData.map((item) => item.content)
+    );
+
+    // Add income accounts that don't have transactions
+    incomeAccounts.forEach((account) => {
+      if (!accountsWithTransactions.has(account.name || "")) {
+        categoryData.push({
+          content: account.name || "",
+          amount: 0,
+          color: account.color ?? "",
+        });
+      }
+    });
+
+    // Sort the categoryData by amount in descending order again
+    categoryData.sort((a, b) => b.amount - a.amount);
+
+    return categoryData.map((item) => ({
+      ...item,
+      amount: item.amount.toFixed(2),
+    }));
   }
 
   // delete income

@@ -23,6 +23,7 @@
     "@electric-sql/pglite-react": "^0.2.0",
     "@glideapps/glide-data-grid": "^6.0.3",
     "@internationalized/date": "^3.5.5",
+    "@kbox-labs/react-echarts": "^1.2.1",
     "@nextui-org/react": "^2.4.6",
     "@paralleldrive/cuid2": "^2.2.2",
     "@visactor/react-vtable": "^1.5.4",

@@ -1,6 +1,6 @@
 import { Divider } from "@nextui-org/react";
 import { FC } from "react";
-import SectionCard from "../Index/components/SectionCard";
+import ExpenseSectionCard from "../Index/components/expense-section-card";
 export interface CategoryProps {}
 const Category: FC<CategoryProps> = () => {
   return (
@@ -11,7 +11,7 @@ const Category: FC<CategoryProps> = () => {
         </div>
       </div>
       <Divider className="my-6" />
-      <SectionCard
+      <ExpenseSectionCard
         showLeft={false}
         title={
           <div>

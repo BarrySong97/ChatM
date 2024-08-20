@@ -1,15 +1,4 @@
 import React, { FC, useEffect, useState } from "react";
-import type { DatePickerProps } from "antd";
-import { DatePicker } from "antd";
-
-import {
-  today,
-  getLocalTimeZone,
-  startOfWeek,
-  startOfMonth,
-  endOfWeek,
-  endOfMonth,
-} from "@internationalized/date";
 
 import {
   Card,
@@ -19,8 +8,6 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  RangeValue,
-  DateValue,
   Tab,
   Tabs,
 } from "@nextui-org/react";
@@ -29,8 +16,6 @@ import { Trend } from "./trend";
 import DateFilter from "./date-filter";
 import CategoryList from "@/components/CategoryList";
 import {
-  CategoryData,
-  TrendData,
   useExpenseCategoryService,
   useExpenseLineChartService,
 } from "@/api/hooks/expense";
@@ -41,14 +26,13 @@ import {
   MaterialSymbolsShowChart,
 } from "../icon";
 import { BarChartComponent } from "./bar-chart";
-
+import {
+  useIncomeCategoryService,
+  useIncomeLineChartService,
+} from "@/api/hooks/income";
 export interface SectionCardProps {
   title: string | React.ReactNode;
 }
-type DataItem = {
-  amount: number;
-  date: string;
-};
 const colors = [
   "#f97316", // orange
   "#f59e0b", // amber
@@ -74,7 +58,7 @@ const colors = [
   "#ef4444", // red
 ];
 
-const SectionCard: FC<SectionCardProps> = ({ title }) => {
+const ExpenseSectionCard: FC<SectionCardProps> = ({ title }) => {
   const date = new Date();
   const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
   const [time, setTime] = useState(timeFilter[0]);
@@ -143,11 +127,11 @@ const SectionCard: FC<SectionCardProps> = ({ title }) => {
     ).getTime(),
   });
   const [isOpen, setIsOpen] = React.useState(false);
-  const { lineData } = useExpenseLineChartService({
+  const { lineData } = useIncomeLineChartService({
     startDate: value.start,
     endDate: value.end,
   });
-  const { categoryData } = useExpenseCategoryService({
+  const { categoryData } = useIncomeCategoryService({
     startDate: value.start,
     endDate: value.end,
   });
@@ -300,4 +284,4 @@ const SectionCard: FC<SectionCardProps> = ({ title }) => {
   );
 };
 
-export default SectionCard;
+export default ExpenseSectionCard;

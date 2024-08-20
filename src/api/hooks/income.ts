@@ -3,6 +3,7 @@ import { Income } from "@db/schema";
 import { IncomeService } from "../services/IncomeService";
 import { useState } from "react";
 import { message } from "antd";
+import { CategoryData, Filter, TrendData } from "./expense";
 
 export type EditIncome = {
   name: string;
@@ -135,5 +136,33 @@ export function useIncomeService() {
     isEditLoading,
     isDeleteLoading,
     isCreateLoading,
+  };
+}
+
+export function useIncomeLineChartService(filter: Filter) {
+  const queryKey = ["incomes", "chart", filter];
+
+  const { data: chartData, isLoading: isLoadingChart } = useQuery<
+    TrendData[],
+    Error
+  >(queryKey, () => IncomeService.getTrend(filter));
+
+  return {
+    lineData: chartData,
+    isLoadingChart,
+  };
+}
+
+export function useIncomeCategoryService(filter: Filter) {
+  const queryKey = ["incomes", "category", filter];
+
+  const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
+    CategoryData[],
+    Error
+  >(queryKey, () => IncomeService.getExpenseCategory(filter));
+
+  return {
+    categoryData,
+    isLoadingCategory,
   };
 }

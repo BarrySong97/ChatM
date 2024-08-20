@@ -7,7 +7,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { FC } from "react";
-import SectionCard from "../Index/components/SectionCard";
+import ExpenseSectionCard from "../Index/components/expense-section-card";
 import { Space, Table, TableProps } from "antd";
 import {
   IcBaselineWechat,
@@ -121,7 +121,7 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <SectionCard
+        <ExpenseSectionCard
           title={
             <div>
               <div className="text-sm font-medium text-gray-500"> 总资产 </div>

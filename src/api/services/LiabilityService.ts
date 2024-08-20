@@ -1,4 +1,4 @@
-import { eq, lte } from "drizzle-orm";
+import { and, eq, gte, lte, or } from "drizzle-orm";
 import { request as __request } from "../core/request";
 import { liability, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
@@ -34,7 +34,9 @@ export class LiabilityService {
       .select()
       .from(transaction)
       .where(
-        filter ? lte(transaction.transaction_date, filter.endDate) : undefined
+        filter?.endDate
+          ? lte(transaction.transaction_date, filter.endDate)
+          : undefined
       );
 
     let totalLiabilityAmount = new Decimal(0);
@@ -91,6 +93,97 @@ export class LiabilityService {
     return res;
   }
 
+  public static async getTrend(filter?: SideFilter) {}
+
+  public static async getCategory(filter?: SideFilter) {
+    // Fetch all liability-related transactions within the date range
+    const transactions = await db
+      .select({
+        amount: transaction.amount,
+        source_account_id: transaction.source_account_id,
+        destination_account_id: transaction.destination_account_id,
+        type: transaction.type,
+      })
+      .from(transaction)
+      .where(
+        and(
+          filter?.startDate
+            ? gte(transaction.transaction_date, filter.startDate)
+            : undefined,
+          filter?.endDate
+            ? lte(transaction.transaction_date, filter.endDate)
+            : undefined,
+          or(
+            eq(transaction.type, FinancialOperation.Borrow),
+            eq(transaction.type, FinancialOperation.LoanExpenditure)
+          )
+        )
+      );
+
+    // Fetch all liability accounts
+    const liabilityAccounts = await db.select().from(liability);
+
+    // Create a map of liability account IDs to names
+    const accountNameMap = new Map(
+      liabilityAccounts.map((acc) => [acc.id, acc])
+    );
+
+    // Group transactions by liability account and sum amounts
+    const categoryTotals = transactions.reduce((acc, t) => {
+      let accountId;
+      let amount;
+
+      if (t.type === FinancialOperation.RepayLoan) {
+        accountId = t.destination_account_id;
+        amount = new Decimal(t.amount || "0").div(100).negated();
+      } else {
+        accountId = t.source_account_id;
+        amount = new Decimal(t.amount || "0").div(100);
+      }
+
+      if (accountId) {
+        acc.set(accountId, (acc.get(accountId) || new Decimal(0)).add(amount));
+      }
+      return acc;
+    }, new Map<string, Decimal>());
+
+    // Convert the grouped data to the required format
+    const categoryData = Array.from(
+      categoryTotals,
+      ([accountId, totalAmount]) => ({
+        content: accountNameMap.get(accountId)?.name || "Unknown",
+        amount: totalAmount.toNumber(),
+        color: accountNameMap.get(accountId)?.color ?? "",
+      })
+    );
+
+    // Sort the categoryData by amount in descending order
+    categoryData.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+
+    // Create a set of account IDs that have transactions
+    const accountsWithTransactions = new Set(
+      categoryData.map((item) => item.content)
+    );
+
+    // Add liability accounts that don't have transactions
+    liabilityAccounts.forEach((account) => {
+      if (!accountsWithTransactions.has(account.name || "")) {
+        categoryData.push({
+          content: account.name || "",
+          amount: 0,
+          color: account.color ?? "",
+        });
+      }
+    });
+
+    // Sort the categoryData by absolute amount in descending order
+    categoryData.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+
+    return categoryData.map((item) => ({
+      ...item,
+      amount: item.amount.toFixed(2),
+    }));
+  }
   // delete liability
   public static async deleteLiability(id: string) {
     const res = await db.delete(liability).where(eq(liability.id, id));

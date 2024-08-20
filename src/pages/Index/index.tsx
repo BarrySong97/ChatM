@@ -14,15 +14,16 @@ import { atom } from "jotai";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import FinancialItem from "./components/metic-card";
-import StockItem from "./components/category";
 import { Tabs, TabsProps } from "antd";
-import SectionCard from "./components/SectionCard";
+import ExpenseSectionCard from "./components/expense-section-card";
 import { Test } from "./components/test";
 import { AssetsService } from "@/api/services/AssetsSevice";
 import { useIndexData } from "@/api/hooks";
 import Decimal from "decimal.js";
 import { useExpenseLineChartService } from "@/api/hooks/expense";
 import dayjs from "dayjs";
+import IncomeSectionCard from "./components/income-section-card";
+import AssetsSectionCard from "./components/assets-section-card";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -83,167 +84,22 @@ const Index: FC<IndexProps> = () => {
     {
       key: "1",
       label: "支出",
-      children: <SectionCard title="支出" />,
+      children: <ExpenseSectionCard title="支出" />,
     },
     {
       key: "2",
       label: "收入",
-      children: (
-        <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0">
-            <h3 className="font-semibold">支出</h3>
-          </CardHeader>
-          <CardBody className="flex-row gap- h-[300px]">
-            <div className="space-y-4 w-[300px]">
-              <StockItem
-                title="NVDA"
-                subtitle="Share Price"
-                color="bg-purple-500"
-              />
-              <StockItem
-                title="INTC"
-                subtitle="Share Price"
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="INTC"
-                subtitle="Share Price"
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="QCOM"
-                subtitle="Share Price"
-                color="bg-green-600"
-              />
-              <StockItem
-                title="AMD"
-                subtitle="Share Price"
-                color="bg-red-600"
-              />
-              <StockItem
-                title="AVGO"
-                subtitle="Share Price"
-                color="bg-pink-800"
-              />
-              <StockItem
-                title="AVGO"
-                subtitle="Share Price"
-                color="bg-pink-800"
-              />
-            </div>
-            <Trend />
-          </CardBody>
-        </Card>
-      ),
+      children: <IncomeSectionCard title="收入" />,
     },
     {
       key: "3",
       label: "资产",
-      children: (
-        <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0">
-            <h3 className="font-semibold">支出</h3>
-          </CardHeader>
-          <CardBody className="flex-row gap- h-[300px]">
-            <div className="space-y-4 w-[300px]">
-              <StockItem
-                title="NVDA"
-                subtitle="Share Price"
-                color="bg-purple-500"
-              />
-              <StockItem
-                title="INTC"
-                subtitle="Share Price"
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="INTC"
-                subtitle="Share Price"
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="QCOM"
-                subtitle="Share Price"
-                color="bg-green-600"
-              />
-              <StockItem
-                title="AMD"
-                subtitle="Share Price"
-                color="bg-red-600"
-              />
-              <StockItem
-                title="AVGO"
-                subtitle="Share Price"
-                color="bg-pink-800"
-              />
-              <StockItem
-                title="AVGO"
-                subtitle="Share Price"
-                color="bg-pink-800"
-              />
-            </div>
-            <Trend />
-          </CardBody>
-        </Card>
-      ),
+      children: <AssetsSectionCard title="" />,
     },
     {
       key: "4",
       label: "负债",
-      children: (
-        <Card className="block gap-8  mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0">
-            <h3 className="font-semibold">支出</h3>
-          </CardHeader>
-          <CardBody className="flex-row gap-8 h-[300px]">
-            <div className="space-y-4 w-[300px]">
-              <StockItem
-                title="NVDA"
-                percent={2.18}
-                amount={1.32}
-                color="bg-purple-500"
-              />
-              <StockItem
-                title="INTC"
-                percent={2.18}
-                amount={1.32}
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="INTC"
-                percent={2.18}
-                amount={1.32}
-                color="bg-yellow-500"
-              />
-              <StockItem
-                title="QCOM"
-                color="bg-green-600"
-                percent={2.18}
-                amount={1.32}
-              />
-              <StockItem
-                title="AMD"
-                color="bg-red-600"
-                percent={2.18}
-                amount={1.32}
-              />
-              <StockItem
-                title="AVGO"
-                color="bg-pink-800"
-                percent={2.18}
-                amount={1.32}
-              />
-              <StockItem
-                title="AVGO"
-                color="bg-pink-800"
-                percent={2.18}
-                amount={1.32}
-              />
-            </div>
-            <Trend />
-          </CardBody>
-        </Card>
-      ),
+      children: null,
     },
   ];
   const {
