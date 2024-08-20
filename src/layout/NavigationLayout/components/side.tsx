@@ -128,6 +128,9 @@ const Side: FC<SideProps> = () => {
     },
     {
       key: "liabilities",
+      onTitleClick: () => {
+        navigate("/liabilities");
+      },
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>负债</div>
@@ -167,6 +170,9 @@ const Side: FC<SideProps> = () => {
   const items2: MenuItem[] = [
     {
       key: "income",
+      onTitleClick: () => {
+        navigate("/income");
+      },
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>收入</div>
@@ -198,6 +204,9 @@ const Side: FC<SideProps> = () => {
     },
     {
       key: "expenses",
+      onTitleClick: () => {
+        navigate("/expense");
+      },
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>支出</div>

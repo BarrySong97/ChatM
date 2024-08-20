@@ -5,6 +5,9 @@ import Assets from "./pages/Assets";
 // import DataMapping from "./pages/DataMapping";
 import Category from "./pages/Category";
 import Transactions from "./pages/Transactions";
+import Lia from "./pages/Lia";
+import Income from "./pages/Income";
+import Expense from "./pages/Expense";
 
 const router = createHashRouter([
   // 导航界面路由
@@ -27,6 +30,22 @@ const router = createHashRouter([
       {
         path: "/transactions",
         element: <Transactions />,
+      },
+      {
+        path: "/liabilities",
+        element: <Lia />,
+      },
+      {
+        path: "/income",
+        element: <Income />,
+      },
+      {
+        path: "/expense",
+        element: <Expense />,
+      },
+      {
+        path: "/category/:type/:id",
+        element: <Category />,
       },
       // {
       //   path: "/mapping",
