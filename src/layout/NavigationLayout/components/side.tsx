@@ -147,6 +147,9 @@ const Side: FC<SideProps> = () => {
         ...(liabilities || []).map((item) => {
           return {
             key: item.id,
+            onClick: () => {
+              navigate(`/category/liabilities/${item.id}`);
+            },
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -187,6 +190,9 @@ const Side: FC<SideProps> = () => {
         ...(incomes || []).map((item) => {
           return {
             key: item.id,
+            onClick: () => {
+              navigate(`/category/income/${item.id}`);
+            },
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -210,6 +216,7 @@ const Side: FC<SideProps> = () => {
       onTitleClick: () => {
         navigate("/expense");
       },
+
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>支出</div>
@@ -223,6 +230,9 @@ const Side: FC<SideProps> = () => {
         ...(expenses || []).map((item) => {
           return {
             key: item.id,
+            onClick: () => {
+              navigate(`/category/expense/${item.id}`);
+            },
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>

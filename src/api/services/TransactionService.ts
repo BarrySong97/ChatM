@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gte, like, lte, or, sql } from "drizzle-orm";
 import { Transaction, transaction } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -25,19 +25,50 @@ export class TransactionService {
   public static async listTransactions(
     transactionListParams?: TransactionListParams
   ) {
-    console.log(transactionListParams);
-
     const page = transactionListParams?.page ?? 1;
     const pageSize = transactionListParams?.pageSize ?? 10;
     const offset = (page - 1) * pageSize;
     const condition = [];
-    if (transactionListParams?.search) {
+    if (transactionListParams?.accountId) {
       condition.push(
-        sql`${transaction.content} LIKE ${
-          "%" + transactionListParams?.search + "%"
-        }`
+        ...transactionListParams?.accountId.map((id) =>
+          or(
+            eq(transaction.source_account_id, id),
+            eq(transaction.destination_account_id, id)
+          )
+        )
       );
     }
+    if (transactionListParams?.type) {
+      condition.push(
+        ...transactionListParams?.type.map((type) => eq(transaction.type, type))
+      );
+    }
+    if (transactionListParams?.minAmount) {
+      condition.push(gte(transaction.amount, transactionListParams?.minAmount));
+    }
+    if (transactionListParams?.maxAmount) {
+      condition.push(lte(transaction.amount, transactionListParams?.maxAmount));
+    }
+    if (transactionListParams?.startDate) {
+      condition.push(
+        gte(transaction.transaction_date, transactionListParams?.startDate)
+      );
+    }
+    if (transactionListParams?.search) {
+      condition.push(
+        like(transaction.content, `%${transactionListParams?.search}%`)
+      );
+    }
+    if (transactionListParams?.endDate) {
+      condition.push(
+        lte(transaction.transaction_date, transactionListParams?.endDate)
+      );
+    }
+    const finalCondition =
+      transactionListParams?.filterConditions === "or"
+        ? or(...condition)
+        : and(...condition);
     const res = await db
       .select({
         id: transaction.id,
@@ -55,11 +86,7 @@ export class TransactionService {
         totalCount: sql<number>`COUNT(*) OVER()`,
       })
       .from(transaction)
-      .where(
-        sql`${transaction.content} LIKE ${
-          "%" + transactionListParams?.search + "%"
-        }`
-      )
+      .where(and(finalCondition))
       .limit(pageSize)
       .offset(offset);
 

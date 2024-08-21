@@ -4,6 +4,7 @@ import { TransactionService } from "../services/TransactionService";
 import { useState } from "react";
 import { message } from "antd";
 import { Page } from "../models/Page";
+import { useDebounceFn } from "ahooks";
 
 export type EditTransaction = {
   content: string;
@@ -21,6 +22,13 @@ export type TransactionListParams = {
   page?: number;
   pageSize?: number;
   search?: string;
+  accountId?: string[];
+  type?: string[];
+  minAmount?: number;
+  maxAmount?: number;
+  startDate?: number;
+  endDate?: number;
+  filterConditions?: "or" | "and";
 };
 export function useTransactionService(
   transactionListParams?: TransactionListParams
@@ -31,6 +39,13 @@ export function useTransactionService(
     transactionListParams?.page,
     transactionListParams?.pageSize,
     transactionListParams?.search,
+    transactionListParams?.accountId,
+    transactionListParams?.type,
+    transactionListParams?.minAmount,
+    transactionListParams?.maxAmount,
+    transactionListParams?.startDate,
+    transactionListParams?.endDate,
+    transactionListParams?.filterConditions,
   ];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
@@ -42,7 +57,6 @@ export function useTransactionService(
     Page<Transaction>,
     Error
   >(queryKey, () => TransactionService.listTransactions(transactionListParams));
-
   // Create transaction
   const { mutateAsync: createTransaction } = useMutation(
     (params: { transaction: EditTransaction }) =>

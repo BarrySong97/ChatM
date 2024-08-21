@@ -1,6 +1,5 @@
 import React from "react";
 import { Input, Button, Pagination, Link } from "@nextui-org/react";
-import { PlusIcon, SearchIcon } from "./PluseIcon";
 import { ConfigProvider, Table, TableProps, Tag } from "antd";
 import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
@@ -15,7 +14,6 @@ import { FinancialOperation } from "@/api/db/manager";
 import Decimal from "decimal.js";
 import { Page } from "@/api/models/Page";
 import { useTransactionService } from "@/api/hooks/transaction";
-import TransactionsFilter from "./filter";
 import dayjs from "dayjs";
 
 const operationColors: Record<FinancialOperation, string> = {
@@ -35,7 +33,12 @@ export const operationTranslations: Record<FinancialOperation, string> = {
   [FinancialOperation.Borrow]: "借款",
   [FinancialOperation.LoanExpenditure]: "贷款支出",
 };
-export default function TransactionsTable() {
+export interface TransactionsTableProps {
+  accountId?: string;
+}
+export default function CategoryTransactionsTable({
+  accountId,
+}: TransactionsTableProps) {
   const [filterValue, setFilterValue] = React.useState("");
   const { incomes } = useIncomeService();
   const { expenses } = useExpenseService();
@@ -43,31 +46,12 @@ export default function TransactionsTable() {
   const { liabilities } = useLiabilityService();
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
-  const [selectedTypes, setSelectedTypes] = React.useState<Set<string>>(
-    new Set()
-  );
-  const [selectedSource, setSelectedSource] = React.useState<Set<string>>(
-    new Set()
-  );
-  const [minAmount, setMinAmount] = React.useState<number>(0);
-  const [maxAmount, setMaxAmount] = React.useState<number>(0);
-  const [startDate, setStartDate] = React.useState<Date | null>(null);
-  const [endDate, setEndDate] = React.useState<Date | null>(null);
-  const [filterConditions, setFilterConditions] = React.useState<"or" | "and">(
-    "and"
-  );
   const { transactions } = useTransactionService({
     page: page,
     pageSize: rowsPerPage,
-    search: filterValue,
-    accountId: selectedSource.size > 0 ? Array.from(selectedSource) : undefined,
-    type: selectedTypes.size > 0 ? Array.from(selectedTypes) : undefined,
-    minAmount: minAmount,
-    maxAmount: maxAmount,
-    startDate: startDate ? startDate.getTime() : undefined,
-    endDate: endDate ? endDate.getTime() : undefined,
-    filterConditions: filterConditions,
+    accountId: accountId ? [accountId] : undefined,
   });
+  console.log(transactions, accountId);
 
   const onRowsPerPageChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -76,137 +60,15 @@ export default function TransactionsTable() {
     },
     []
   );
-  const getName = (id: string) =>
-    [assets, liabilities, expenses, incomes].map((item) => {
-      return item?.find((item) => item.id === id)?.name;
-    });
-  const renderFilterConditions = () => {
-    const types = Array.from(selectedTypes);
-    const sources = Array.from(selectedSource);
-    return (
-      <div className="space-y-2">
-        {types.map((type) => {
-          return (
-            <Tag
-              bordered={false}
-              closable
-              onClose={() => {
-                setSelectedTypes(new Set(types.filter((t) => t !== type)));
-              }}
-              color={operationColors[type as FinancialOperation]}
-            >
-              {operationTranslations[type as FinancialOperation]}
-            </Tag>
-          );
-        })}
-        {sources.map((source) => (
-          <Tag
-            closable
-            onClose={() => {
-              setSelectedSource(new Set(sources.filter((s) => s !== source)));
-            }}
-            bordered={false}
-          >
-            {getName(source)}
-          </Tag>
-        ))}
-        {minAmount || maxAmount ? (
-          <Tag
-            onClose={() => {
-              setMinAmount(0);
-              setMaxAmount(0);
-            }}
-            closable
-            bordered={false}
-          >
-            金额: {minAmount ? minAmount : "不限"} -{" "}
-            {maxAmount ? maxAmount : "不限"}
-          </Tag>
-        ) : null}
-
-        {startDate || endDate ? (
-          <Tag
-            closable
-            onClose={() => {
-              setStartDate(null);
-              setEndDate(null);
-            }}
-            bordered={false}
-          >
-            日期：{startDate ? dayjs(startDate).format("YYYY-MM-DD") : "不限"} -{" "}
-            {endDate ? dayjs(endDate).format("YYYY-MM-DD") : "目前"}
-          </Tag>
-        ) : null}
-      </div>
-    );
-  };
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between gap-3 items-end">
-          <div className="flex gap-3">
-            <Input
-              isClearable
-              classNames={{
-                base: "w-[300px]",
-                inputWrapper: "border-1",
-              }}
-              placeholder="搜索流水内容"
-              size="sm"
-              startContent={<SearchIcon className="text-default-300" />}
-              value={filterValue}
-              variant="bordered"
-              onClear={() => setFilterValue("")}
-              onValueChange={(v) => {
-                setFilterValue(v);
-                setPage(1);
-              }}
-            />
-            <div className="flex items-center gap-4">
-              <TransactionsFilter
-                selectedTypes={selectedTypes}
-                setSelectedTypes={setSelectedTypes}
-                selectedSource={selectedSource}
-                setSelectedSource={setSelectedSource}
-                minAmount={minAmount}
-                setMinAmount={setMinAmount}
-                maxAmount={maxAmount}
-                setMaxAmount={setMaxAmount}
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
-                incomes={incomes}
-                expenses={expenses}
-                assets={assets}
-                liabilities={liabilities}
-              />
-              <div className="flex gap-0 items-center text-default-400 text-small">
-                <div>满足</div>
-                <select
-                  className="bg-transparent outline-none text-default-400 text-small"
-                  onChange={(e) => {
-                    setFilterConditions(e.target.value as "and" | "or");
-                  }}
-                >
-                  <option value="and">所有</option>
-                  <option value="or">任一</option>
-                </select>
-                <div>条件</div>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              className="bg-foreground text-background"
-              endContent={<PlusIcon />}
-              size="sm"
-            >
-              添加流水
-            </Button>
-          </div>
+        <div className="flex gap-3 justify-between items-center">
+          <div className="text-lg font-bold">流水数据</div>
+          <Button className="bg-foreground text-background" size="sm">
+            添加流水
+          </Button>
         </div>
-        {renderFilterConditions()}
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
             共 {transactions?.totalCount ?? 0} 条流水
@@ -226,15 +88,7 @@ export default function TransactionsTable() {
         </div>
       </div>
     );
-  }, [
-    transactions,
-    selectedTypes,
-    selectedSource,
-    minAmount,
-    maxAmount,
-    startDate,
-    endDate,
-  ]);
+  }, [transactions]);
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -280,10 +134,6 @@ export default function TransactionsTable() {
           <div>
             <Tag
               className="hover:cursor-pointer"
-              onClick={() => {
-                selectedTypes.add(value);
-                setSelectedTypes(new Set(selectedTypes));
-              }}
               color={color}
               bordered={false}
             >
@@ -335,10 +185,6 @@ export default function TransactionsTable() {
         return (
           <div>
             <Tag
-              onClick={() => {
-                selectedSource.add(value);
-                setSelectedSource(new Set(selectedSource));
-              }}
               className="mr-0 hover:cursor-pointer"
               color="processing"
               bordered={false}
@@ -370,10 +216,6 @@ export default function TransactionsTable() {
         return (
           <div>
             <Tag
-              onClick={() => {
-                selectedSource.add(value);
-                setSelectedSource(new Set(selectedSource));
-              }}
               className="mr-0 hover:cursor-pointer"
               color="processing"
               bordered={false}

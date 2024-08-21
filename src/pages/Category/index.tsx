@@ -1,13 +1,27 @@
-import { Divider } from "@nextui-org/react";
+import { Card, CardBody, Divider } from "@nextui-org/react";
 import { FC, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAssetsService } from "@/api/hooks/assets";
 import AssetsSubDetailSectionCard from "./components/assets-section-card";
+import CategoryTransactionsTable from "@/components/CategoryTable";
+import { useLiabilityService } from "@/api/hooks/liability";
+import { useExpenseService } from "@/api/hooks/expense";
+import { useIncomeService } from "@/api/hooks/income";
 export interface CategoryProps {}
 const date = new Date();
 const Category: FC<CategoryProps> = () => {
   const { id, type } = useParams<{ id: string; type: string }>();
-  const { asset } = useAssetsService(id!);
+  const { assets } = useAssetsService();
+  const { liabilities } = useLiabilityService();
+  const { expenses } = useExpenseService();
+  const { incomes } = useIncomeService();
+  const item = [
+    ...(assets || []),
+    ...(liabilities || []),
+    ...(expenses || []),
+    ...(incomes || []),
+  ].find((item) => item.id === id);
+
   const renderType = () => {
     if (type === "assets") {
       return "资产";
@@ -38,19 +52,25 @@ const Category: FC<CategoryProps> = () => {
       0
     ).getTime(),
   });
+  console.log(id);
 
   return (
-    <div className="px-12 py-8   mx-auto">
+    <div className="px-12 py-8  overflow-auto scrollbar h-full mx-auto">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">
-            {renderType()} - {asset?.name}
+            {renderType()} - {item?.name}
           </h1>
           <div></div>
         </div>
       </div>
       <Divider className="my-6" />
       <AssetsSubDetailSectionCard setValue={setValue} value={value} />
+      <Card>
+        <CardBody>
+          <CategoryTransactionsTable accountId={id!} />
+        </CardBody>
+      </Card>
     </div>
   );
 };
