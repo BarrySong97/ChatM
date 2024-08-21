@@ -1,4 +1,5 @@
 import React from "react";
+import { useDebounce } from "ahooks";
 import {
   Input,
   Button,
@@ -6,19 +7,26 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  Chip,
-  User,
   Pagination,
   Selection,
-  ChipProps,
   SortDescriptor,
   Link,
+  Tooltip,
+  Select,
+  SelectItem,
+  Listbox,
+  ListboxItem,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  ListboxSection,
+  DatePicker,
 } from "@nextui-org/react";
-import { users, statusOptions } from "./data";
+import { statusOptions } from "./data";
 import { capitalize } from "./utils";
 import { ChevronDownIcon, PlusIcon, SearchIcon } from "./PluseIcon";
 import { ConfigProvider, Table, TableProps, Tag } from "antd";
-import { Transaction, Transactions } from "@db/schema";
+import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useAssetsService } from "@/api/hooks/assets";
@@ -26,7 +34,6 @@ import { useLiabilityService } from "@/api/hooks/liability";
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 
-type User = (typeof users)[0];
 interface DataType {
   key: string;
   name: string;
@@ -35,10 +42,14 @@ interface DataType {
   tags: string[];
 }
 export interface TransactionsTableProps {
-  data?: Transactions;
+  data?: Page<Transaction>;
 }
 import { FinancialOperation } from "@/api/db/manager";
 import Decimal from "decimal.js";
+import { Page } from "@/api/models/Page";
+import { useTransactionService } from "@/api/hooks/transaction";
+import TransactionsFilter from "./filter";
+import dayjs from "dayjs";
 
 const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.Income]: "#4CAF50", // Green
@@ -49,7 +60,7 @@ const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.LoanExpenditure]: "#795548", // Brown
 };
 
-const operationTranslations: Record<FinancialOperation, string> = {
+export const operationTranslations: Record<FinancialOperation, string> = {
   [FinancialOperation.Income]: "收入",
   [FinancialOperation.Expenditure]: "支出",
   [FinancialOperation.Transfer]: "转账",
@@ -57,63 +68,20 @@ const operationTranslations: Record<FinancialOperation, string> = {
   [FinancialOperation.Borrow]: "借款",
   [FinancialOperation.LoanExpenditure]: "贷款支出",
 };
-
-export default function TransactionsTable({ data }: TransactionsTableProps) {
+export default function TransactionsTable() {
   const [filterValue, setFilterValue] = React.useState("");
-  const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
-    new Set([])
-  );
-  const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
-  );
-  const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
-    column: "age",
-    direction: "ascending",
-  });
+  const { incomes } = useIncomeService();
+  const { expenses } = useExpenseService();
+  const { assets } = useAssetsService();
+  const { liabilities } = useLiabilityService();
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
-
-  const pages = Math.ceil(users.length / rowsPerPage);
-
-  const hasSearchFilter = Boolean(filterValue);
-
-  const filteredItems = React.useMemo(() => {
-    let filteredUsers = [...users];
-
-    if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    }
-    if (
-      statusFilter !== "all" &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredUsers = filteredUsers.filter((user) =>
-        Array.from(statusFilter).includes(user.status)
-      );
-    }
-
-    return filteredUsers;
-  }, [users, filterValue, statusFilter]);
-
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-
-    return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
-
-  const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: User, b: User) => {
-      const first = a[sortDescriptor.column as keyof User] as number;
-      const second = b[sortDescriptor.column as keyof User] as number;
-      const cmp = first < second ? -1 : first > second ? 1 : 0;
-
-      return sortDescriptor.direction === "descending" ? -cmp : cmp;
-    });
-  }, [sortDescriptor, items]);
+  const debouncedValue = useDebounce(filterValue, { wait: 500 });
+  const { transactions } = useTransactionService({
+    page: page,
+    pageSize: rowsPerPage,
+    search: debouncedValue as unknown as string,
+  });
 
   const onRowsPerPageChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -122,95 +90,165 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
     },
     []
   );
+  const [selectedTypes, setSelectedTypes] = React.useState<Set<string>>(
+    new Set()
+  );
+  const [selectedSource, setSelectedSource] = React.useState<Set<string>>(
+    new Set()
+  );
+  const [minAmount, setMinAmount] = React.useState<number>(0);
+  const [maxAmount, setMaxAmount] = React.useState<number>(0);
+  const [startDate, setStartDate] = React.useState<Date | null>(null);
+  const [endDate, setEndDate] = React.useState<Date | null>(null);
+  console.log(selectedSource);
 
-  const onSearchChange = React.useCallback((value?: string) => {
-    if (value) {
-      setFilterValue(value);
-      setPage(1);
-    } else {
-      setFilterValue("");
-    }
-  }, []);
+  const getName = (id: string) =>
+    [assets, liabilities, expenses, incomes].map((item) => {
+      return item?.find((item) => item.id === id)?.name;
+    });
+  const renderFilterConditions = () => {
+    const types = Array.from(selectedTypes);
+    const sources = Array.from(selectedSource);
+    return (
+      <div className="space-y-2">
+        {types.map((type) => {
+          return (
+            <Tag
+              bordered={false}
+              closable
+              onClose={() => {
+                setSelectedTypes(new Set(types.filter((t) => t !== type)));
+              }}
+              color={operationColors[type as FinancialOperation]}
+            >
+              {operationTranslations[type as FinancialOperation]}
+            </Tag>
+          );
+        })}
+        {sources.map((source) => (
+          <Tag
+            closable
+            onClose={() => {
+              setSelectedSource(new Set(sources.filter((s) => s !== source)));
+            }}
+            bordered={false}
+          >
+            {getName(source)}
+          </Tag>
+        ))}
+        {minAmount || maxAmount ? (
+          <Tag
+            onClose={() => {
+              setMinAmount(0);
+              setMaxAmount(0);
+            }}
+            closable
+            bordered={false}
+          >
+            金额: {minAmount ? minAmount : "不限"} -{" "}
+            {maxAmount ? maxAmount : "不限"}
+          </Tag>
+        ) : null}
 
+        {startDate || endDate ? (
+          <Tag
+            closable
+            onClose={() => {
+              setStartDate(null);
+              setEndDate(null);
+            }}
+            bordered={false}
+          >
+            日期：{startDate ? dayjs(startDate).format("YYYY-MM-DD") : "不限"} -{" "}
+            {endDate ? dayjs(endDate).format("YYYY-MM-DD") : "目前"}
+          </Tag>
+        ) : null}
+      </div>
+    );
+  };
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            classNames={{
-              base: "w-full sm:max-w-[44%]",
-              inputWrapper: "border-1",
-            }}
-            placeholder="Search by name..."
-            size="sm"
-            startContent={<SearchIcon className="text-default-300" />}
-            value={filterValue}
-            variant="bordered"
-            onClear={() => setFilterValue("")}
-            onValueChange={onSearchChange}
-          />
           <div className="flex gap-3">
-            <Dropdown>
-              <DropdownTrigger className="hidden sm:flex">
-                <Button
-                  endContent={<ChevronDownIcon className="text-small" />}
-                  size="sm"
-                  variant="flat"
-                >
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label="Table Columns"
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode="multiple"
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className="capitalize">
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+            <Input
+              isClearable
+              classNames={{
+                base: "w-[300px]",
+                inputWrapper: "border-1",
+              }}
+              placeholder="搜索流水内容"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                }
+              }}
+              size="sm"
+              startContent={<SearchIcon className="text-default-300" />}
+              value={filterValue}
+              variant="bordered"
+              onClear={() => setFilterValue("")}
+              onValueChange={(v) => {
+                setFilterValue(v);
+                setPage(1);
+              }}
+            />
+            <TransactionsFilter
+              selectedTypes={selectedTypes}
+              setSelectedTypes={setSelectedTypes}
+              selectedSource={selectedSource}
+              setSelectedSource={setSelectedSource}
+              minAmount={minAmount}
+              setMinAmount={setMinAmount}
+              maxAmount={maxAmount}
+              setMaxAmount={setMaxAmount}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              incomes={incomes}
+              expenses={expenses}
+              assets={assets}
+              liabilities={liabilities}
+            />
+          </div>
+          <div className="flex gap-3">
             <Button
               className="bg-foreground text-background"
               endContent={<PlusIcon />}
               size="sm"
             >
-              Add New
+              添加流水
             </Button>
           </div>
         </div>
+        {renderFilterConditions()}
         <div className="flex justify-between items-center">
           <span className="text-default-400 text-small">
-            Total {users.length} users
+            共 {transactions?.totalCount ?? 0} 条流水
           </span>
           <label className="flex items-center text-default-400 text-small">
-            Rows per page:
+            每页:
             <select
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
+              <option value="10">10条</option>
+              <option value="15">15条</option>
+              <option value="20">20条</option>
+              <option value="25">25条</option>
             </select>
           </label>
         </div>
       </div>
     );
   }, [
-    filterValue,
-    statusFilter,
-    visibleColumns,
-    onSearchChange,
-    onRowsPerPageChange,
-    users.length,
-    hasSearchFilter,
+    transactions,
+    selectedTypes,
+    selectedSource,
+    minAmount,
+    maxAmount,
+    startDate,
+    endDate,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -222,24 +260,17 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
             cursor: "bg-foreground text-background",
           }}
           color="default"
-          isDisabled={hasSearchFilter}
-          page={page}
-          total={pages}
+          page={transactions?.currentPage ?? 1}
+          total={transactions?.totalPages ?? 0}
           variant="light"
           onChange={setPage}
         />
         <span className="text-small text-default-400">
-          {selectedKeys === "all"
-            ? "All items selected"
-            : `${selectedKeys.size} of ${items.length} selected`}
+          {`0 of ${transactions?.list.length ?? 0} selected`}
         </span>
       </div>
     );
-  }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-  const { incomes } = useIncomeService();
-  const { expenses } = useExpenseService();
-  const { assets } = useAssetsService();
-  const { liabilities } = useLiabilityService();
+  }, [transactions]);
 
   const columns: TableProps<Transaction>["columns"] = [
     {
@@ -392,7 +423,11 @@ export default function TransactionsTable({ data }: TransactionsTableProps) {
             },
           }}
         >
-          <Table pagination={false} columns={columns} dataSource={data}></Table>
+          <Table
+            pagination={false}
+            columns={columns}
+            dataSource={transactions?.list}
+          ></Table>
         </ConfigProvider>
       </div>
       {bottomContent}

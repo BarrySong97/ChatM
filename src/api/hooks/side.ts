@@ -24,6 +24,7 @@ export type IncomeData = {
 export type SideFilter = {
   startDate: number;
   endDate: number;
+  accountId?: string;
 };
 
 export function useSideData(filter: SideFilter) {

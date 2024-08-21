@@ -13,7 +13,7 @@ export const transaction = sqliteTable("transactions", {
   remark: text("remark"),
   destination_account_id: text("destination_account_id"),
   tags: text("tags"),
-  amount: text("amount"),
+  amount: integer("amount"),
 });
 
 export const tags = sqliteTable("tags", {

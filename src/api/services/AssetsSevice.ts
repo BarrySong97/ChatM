@@ -214,6 +214,24 @@ export class AssetsService {
     const endDate = filter.endDate;
     const assets = await this.listAssets();
 
+    const conditions = [
+      lte(transaction.transaction_date, endDate),
+      or(
+        eq(transaction.type, FinancialOperation.Income),
+        eq(transaction.type, FinancialOperation.Expenditure),
+        eq(transaction.type, FinancialOperation.Transfer),
+        eq(transaction.type, FinancialOperation.RepayLoan),
+        eq(transaction.type, FinancialOperation.Borrow)
+      ),
+    ];
+    if (filter.accountId) {
+      conditions.push(
+        or(
+          eq(transaction.source_account_id, filter.accountId),
+          eq(transaction.destination_account_id, filter.accountId)
+        )
+      );
+    }
     // Fetch relevant transactions
     const transactions = await db
       .select({
@@ -224,18 +242,7 @@ export class AssetsService {
         destination_account_id: transaction.destination_account_id,
       })
       .from(transaction)
-      .where(
-        and(
-          lte(transaction.transaction_date, endDate),
-          or(
-            eq(transaction.type, FinancialOperation.Income),
-            eq(transaction.type, FinancialOperation.Expenditure),
-            eq(transaction.type, FinancialOperation.Transfer),
-            eq(transaction.type, FinancialOperation.RepayLoan),
-            eq(transaction.type, FinancialOperation.Borrow)
-          )
-        )
-      );
+      .where(and(...conditions));
 
     // Initialize the result array
     const trendData: { label: string; amount: string }[] = [];
@@ -244,7 +251,10 @@ export class AssetsService {
     const dailyTotals = new Map<string, Decimal>();
 
     // Process transactions
-    const assetIds = new Set(assets.map((asset) => asset.id));
+    const assetIds = filter.accountId
+      ? new Set([filter.accountId])
+      : new Set(assets.map((asset) => asset.id));
+    console.log(filter.accountId, transactions);
     transactions.forEach((t) => {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || "0");
@@ -301,6 +311,16 @@ export class AssetsService {
   // delete asset
   public static async deleteAsset(assetId: string) {
     const res = await db.delete(assets).where(eq(assets.id, assetId));
+    return res;
+  }
+
+  // get by id
+  public static async getAssetById(assetId: string) {
+    const res = await db
+      .select()
+      .from(assets)
+      .where(eq(assets.id, assetId))
+      .get();
     return res;
   }
 }

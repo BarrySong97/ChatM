@@ -39,18 +39,15 @@ CREATE TABLE `tags` (
 --> statement-breakpoint
 CREATE TABLE `transactions` (
 	`id` text PRIMARY KEY NOT NULL,
-	`name` text,
+	`content` text,
 	`created_at` integer,
 	`updated_at` integer,
 	`transaction_date` integer,
-	`color` text,
 	`type` text,
 	`source` text,
 	`source_account_id` text,
 	`remark` text,
 	`destination_account_id` text,
-	`test` text,
-	`test1` text,
 	`tags` text,
-	`amount` text
+	`amount` integer
 );

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "0cb7d5f3-e0e8-44f9-90fa-9b16e64338e6",
+  "id": "d01bc148-b5a8-43a8-b4b7-2d4216e53f54",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "assets": {
@@ -227,8 +227,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "name": {
-          "name": "name",
+        "content": {
+          "name": "content",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -251,13 +251,6 @@
         "transaction_date": {
           "name": "transaction_date",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "color": {
-          "name": "color",
-          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -297,20 +290,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "test": {
-          "name": "test",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "test1": {
-          "name": "test1",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "tags": {
           "name": "tags",
           "type": "text",
@@ -320,7 +299,7 @@
         },
         "amount": {
           "name": "amount",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

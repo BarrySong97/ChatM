@@ -16,17 +16,34 @@ const chartData = [
   { month: "June", desktop: 214 },
 ];
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
-
 interface TrendProps {
   data: any;
 }
+const chartConfig = {
+  negative: {
+    label: "negative",
+    color: "hsl(var(--chart-1))",
+  },
+  positive: {
+    label: "positive",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig;
 export function Trend(props: TrendProps) {
+  const gradientOffset = () => {
+    const dataMax = Math.max(...props.data.map((i: any) => i.data));
+    const dataMin = Math.min(...props.data.map((i: any) => i.data));
+
+    if (dataMax <= 0) {
+      return 0;
+    }
+    if (dataMin >= 0) {
+      return 1;
+    }
+
+    return dataMax / (dataMax - dataMin);
+  };
+  const off = gradientOffset();
   return (
     <ChartContainer config={chartConfig} className="h-full aspect-auto">
       <AreaChart
@@ -49,12 +66,26 @@ export function Trend(props: TrendProps) {
           cursor={false}
           content={<ChartTooltipContent indicator="line" />}
         />
+        <defs>
+          <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset={off}
+              stopColor={chartConfig.negative.color}
+              stopOpacity={1}
+            />
+            <stop
+              offset={off}
+              stopColor={chartConfig.positive.color}
+              stopOpacity={1}
+            />
+          </linearGradient>
+        </defs>
         <Area
           dataKey="amount"
-          type="bump"
-          fill="hsl(var(--chart-1))"
+          type="monotone"
+          fill="url(#splitColor)"
           fillOpacity={0.4}
-          stroke="hsl(var(--chart-1))"
+          stroke="url(#splitColor)"
         />
       </AreaChart>
     </ChartContainer>

@@ -35,9 +35,6 @@ importers:
       '@xyflow/react':
         specifier: ^12.0.4
         version: 12.0.4(@types/react@18.2.61)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      ahooks:
-        specifier: ^3.7.10
-        version: 3.7.10(react@18.2.0)
       antd:
         specifier: ^5.14.2
         version: 5.14.2(date-fns@2.30.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -147,6 +144,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.0.4
         version: 4.2.1(vite@5.1.4(@types/node@20.11.24))
+      ahooks:
+        specifier: ^3.7.10
+        version: 3.7.10(react@18.2.0)
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.18(postcss@8.4.35)

@@ -3,6 +3,7 @@ import { Transaction } from "@db/schema";
 import { TransactionService } from "../services/TransactionService";
 import { useState } from "react";
 import { message } from "antd";
+import { Page } from "../models/Page";
 
 export type EditTransaction = {
   content: string;
@@ -16,9 +17,21 @@ export type EditTransaction = {
   amount: string;
 };
 
-export function useTransactionService() {
+export type TransactionListParams = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+};
+export function useTransactionService(
+  transactionListParams?: TransactionListParams
+) {
   const queryClient = useQueryClient();
-  const queryKey = ["transactions"];
+  const queryKey = [
+    "transactions",
+    transactionListParams?.page,
+    transactionListParams?.pageSize,
+    transactionListParams?.search,
+  ];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -26,9 +39,9 @@ export function useTransactionService() {
 
   // Fetch transaction list
   const { data: transactions, isLoading: isLoadingTransactions } = useQuery<
-    Array<Transaction>,
+    Page<Transaction>,
     Error
-  >(queryKey, () => TransactionService.listTransactions());
+  >(queryKey, () => TransactionService.listTransactions(transactionListParams));
 
   // Create transaction
   const { mutateAsync: createTransaction } = useMutation(
@@ -39,18 +52,31 @@ export function useTransactionService() {
         setIsCreateLoading(true);
         await queryClient.cancelQueries(queryKey);
         const previousTransactions =
-          queryClient.getQueryData<Array<Transaction>>(queryKey);
+          queryClient.getQueryData<Page<Transaction>>(queryKey);
         return { previousTransactions };
       },
       onSuccess(data) {
         message.success("创建成功");
-        queryClient.setQueryData<Array<Transaction>>(
-          queryKey,
-          (oldTransactions: Array<Transaction> = []) => {
-            return [...oldTransactions, data];
-          }
-        );
+        // queryClient.setQueryData<Page<Transaction>>(
+        //   queryKey,
+        //   (
+        //     oldTransactions: Page<Transaction> = {
+        //       list: [],
+        //       totalCount: 0,
+        //       currentPage: 0,
+        //       pageSize: 0,
+        //       totalPages: 0,
+        //     }
+        //   ) => {
+        //     return {
+        //       ...oldTransactions,
+        //     };
+        //   }
+        // );
         queryClient.invalidateQueries(["side"]);
+        console.log(queryKey);
+
+        queryClient.invalidateQueries(queryKey);
       },
       onSettled() {
         setIsCreateLoading(false);
@@ -79,13 +105,30 @@ export function useTransactionService() {
         setIsEditLoading(true);
         await queryClient.cancelQueries(queryKey);
         const previousTransactions =
-          queryClient.getQueryData<Array<Transaction>>(queryKey);
-        queryClient.setQueryData<Array<Transaction>>(
+          queryClient.getQueryData<Page<Transaction>>(queryKey);
+        queryClient.setQueryData<Page<Transaction>>(
           queryKey,
-          (oldTransactions: Array<Transaction> = []) => {
-            return oldTransactions?.map((t) =>
-              t.id === transactionId ? { ...t, ...transaction } : t
-            );
+          // @ts-ignore
+          (
+            oldTransactions: Page<Transaction> = {
+              list: [],
+              totalCount: 0,
+              currentPage: 0,
+              pageSize: 0,
+              totalPages: 0,
+            }
+          ) => {
+            return {
+              ...oldTransactions,
+              list: oldTransactions.list.map((t) =>
+                t.id === transactionId
+                  ? {
+                      ...t,
+                      ...transaction,
+                    }
+                  : t
+              ),
+            };
           }
         );
         return { previousTransactions };
@@ -114,11 +157,22 @@ export function useTransactionService() {
         setIsDeleteLoading(true);
         await queryClient.cancelQueries(queryKey);
         const previousTransactions =
-          queryClient.getQueryData<Array<Transaction>>(queryKey);
-        queryClient.setQueryData<Array<Transaction>>(
+          queryClient.getQueryData<Page<Transaction>>(queryKey);
+        queryClient.setQueryData<Page<Transaction>>(
           queryKey,
-          (oldTransactions: Array<Transaction> = []) => {
-            return oldTransactions?.filter((t) => t.id !== transactionId);
+          (
+            oldTransactions: Page<Transaction> = {
+              list: [],
+              totalCount: 0,
+              currentPage: 0,
+              pageSize: 0,
+              totalPages: 0,
+            }
+          ) => {
+            return {
+              ...oldTransactions,
+              list: oldTransactions.list.filter((t) => t.id !== transactionId),
+            };
           }
         );
         return { previousTransactions };

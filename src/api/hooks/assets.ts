@@ -8,7 +8,7 @@ export type EditAsset = {
   name: string;
   initial_balance: string;
 };
-export function useAssetsService() {
+export function useAssetsService(assetId?: string) {
   const queryClient = useQueryClient();
 
   const queryKey = ["assets"];
@@ -16,6 +16,17 @@ export function useAssetsService() {
   const [isEditLoading, setisEditLoading] = useState(false);
   const [isDeleteLoading, setisDeleteLoading] = useState(false);
   const [isCreateLoading, setisCreateLoading] = useState(false);
+
+  // get by id
+  const { data: asset, isLoading: isLoadingAsset } = useQuery<
+    Asset | undefined,
+    Error
+  >({
+    queryKey: ["assets", assetId],
+    enabled: !!assetId,
+    queryFn: () => AssetsService.getAssetById(assetId!),
+  });
+
   // Fetch user list
   const { data: assets, isLoading: isLoadingAssets } = useQuery<
     Array<Asset>,
@@ -122,6 +133,7 @@ export function useAssetsService() {
   );
   return {
     assets,
+    asset,
     isLoadingAssets,
     editAsset,
     deleteAsset,

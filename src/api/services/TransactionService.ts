@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
-import { transaction } from "@db/schema";
+import { eq, sql } from "drizzle-orm";
+import { Transaction, transaction } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
-import { EditTransaction } from "../hooks/transaction";
+import { EditTransaction, TransactionListParams } from "../hooks/transaction";
+import { Page } from "../models/Page";
 
 export class TransactionService {
   // 创建 transaction
@@ -21,9 +22,56 @@ export class TransactionService {
   }
 
   // 列出所有 transactions
-  public static async listTransactions() {
-    const res = await db.select().from(transaction);
-    return res;
+  public static async listTransactions(
+    transactionListParams?: TransactionListParams
+  ) {
+    console.log(transactionListParams);
+
+    const page = transactionListParams?.page ?? 1;
+    const pageSize = transactionListParams?.pageSize ?? 10;
+    const offset = (page - 1) * pageSize;
+    const condition = [];
+    if (transactionListParams?.search) {
+      condition.push(
+        sql`${transaction.content} LIKE ${
+          "%" + transactionListParams?.search + "%"
+        }`
+      );
+    }
+    const res = await db
+      .select({
+        id: transaction.id,
+        content: transaction.content,
+        created_at: transaction.created_at,
+        updated_at: transaction.updated_at,
+        transaction_date: transaction.transaction_date,
+        type: transaction.type,
+        source: transaction.source,
+        source_account_id: transaction.source_account_id,
+        remark: transaction.remark,
+        destination_account_id: transaction.destination_account_id,
+        tags: transaction.tags,
+        amount: transaction.amount,
+        totalCount: sql<number>`COUNT(*) OVER()`,
+      })
+      .from(transaction)
+      .where(
+        sql`${transaction.content} LIKE ${
+          "%" + transactionListParams?.search + "%"
+        }`
+      )
+      .limit(pageSize)
+      .offset(offset);
+
+    const response: Page<Transaction> = {
+      list: res.map(({ totalCount, ...item }) => item),
+      totalCount: res[0]?.totalCount ?? 0,
+      currentPage: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil((res[0]?.totalCount ?? 0) / pageSize),
+    };
+
+    return response;
   }
 
   // 编辑 transaction

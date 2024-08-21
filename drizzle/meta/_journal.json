@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1723880618669,
-      "tag": "0000_faulty_nick_fury",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1723880644716,
-      "tag": "0001_loose_saracen",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1723880816262,
-      "tag": "0002_blue_banshee",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1723881554364,
-      "tag": "0003_heavy_doctor_faustus",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1723881603460,
-      "tag": "0004_yellow_quasimodo",
+      "when": 1724204582925,
+      "tag": "0000_wooden_penance",
       "breakpoints": true
     }
   ]
