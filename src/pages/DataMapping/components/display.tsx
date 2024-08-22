@@ -162,8 +162,6 @@ export default function Transactions({
   const selectedRowRef = useRef<number[]>([]);
   useEffect(() => {
     if (ref.current) {
-      console.log(ref.current);
-
       // ref.current.register.editor("input-editor", inputEditor);
     }
   }, [ref.current]);
@@ -196,7 +194,6 @@ export default function Transactions({
         start: { col: 1, row: startRow },
         end: { col: 10, row: endRow },
       });
-      console.log(cellRanges);
 
       ref.current.selectCells(cellRanges);
     }
@@ -227,8 +224,6 @@ export default function Transactions({
                   row: number;
                   checked: boolean;
                 }) => {
-                  console.log(props);
-
                   setSelectedRow((pre) => {
                     if (props.row === 0 && props.col === 0) {
                       if (props.checked) {

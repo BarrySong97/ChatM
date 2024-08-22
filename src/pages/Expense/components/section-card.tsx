@@ -149,7 +149,7 @@ const ExpenseDetailSectionCard: FC<SectionCardProps> = ({
         <CardHeader className="!mb-0 flex justify-between items-start">
           <div>
             <div className="text-sm font-medium text-gray-500">
-              该时间段支出
+              该时间段共支出
             </div>
             <div className="text-gray-900 text-3xl font-medium">
               {lineData

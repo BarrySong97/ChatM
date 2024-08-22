@@ -254,7 +254,6 @@ export class AssetsService {
     const assetIds = filter.accountId
       ? new Set([filter.accountId])
       : new Set(assets.map((asset) => asset.id));
-    console.log(filter.accountId, transactions);
     transactions.forEach((t) => {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || "0");

@@ -108,8 +108,6 @@ const TransactionsFilter: FC<TransactionsFilterProps> = (props) => {
           selectedKeys={selectedTypes}
           selectionMode="multiple"
           onSelectionChange={(keys) => {
-            console.log(333);
-
             setSelectedTypes(keys as Set<string>);
           }}
         >

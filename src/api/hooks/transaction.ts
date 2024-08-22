@@ -88,7 +88,6 @@ export function useTransactionService(
         //   }
         // );
         queryClient.invalidateQueries(["side"]);
-        console.log(queryKey);
 
         queryClient.invalidateQueries(queryKey);
       },

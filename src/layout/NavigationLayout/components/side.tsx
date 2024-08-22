@@ -24,7 +24,7 @@ import {
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccountModal from "@/components/AccountModal";
 import { useAssetsService } from "@/api/hooks/assets";
@@ -39,6 +39,7 @@ import {
 import TransactionModal from "@/components/TransactionModal";
 import { useSideData } from "@/api/hooks/side";
 import Decimal from "decimal.js";
+import DataImportModal from "./data-import";
 export interface SideProps {}
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
@@ -291,6 +292,11 @@ const Side: FC<SideProps> = () => {
   const balance = new Decimal(incomeData?.totalAmount || 0).sub(
     new Decimal(expenditureData?.totalAmount || 0)
   );
+
+  const handleClick = () => {
+    setShowDataImportModal(true);
+  };
+  const [showDataImportModal, setShowDataImportModal] = useState(false);
   return (
     <ConfigProvider
       theme={{
@@ -328,7 +334,7 @@ const Side: FC<SideProps> = () => {
             </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-2 mt-4 justify-start px-4">
+        <div className="flex flex-col gap-2 mt-4 justify-start px-4 mb-4">
           {menuList.map((item) => {
             return (
               <Button
@@ -364,78 +370,77 @@ const Side: FC<SideProps> = () => {
             开发者工具
           </Button>
         </div>
-        <div className="mt-4 overflow-auto scrollbar h-[calc(100vh-264px)] px-4">
-          <div className="mb-4 text-sm text-default-600 flex items-center justify-between">
-            <Button
-              variant="light"
-              radius="sm"
-              size="sm"
-              isIconOnly
-              onClick={() => changeMonth("prev")}
-            >
-              <MaterialSymbolsArrowBackIosNewRounded />
-            </Button>
-            <Popover
-              isOpen={showPopover}
-              onOpenChange={setShowPopover}
-              placement="bottom"
-              showArrow
-            >
-              <PopoverTrigger>
-                <Button size="sm" variant="light" radius="sm">
-                  {formatDateRange(month[0], month[1])}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0">
-                <Calendar
-                  showShadow={false}
-                  showMonthAndYearPickers
-                  value={parseDate(month[1].toISOString().slice(0, 10))}
-                  classNames={{
-                    base: "shadow-none",
-                  }}
-                  isHeaderExpanded={true}
-                  onFocusChange={(date) => {
-                    const _month = date.month;
-                    const year = date.year;
-                    console.log(_month, year);
+        <div className="mb-4 text-sm text-default-600 flex items-center justify-between px-4">
+          <Button
+            variant="light"
+            radius="sm"
+            size="sm"
+            isIconOnly
+            onClick={() => changeMonth("prev")}
+          >
+            <MaterialSymbolsArrowBackIosNewRounded />
+          </Button>
+          <Popover
+            isOpen={showPopover}
+            onOpenChange={setShowPopover}
+            placement="bottom"
+            showArrow
+          >
+            <PopoverTrigger>
+              <Button size="sm" variant="light" radius="sm">
+                {formatDateRange(month[0], month[1])}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Calendar
+                showShadow={false}
+                showMonthAndYearPickers
+                value={parseDate(month[1].toISOString().slice(0, 10))}
+                classNames={{
+                  base: "shadow-none",
+                }}
+                isHeaderExpanded={true}
+                onFocusChange={(date) => {
+                  const _month = date.month;
+                  const year = date.year;
 
-                    if (
-                      month[1].getFullYear() !== year ||
-                      month[1].getMonth() + 1 !== _month
-                    ) {
-                      setMonth([
-                        new Date(year, _month - 1, 1),
-                        new Date(year, _month, 0),
-                      ]);
-                    }
-                  }}
-                  aria-label="Date (No Selection)"
-                />
-                <Button
-                  variant="flat"
-                  radius="full"
-                  size="sm"
-                  onClick={() => {
-                    setMonth([new Date(), new Date()]);
-                    setShowPopover(false);
-                  }}
-                  className="my-2"
-                >
-                  当前月
-                </Button>
-              </PopoverContent>
-            </Popover>
-            <Button
-              variant="light"
-              radius="sm"
-              size="sm"
-              isIconOnly
-              onClick={() => changeMonth("next")}
-            >
-              <MaterialSymbolsArrowForwardIosRounded />
-            </Button>
-          </div>
+                  if (
+                    month[1].getFullYear() !== year ||
+                    month[1].getMonth() + 1 !== _month
+                  ) {
+                    setMonth([
+                      new Date(year, _month - 1, 1),
+                      new Date(year, _month, 0),
+                    ]);
+                  }
+                }}
+                aria-label="Date (No Selection)"
+              />
+              <Button
+                variant="flat"
+                radius="full"
+                size="sm"
+                onClick={() => {
+                  setMonth([new Date(), new Date()]);
+                  setShowPopover(false);
+                }}
+                className="my-2"
+              >
+                当前月
+              </Button>
+            </PopoverContent>
+          </Popover>
+          <Button
+            variant="light"
+            radius="sm"
+            size="sm"
+            isIconOnly
+            onClick={() => changeMonth("next")}
+          >
+            <MaterialSymbolsArrowForwardIosRounded />
+          </Button>
+        </div>
+        <div className="mt-4 overflow-auto scrollbar h-[calc(100vh-352px)] px-4">
           <div className="mb-4">
             <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
               <div className="">资产/负债</div>
@@ -496,6 +501,21 @@ const Side: FC<SideProps> = () => {
             </div>
           </div>
         </div>
+
+        <div className="flex justify-center">
+          <Button
+            size="sm"
+            radius="sm"
+            onClick={handleClick}
+            className="w-full mx-4"
+          >
+            导入CSV文件
+          </Button>
+        </div>
+        <DataImportModal
+          isOpen={showDataImportModal}
+          onOpenChange={() => setShowDataImportModal(false)}
+        />
         <AccountModal
           isOpen={showAccountModal}
           onOpenChange={() => setShowAccountModal(false)}
