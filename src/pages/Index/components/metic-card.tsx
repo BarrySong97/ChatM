@@ -9,7 +9,7 @@ import {
 } from "@/assets/icon";
 import { Card } from "@nextui-org/react";
 import React from "react";
-import { CardLineChart } from "./card-line-chart";
+import CardLineChart from "./card-line-chart";
 
 interface FinancialItemProps {
   title: string;
@@ -39,7 +39,7 @@ const FinancialItem: React.FC<FinancialItemProps> = ({
             {value}
           </div>
         </div>
-        {chartData ? <CardLineChart data={chartData} /> : null}
+        {chartData ? <CardLineChart data={[...chartData]} /> : null}
       </div>
     </Card>
   );

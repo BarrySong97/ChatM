@@ -1,7 +1,16 @@
-import React from "react";
-import { Input, Button, Pagination, Link } from "@nextui-org/react";
+import React, { useState } from "react";
+import "./ag-grid-theme-builder.css";
+import {
+  Input,
+  Button,
+  Pagination,
+  Link,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
 import { PlusIcon, SearchIcon } from "./PluseIcon";
-import { ConfigProvider, Table, TableProps, Tag } from "antd";
+import { ColDef } from "ag-grid-community";
+import { ConfigProvider, DatePicker, Table, TableProps, Tag } from "antd";
 import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
@@ -17,6 +26,7 @@ import { Page } from "@/api/models/Page";
 import { useTransactionService } from "@/api/hooks/transaction";
 import TransactionsFilter from "./filter";
 import dayjs from "dayjs";
+import { AgGridReact } from "ag-grid-react";
 
 const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.Income]: "#4CAF50", // Green
@@ -25,6 +35,7 @@ const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.RepayLoan]: "#9C27B0", // Purple
   [FinancialOperation.Borrow]: "#FF9800", // Orange
   [FinancialOperation.LoanExpenditure]: "#795548", // Brown
+  [FinancialOperation.Refund]: "#FF5722", // Deep Orange
 };
 
 export const operationTranslations: Record<FinancialOperation, string> = {
@@ -34,6 +45,7 @@ export const operationTranslations: Record<FinancialOperation, string> = {
   [FinancialOperation.RepayLoan]: "还贷",
   [FinancialOperation.Borrow]: "借款",
   [FinancialOperation.LoanExpenditure]: "贷款支出",
+  [FinancialOperation.Refund]: "退款",
 };
 export default function TransactionsTable() {
   const [filterValue, setFilterValue] = React.useState("");
@@ -140,6 +152,7 @@ export default function TransactionsTable() {
       </div>
     );
   };
+  const [selectedRows, setSelectedRows] = useState<Transaction[]>([]);
   const topContent = React.useMemo(() => {
     return (
       <div className="flex flex-col gap-4">
@@ -208,9 +221,16 @@ export default function TransactionsTable() {
         </div>
         {renderFilterConditions()}
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">
-            共 {transactions?.totalCount ?? 0} 条流水
-          </span>
+          <div className="flex gap-2">
+            <span className="text-default-400 text-small">
+              共 {transactions?.totalCount ?? 0} 条流水
+            </span>
+            <span className="text-small text-default-400">
+              {`${selectedRows.length} of ${
+                transactions?.list.length ?? 0
+              } selected`}
+            </span>
+          </div>
           <label className="flex items-center text-default-400 text-small">
             每页:
             <select
@@ -234,10 +254,11 @@ export default function TransactionsTable() {
     maxAmount,
     startDate,
     endDate,
+    selectedRows,
   ]);
 
   const bottomContent = React.useMemo(() => {
-    return (
+    return transactions ? (
       <div className="py-2 px-2 flex justify-between items-center">
         <Pagination
           showControls
@@ -246,17 +267,15 @@ export default function TransactionsTable() {
             cursor: "bg-foreground text-background",
           }}
           color="default"
-          page={transactions?.currentPage ?? 1}
-          total={transactions?.totalPages ?? 0}
+          page={page}
+          initialPage={1}
+          total={transactions?.totalPages ? transactions.totalPages : 1}
           variant="light"
           onChange={setPage}
         />
-        <span className="text-small text-default-400">
-          {`0 of ${transactions?.list.length ?? 0} selected`}
-        </span>
       </div>
-    );
-  }, [transactions]);
+    ) : null;
+  }, [transactions, page]);
 
   const columns: TableProps<Transaction>["columns"] = [
     {
@@ -419,6 +438,260 @@ export default function TransactionsTable() {
     },
   ];
 
+  const [colDefs, setColDefs] = useState<ColDef<Transaction>[]>([
+    {
+      field: "id",
+      headerName: "",
+      width: 36,
+      resizable: false,
+      headerCheckboxSelection: true,
+      checkboxSelection: true,
+      showDisabledCheckboxes: true,
+    },
+    {
+      field: "transaction_date",
+      headerName: "日期",
+      width: 120,
+      editable: true,
+      cellEditor: ({ value, onValueChange }) => {
+        const date = typeof value === "string" ? dayjs(value) : value;
+        console.log(value, onValueChange);
+
+        return (
+          <DatePicker
+            defaultOpen
+            allowClear={false}
+            className="w-full outline-none h-[42px] rounded-none"
+            getPopupContainer={() =>
+              document.getElementById("import-data-table")!
+            }
+            onChange={(v) => {
+              onValueChange(v.toString());
+            }}
+            value={date}
+          />
+        );
+      },
+      valueFormatter: (params) => {
+        return dayjs(params.value).format("YYYY-MM-DD");
+      },
+    },
+    {
+      field: "content",
+      width: 200,
+      editable: true,
+      headerName: "交易内容",
+    },
+    {
+      field: "amount",
+      type: "rightAligned",
+      width: 100,
+      editable: true,
+      headerName: "金额",
+    },
+    {
+      field: "type",
+      width: 110,
+      headerName: "类型",
+      editable: true,
+      cellEditor: ({ value, onValueChange, data }) => {
+        return (
+          <Select
+            items={Object.values(FinancialOperation).map((type) => ({
+              label: operationTranslations[type],
+              value: type,
+            }))}
+            variant="underlined"
+            defaultOpen
+            radius="none"
+            classNames={{
+              trigger: "data-[open=true]:after:!hidden",
+            }}
+            selectionMode="single"
+            selectedKeys={new Set([value])}
+            onSelectionChange={(v) => {
+              onValueChange(Array.from(v)[0]);
+            }}
+          >
+            {(item) => {
+              return <SelectItem key={item.value}>{item.label}</SelectItem>;
+            }}
+          </Select>
+        );
+      },
+      cellRenderer: (params: any) => {
+        const { data } = params;
+        const color = operationColors[params.value as FinancialOperation];
+        const text = operationTranslations[params.value as FinancialOperation];
+        return (
+          <Tag
+            className="mr-0 hover:cursor-pointer"
+            color={color}
+            bordered={false}
+          >
+            {text}
+          </Tag>
+        );
+      },
+    },
+    {
+      field: "source_account_id",
+      headerName: "来源账户",
+      width: 100,
+      editable: true,
+      cellRenderer: (params: any) => {
+        const { data } = params;
+        let source = assets?.find((asset) => asset.id === params.value)?.name;
+        if (!source) {
+          source = liabilities?.find(
+            (liability) => liability.id === params.value
+          )?.name;
+        }
+        if (!source) {
+          source = incomes?.find((income) => income.id === params.value)?.name;
+        }
+        if (!source) {
+          source = expenses?.find(
+            (expense) => expense.id === params.value
+          )?.name;
+        }
+
+        return (
+          <Tag
+            className="mr-0 hover:cursor-pointer"
+            color="processing"
+            bordered={false}
+          >
+            {source}
+          </Tag>
+        );
+      },
+      cellEditor: ({ value, onValueChange, data }) => {
+        return (
+          <Select
+            items={[
+              ...assets?.map((asset) => ({
+                label: asset.name,
+                value: asset.id,
+              })),
+              ...liabilities?.map((liability) => ({
+                label: liability.name,
+                value: liability.id,
+              })),
+              ...incomes?.map((income) => ({
+                label: income.name,
+                value: income.id,
+              })),
+              ...expenses?.map((expense) => ({
+                label: expense.name,
+                value: expense.id,
+              })),
+            ]}
+            variant="underlined"
+            defaultOpen
+            radius="none"
+            classNames={{
+              trigger: "data-[open=true]:after:!hidden",
+            }}
+            selectionMode="single"
+            selectedKeys={new Set([value])}
+            onSelectionChange={(v) => {
+              onValueChange(Array.from(v)[0]);
+            }}
+          >
+            {(item) => {
+              return <SelectItem key={item.value}>{item.label}</SelectItem>;
+            }}
+          </Select>
+        );
+      },
+    },
+    {
+      field: "destination_account_id",
+      headerName: "目标账户",
+      width: 100,
+      editable: true,
+      cellRenderer: (params: any) => {
+        const { data } = params;
+        let destination = expenses?.find(
+          (expense) => expense.id === params.value
+        )?.name;
+        if (!destination) {
+          destination = incomes?.find(
+            (income) => income.id === params.value
+          )?.name;
+        }
+        if (!destination) {
+          destination = assets?.find(
+            (asset) => asset.id === params.value
+          )?.name;
+        }
+        if (!destination) {
+          destination = liabilities?.find(
+            (liability) => liability.id === params.value
+          )?.name;
+        }
+        return (
+          <Tag
+            className="mr-0 hover:cursor-pointer"
+            color="processing"
+            bordered={false}
+          >
+            {destination}
+          </Tag>
+        );
+      },
+      cellEditor: ({ value, onValueChange, data }) => {
+        return (
+          <Select
+            items={[
+              ...assets?.map((asset) => ({
+                label: asset.name,
+                value: asset.id,
+              })),
+              ...liabilities?.map((liability) => ({
+                label: liability.name,
+                value: liability.id,
+              })),
+              ...incomes?.map((income) => ({
+                label: income.name,
+                value: income.id,
+              })),
+              ...expenses?.map((expense) => ({
+                label: expense.name,
+                value: expense.id,
+              })),
+            ]}
+            variant="underlined"
+            defaultOpen
+            radius="none"
+            classNames={{
+              trigger: "data-[open=true]:after:!hidden",
+            }}
+            selectionMode="single"
+            selectedKeys={new Set([value])}
+            onSelectionChange={(v) => {
+              onValueChange(Array.from(v)[0]);
+            }}
+          >
+            {(item) => {
+              return <SelectItem key={item.value}>{item.label}</SelectItem>;
+            }}
+          </Select>
+        );
+      },
+    },
+    {
+      field: "tags",
+      headerName: "标签",
+      editable: true,
+    },
+    {
+      field: "remark",
+      headerName: "备注",
+      editable: true,
+    },
+  ]);
   return (
     <div>
       {topContent}
@@ -433,12 +706,22 @@ export default function TransactionsTable() {
             },
           }}
         >
-          <Table
-            pagination={false}
-            columns={columns}
-            rowKey={"id"}
-            dataSource={transactions?.list}
-          ></Table>
+          <div
+            className="ag-theme-custom mt-4" // applying the Data Grid theme
+            style={{ height: 500 }} // the Data Grid will fill the size of the parent container
+          >
+            <AgGridReact
+              rowData={transactions?.list ?? []}
+              onSelectionChanged={(e) => {
+                const nodes = e.api.getSelectedNodes();
+                const rows = nodes.map((node) => node.data);
+                setSelectedRows(rows);
+              }}
+              rowSelection={"multiple"}
+              columnDefs={colDefs}
+              suppressRowClickSelection={true}
+            />
+          </div>
         </ConfigProvider>
       </div>
       {bottomContent}

@@ -7,6 +7,7 @@ import CategoryTransactionsTable from "@/components/CategoryTable";
 import { useLiabilityService } from "@/api/hooks/liability";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useIncomeService } from "@/api/hooks/income";
+import { PageWrapper } from "@/components/PageWrapper";
 export interface CategoryProps {}
 const date = new Date();
 const Category: FC<CategoryProps> = () => {
@@ -55,7 +56,7 @@ const Category: FC<CategoryProps> = () => {
   console.log(id);
 
   return (
-    <div className="px-12 py-8  overflow-auto scrollbar h-full mx-auto">
+    <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">
@@ -71,7 +72,7 @@ const Category: FC<CategoryProps> = () => {
           <CategoryTransactionsTable accountId={id!} />
         </CardBody>
       </Card>
-    </div>
+    </PageWrapper>
   );
 };
 

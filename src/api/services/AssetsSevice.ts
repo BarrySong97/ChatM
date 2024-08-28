@@ -64,7 +64,8 @@ export class AssetsService {
           t.destination_account_id === asset.id &&
           (t.type === FinancialOperation.Income ||
             t.type === FinancialOperation.Transfer ||
-            t.type === FinancialOperation.Borrow)
+            t.type === FinancialOperation.Borrow ||
+            t.type === FinancialOperation.Refund)
       );
 
       for (const inflow of inflows) {
@@ -221,7 +222,8 @@ export class AssetsService {
         eq(transaction.type, FinancialOperation.Expenditure),
         eq(transaction.type, FinancialOperation.Transfer),
         eq(transaction.type, FinancialOperation.RepayLoan),
-        eq(transaction.type, FinancialOperation.Borrow)
+        eq(transaction.type, FinancialOperation.Borrow),
+        eq(transaction.type, FinancialOperation.Refund)
       ),
     ];
     if (filter.accountId) {

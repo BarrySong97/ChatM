@@ -25,6 +25,7 @@ import dayjs from "dayjs";
 import IncomeSectionCard from "./components/income-section-card";
 import AssetsSectionCard from "./components/assets-section-card";
 import LiabilitySectionCard from "./components/liability-section-card";
+import { PageWrapper } from "@/components/PageWrapper";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -115,7 +116,7 @@ const Index: FC<IndexProps> = () => {
     liabilitiesData?.totalAmount ?? 0
   );
   return (
-    <div className="px-12 py-8  mx-auto overflow-auto scrollbar h-full">
+    <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <Greeting />
@@ -191,7 +192,7 @@ const Index: FC<IndexProps> = () => {
         <Tabs defaultActiveKey="1" items={items} />
       </div>
       {/* <Test /> */}
-    </div>
+    </PageWrapper>
   );
 };
 

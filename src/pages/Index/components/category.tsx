@@ -35,23 +35,6 @@ export function Category({ data }: CategoryProps) {
           },
         ]}
       />
-      {/* <ChartContainer config={chartConfig} className=" h-full w-full">
-        <PieChart>
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <Pie
-            labelLine={false}
-            data={data}
-            label={renderCustomizedLabel}
-            dataKey="amount"
-            fontSize={4}
-            nameKey="content"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ChartContainer> */}
     </div>
   );
 }

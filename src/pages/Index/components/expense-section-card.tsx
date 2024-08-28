@@ -219,7 +219,7 @@ const ExpenseSectionCard: FC<SectionCardProps> = ({ title }) => {
                   key="rank"
                   title={
                     <div className="flex items-center gap-1">
-                      <MaterialSymbolsLightPieChart className="text-base" />
+                      <MaterialSymbolsBarChart className="text-base rotate-90" />
                       <div>排行</div>
                     </div>
                   }
@@ -228,7 +228,7 @@ const ExpenseSectionCard: FC<SectionCardProps> = ({ title }) => {
                   key="proportion"
                   title={
                     <div className="flex items-center gap-1">
-                      <MaterialSymbolsBarChart className="text-base rotate-90" />
+                      <MaterialSymbolsLightPieChart className="text-base" />
                       <div>占比</div>
                     </div>
                   }

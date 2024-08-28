@@ -16,6 +16,12 @@ import ColumnMap from "./column-map";
 import { Transaction } from "@db/schema";
 import { getWechatData } from "./category-adpter";
 import ImportDataTable from "./data-table";
+import { TransactionService } from "@/api/services/TransactionService";
+import to from "await-to-js";
+import { EditTransaction } from "@/api/hooks/transaction";
+import { message } from "antd";
+import Decimal from "decimal.js";
+import dayjs from "dayjs";
 interface DataImportModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
@@ -87,6 +93,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
               onDataChange={(data) => {
                 setFileData(data);
               }}
+              importSource={fileSource}
               data={fileData}
               pureData={pureData}
             />
@@ -102,6 +109,11 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       setFileSource("");
     }
   }, [isOpen]);
+  const [isComfirmModalOpen, setIsComfirmModalOpen] = useState(false);
+  const isAllDataComplete = fileData.every(
+    (item) => item.type && item.destination_account_id && item.source_account_id
+  );
+  const [importLoading, setImportLoading] = useState(false);
   return (
     <>
       <Modal
@@ -122,11 +134,77 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                   {steps > 0 ? "上一步" : "取消"}
                 </Button>
                 {steps === 0 || steps === 1 ? null : (
-                  <Button color="primary" onPress={() => setSteps(steps + 1)}>
+                  <Button
+                    color="primary"
+                    isDisabled={steps === 3 && !isAllDataComplete}
+                    onPress={() => {
+                      if (steps === 3) {
+                        setIsComfirmModalOpen(true);
+                      } else {
+                        setSteps(steps + 1);
+                      }
+                    }}
+                  >
                     {steps < 3 ? "下一步" : "导入"}
                   </Button>
                 )}
               </ModalFooter>
+              <Modal
+                scrollBehavior="inside"
+                isOpen={isComfirmModalOpen}
+                onOpenChange={setIsComfirmModalOpen}
+              >
+                <ModalContent>
+                  {(onClose) => (
+                    <>
+                      <ModalHeader className="flex flex-col gap-1">
+                        {titles[steps]}
+                      </ModalHeader>
+                      <ModalBody>
+                        <p>一共导入{fileData.length}条数据</p>
+                      </ModalBody>
+                      <ModalFooter>
+                        <Button variant="flat" onPress={onClose}>
+                          取消
+                        </Button>
+                        <Button
+                          color="primary"
+                          isLoading={importLoading}
+                          onPress={async () => {
+                            setImportLoading(true);
+                            const [err, res] = await to(
+                              TransactionService.createTransactions(
+                                fileData?.map((v) => {
+                                  return {
+                                    ...v,
+                                    transaction_date: dayjs(v.transaction_date)
+                                      .toDate()
+                                      .getTime(),
+                                    amount: new Decimal(v.amount ?? 0)
+                                      .mul(100)
+                                      .toNumber(),
+                                  };
+                                }) as unknown as EditTransaction[]
+                              )
+                            );
+                            if (err) {
+                              console.error(err);
+                              return;
+                            } else {
+                              onClose();
+                              onOpenChange(false);
+                              message.success("导入成功");
+                            }
+                            setImportLoading(false);
+                          }}
+                        >
+                          确认导入
+                        </Button>
+                      </ModalFooter>
+                    </>
+                  )}
+                </ModalContent>
+              </Modal>
             </>
           )}
         </ModalContent>

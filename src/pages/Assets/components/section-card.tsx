@@ -13,10 +13,7 @@ import {
 } from "@nextui-org/react";
 import CategoryList from "@/components/CategoryList";
 import dayjs from "dayjs";
-import {
-  useAssetCategoryService,
-  useAssetTrendService,
-} from "@/api/hooks/assets";
+import { useAssetTrendService } from "@/api/hooks/assets";
 import DateFilter from "@/pages/Index/components/date-filter";
 import {
   MaterialSymbolsBarChart,
@@ -92,11 +89,6 @@ const AssetsDetailSectionCard: FC<SectionCardProps> = ({ title }) => {
     startDate: value.start,
     endDate: value.end,
   });
-  const { categoryData } = useAssetCategoryService({
-    startDate: value.start,
-    endDate: value.end,
-  });
-  const [categoryType, setCategoryType] = useState("rank");
   const [chartType, setChartType] = useState("line");
 
   return (

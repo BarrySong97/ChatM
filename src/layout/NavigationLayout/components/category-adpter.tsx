@@ -51,6 +51,7 @@ function getWechatData(data: string[][]) {
       result.push({
         id: uuidv4(),
         transaction_date: item[0],
+        amount: item[5].slice(1),
         type: item[4],
         content: `${item[1]} ${item[2]} ${item[3]}`,
       });

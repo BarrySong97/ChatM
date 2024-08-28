@@ -14,6 +14,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import dayjs from "dayjs";
 
 const chartConfig = {
   negative: {
@@ -33,7 +34,7 @@ interface TrendProps {
   }[];
 }
 
-export function CardLineChart({ data }: TrendProps) {
+export default function CardLineChart({ data }: TrendProps) {
   const gradientOffset = () => {
     const dataMax = Math.max(...data.map((i) => i.data));
     const dataMin = Math.min(...data.map((i) => i.data));
@@ -49,6 +50,8 @@ export function CardLineChart({ data }: TrendProps) {
   };
 
   const off = gradientOffset();
+  const minValue = Math.min(...data.map((i) => i.data));
+  const maxValue = Math.max(...data.map((i) => i.data));
 
   return (
     <div className="flex-1 mt-2">
@@ -58,13 +61,13 @@ export function CardLineChart({ data }: TrendProps) {
             accessibilityLayer
             data={[
               {
-                label: "initial",
+                label: "",
                 data: 0,
               },
               ...data,
             ]}
             margin={{
-              left: 12,
+              left: 0,
               right: 12,
             }}
           >
@@ -73,6 +76,7 @@ export function CardLineChart({ data }: TrendProps) {
               tickLine={false}
               axisLine={false}
               allowDataOverflow
+              interval={data.length - 1}
               tickMargin={8}
             />
             <ChartTooltip
@@ -83,12 +87,12 @@ export function CardLineChart({ data }: TrendProps) {
               <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset={off}
-                  stopColor={chartConfig.negative.color}
+                  stopColor={chartConfig.positive.color}
                   stopOpacity={1}
                 />
                 <stop
                   offset={off}
-                  stopColor={chartConfig.positive.color}
+                  stopColor={chartConfig.negative.color}
                   stopOpacity={1}
                 />
               </linearGradient>

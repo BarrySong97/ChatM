@@ -22,6 +22,7 @@ import { Alert, Form, notification } from "antd";
 import { eq } from "drizzle-orm";
 import PopoverConfirm from "@/components/PopoverConfirm";
 import { CN_ACCOUNTS } from "@/constant";
+import { PageWrapper } from "@/components/PageWrapper";
 export interface AccountProps {}
 type FormType = {
   title: string;
@@ -45,7 +46,7 @@ const Account: FC<AccountProps> = () => {
     }
   }, [isOpen]);
   return (
-    <div className="px-12 py-8   mx-auto">
+    <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">账户</h1>
@@ -200,7 +201,7 @@ const Account: FC<AccountProps> = () => {
           )}
         </ModalContent>
       </Modal>
-    </div>
+    </PageWrapper>
   );
 };
 

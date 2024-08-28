@@ -6,6 +6,7 @@ import CategoryList from "@/components/CategoryList";
 import { Category } from "../Index/components/category";
 import { useIndexData } from "@/api/hooks";
 import ExpenseDetailSectionCard from "./components/section-card";
+import { PageWrapper } from "@/components/PageWrapper";
 
 export interface PageProps {}
 
@@ -39,7 +40,7 @@ const Page: FC<PageProps> = () => {
     endDate: value.end,
   });
   return (
-    <div className="px-12 py-8 overflow-auto scrollbar h-full mx-auto">
+    <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">
@@ -76,7 +77,7 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 

@@ -6,6 +6,7 @@ import { Category } from "../Index/components/category";
 import CategoryList from "@/components/CategoryList";
 import { useIndexData } from "@/api/hooks";
 import { useAssetCategoryService } from "@/api/hooks/assets";
+import { PageWrapper } from "@/components/PageWrapper";
 
 export interface PageProps {}
 
@@ -19,7 +20,7 @@ const Page: FC<PageProps> = () => {
   });
   const { liabilitiesData } = useIndexData();
   return (
-    <div className="px-12 py-8 overflow-auto scrollbar h-full mx-auto">
+    <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">负债</h1>
@@ -63,7 +64,7 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 

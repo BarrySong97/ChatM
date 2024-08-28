@@ -21,6 +21,7 @@ import { useAssetCategoryService } from "@/api/hooks/assets";
 import CategoryList from "@/components/CategoryList";
 import { Category } from "../Index/components/category";
 import { useIndexData } from "@/api/hooks";
+import { PageWrapper } from "@/components/PageWrapper";
 export interface PageProps {}
 interface DataType {
   key: string;
@@ -39,7 +40,7 @@ const Page: FC<PageProps> = () => {
 
   const { assetsData } = useIndexData();
   return (
-    <div className="px-12 py-8  overflow-auto scrollbar h-full mx-auto">
+    <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">资产 </h1>
@@ -83,16 +84,7 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
-      {/* <Category
-        data={
-          categoryData?.map((v, index) => ({
-            content: v.content,
-            color: v.color,
-            amount: Number(v.amount) as unknown as string,
-          })) ?? []
-        }
-      /> */}
-    </div>
+    </PageWrapper>
   );
 };
 

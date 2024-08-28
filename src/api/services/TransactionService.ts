@@ -21,6 +21,23 @@ export class TransactionService {
     return res[0];
   }
 
+  // 创建多个 transactions
+  public static async createTransactions(body: EditTransaction[]) {
+    const now = Date.now();
+    const res = await db
+      .insert(transaction)
+      .values(
+        body.map((item) => ({
+          id: uuidv4(),
+          ...item,
+          created_at: now,
+          updated_at: now,
+        }))
+      )
+      .returning();
+    return res;
+  }
+
   // 列出所有 transactions
   public static async listTransactions(
     transactionListParams?: TransactionListParams
