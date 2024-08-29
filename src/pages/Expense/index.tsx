@@ -3,7 +3,7 @@ import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useExpenseCategoryService } from "@/api/hooks/expense";
 import CategoryList from "@/components/CategoryList";
-import { Category } from "../Index/components/category";
+import { CategoryBarChart } from "../Index/components/category";
 import { useIndexData } from "@/api/hooks";
 import ExpenseDetailSectionCard from "./components/section-card";
 import { PageWrapper } from "@/components/PageWrapper";
@@ -59,7 +59,7 @@ const Page: FC<PageProps> = () => {
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类占比</CardHeader>
           <CardBody className="min-h-[200px]">
-            <Category
+            <CategoryBarChart
               data={
                 categoryData?.map((v) => ({
                   content: v.content,

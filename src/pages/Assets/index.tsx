@@ -19,7 +19,7 @@ import AssetsSectionCard from "../Index/components/assets-section-card";
 import AssetsDetailSectionCard from "./components/section-card";
 import { useAssetCategoryService } from "@/api/hooks/assets";
 import CategoryList from "@/components/CategoryList";
-import { Category } from "../Index/components/category";
+import { CategoryBarChart } from "../Index/components/category";
 import { useIndexData } from "@/api/hooks";
 import { PageWrapper } from "@/components/PageWrapper";
 export interface PageProps {}
@@ -66,7 +66,7 @@ const Page: FC<PageProps> = () => {
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类占比</CardHeader>
           <CardBody className="min-h-[200px]">
-            <Category
+            <CategoryBarChart
               data={
                 categoryData?.map((v, index) => ({
                   content: v.content,

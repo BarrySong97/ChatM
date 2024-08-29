@@ -19,7 +19,6 @@ import {
   endOfMonth,
 } from "@internationalized/date";
 import { useLocale } from "@react-aria/i18n";
-import { divide } from "lodash";
 export type DateFilterProps = {
   onChange: (value?: RangeValue<DateValue>) => void;
   value?: RangeValue<DateValue>;
@@ -75,19 +74,6 @@ export default function DateFilter({ onChange }: DateFilterProps) {
       <RangeCalendar
         bottomContent={
           <div>
-            {/* <RadioGroup
-              aria-label="Date precision"
-              classNames={{
-                base: "w-full pb-2",
-                wrapper: "-my-2.5 py-2.5 px-3 gap-1 flex-nowrap max-w-[280px] ",
-              }}
-              defaultValue="exact_dates"
-              orientation="horizontal"
-            >
-              <CustomRadio value="7_days">7天</CustomRadio>
-              <CustomRadio value="14_days">14天</CustomRadio>
-              <CustomRadio value="14_days">1月</CustomRadio>
-            </RadioGroup> */}
             <div className="p-4 flex justify-end">
               <Button
                 onClick={() => {

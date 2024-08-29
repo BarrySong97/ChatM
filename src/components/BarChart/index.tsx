@@ -1,6 +1,3 @@
-"use client";
-
-import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
@@ -9,7 +6,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { TrendData } from "@/api/hooks/expense";
+import { CategoryListData, NormalChartData } from "@/api/models/Chart";
 
 const chartConfig = {
   views: {
@@ -25,12 +22,16 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function BarChartComponent({ chartData }: { chartData: TrendData[] }) {
+export function CategoryBarChart({
+  data,
+}: {
+  data: CategoryListData[]; // Replace 'any' with the correct type
+}) {
   return (
     <ChartContainer config={chartConfig} className="aspect-auto h-full">
       <BarChart
         accessibilityLayer
-        data={chartData}
+        data={data}
         margin={{
           left: 12,
           right: 12,

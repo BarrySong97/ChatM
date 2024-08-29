@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import LiaDetailSectionCard from "./components/section-card"; // You'll need to create this component
-import { Category } from "../Index/components/category";
+import { CategoryBarChart } from "../Index/components/category";
 import CategoryList from "@/components/CategoryList";
 import { useIndexData } from "@/api/hooks";
 import { useAssetCategoryService } from "@/api/hooks/assets";
@@ -46,7 +46,7 @@ const Page: FC<PageProps> = () => {
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类占比</CardHeader>
           <CardBody className="min-h-[200px]">
-            <Category
+            <CategoryBarChart
               data={
                 categoryData?.map((v) => ({
                   content: v.content,

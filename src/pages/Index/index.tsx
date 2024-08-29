@@ -1,31 +1,18 @@
-import { MaterialSymbolsSearch } from "@/assets/icon";
 import PaperParse from "papaparse";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  Input,
-} from "@nextui-org/react";
-import React, { FC, useEffect, useRef, useState } from "react";
-import { Trend } from "./components/trend";
+import { Divider } from "@nextui-org/react";
+import React, { FC, useRef, useState } from "react";
 import { atom } from "jotai";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import FinancialItem from "./components/metic-card";
 import { Tabs, TabsProps } from "antd";
-import ExpenseSectionCard from "./components/expense-section-card";
-import { Test } from "./components/test";
-import { AssetsService } from "@/api/services/AssetsSevice";
 import { useIndexData } from "@/api/hooks";
 import Decimal from "decimal.js";
-import { useExpenseLineChartService } from "@/api/hooks/expense";
-import dayjs from "dayjs";
-import IncomeSectionCard from "./components/income-section-card";
-import AssetsSectionCard from "./components/assets-section-card";
-import LiabilitySectionCard from "./components/liability-section-card";
 import { PageWrapper } from "@/components/PageWrapper";
+import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCard";
+import { IncomeSectionCard } from "@/components/IndexSectionCard/IncomeSectionCard";
+import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
+import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -53,55 +40,26 @@ const DateDisplay: React.FC = () => {
 };
 
 const Index: FC<IndexProps> = () => {
-  const { data } = useQuery("accounts", {
-    queryFn: async () => {
-      // return database.query.accounts.findMany();
-    },
-  });
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-
-  const handleClick = () => {
-    if (inputRef.current) {
-      inputRef.current.click();
-    }
-  };
-  const navigate = useNavigate();
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const file = e.target.files[0];
-      setFile(file);
-      PaperParse.parse(file, {
-        complete(results, file) {
-          navigate("/mapping", {
-            state: { data: results.data },
-          });
-        },
-      });
-    }
-  };
-  const timeFilter = ["1月", "3月", "1年", "3年", "5年"];
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: "支出",
-      children: <ExpenseSectionCard title="支出" />,
+      children: <ExpenseSectionCard />,
     },
     {
       key: "2",
       label: "收入",
-      children: <IncomeSectionCard title="收入" />,
+      children: <IncomeSectionCard />,
     },
     {
       key: "3",
       label: "资产",
-      children: <AssetsSectionCard title="" />,
+      children: <AssetsSectionCard />,
     },
     {
       key: "4",
       label: "负债",
-      children: <LiabilitySectionCard title="负债" />,
+      children: <LiabilitySectionCard />,
     },
   ];
   const {
@@ -121,30 +79,6 @@ const Index: FC<IndexProps> = () => {
         <div>
           <Greeting />
           <DateDisplay />
-        </div>
-        <div className="flex items-center gap-2 ">
-          <Input
-            className="max-w-[200px] "
-            radius="full"
-            endContent={
-              <MaterialSymbolsSearch className="text-gray-400 text-xl" />
-            }
-            placeholder="Search Transactions"
-            size="sm"
-            labelPlacement="outside"
-          />
-          <div>
-            <input
-              onChange={handleChange}
-              ref={inputRef}
-              id="file"
-              type="file"
-              className="hidden"
-            />
-            <Button onClick={handleClick} size="sm" color="primary">
-              上传csv
-            </Button>
-          </div>
         </div>
       </div>
       <Divider className="my-8" />
@@ -191,7 +125,6 @@ const Index: FC<IndexProps> = () => {
       <div className="mt-8">
         <Tabs defaultActiveKey="1" items={items} />
       </div>
-      {/* <Test /> */}
     </PageWrapper>
   );
 };

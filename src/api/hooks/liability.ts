@@ -3,7 +3,7 @@ import { Liability } from "@db/schema";
 import { LiabilityService } from "../services/LiabilityService";
 import { useState } from "react";
 import { message } from "antd";
-import { CategoryData, Filter, TrendData } from "./expense";
+import { Filter } from "./expense";
 
 export type EditLiability = {
   name: string;
@@ -144,7 +144,7 @@ export function useLiabilityCategoryService(filter: Filter) {
   const queryKey = ["liabilities", "category", filter];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
-    CategoryData[],
+    CategoryListData[],
     Error
   >(queryKey, () => LiabilityService.getCategory(filter));
 
@@ -157,7 +157,7 @@ export function useLiabilityTrendService(filter: Filter) {
   const queryKey = ["liabilities", "trend", filter];
 
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
-    TrendData[],
+    NoramlChartData[],
     Error
   >(queryKey, () => LiabilityService.getTrend(filter));
 

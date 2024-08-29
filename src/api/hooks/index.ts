@@ -3,12 +3,6 @@ import { AssetsService } from "../services/AssetsSevice";
 import { LiabilityService } from "../services/LiabilityService";
 import { ExpenseService } from "../services/ExpenseService";
 import { IncomeService } from "../services/IncomeService";
-import {
-  AssetsData,
-  ExpenditureData,
-  IncomeData,
-  LiabilitiesData,
-} from "./side";
 export type NetWorthData = {
   amount: string;
   date: string;

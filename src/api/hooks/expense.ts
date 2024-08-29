@@ -3,18 +3,10 @@ import { Expense } from "@db/schema";
 import { ExpenseService } from "../services/ExpenseService";
 import { useState } from "react";
 import { message } from "antd";
+import { CategoryListData, NormalChartData } from "../models/Chart";
 
 export type EditExpense = {
   name: string;
-};
-export type CategoryData = {
-  content: string;
-  color?: string;
-  amount: string;
-};
-export type TrendData = {
-  amount: string;
-  label: string;
 };
 export type Filter = {
   startDate: number;
@@ -155,7 +147,7 @@ export function useExpenseLineChartService(filter: Filter) {
   const queryKey = ["expenses", "chart", filter];
 
   const { data: chartData, isLoading: isLoadingChart } = useQuery<
-    TrendData[],
+    NormalChartData[],
     Error
   >(queryKey, () => ExpenseService.getTrend(filter));
 
@@ -169,7 +161,7 @@ export function useExpenseCategoryService(filter: Filter) {
   const queryKey = ["expenses", "category", filter];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
-    CategoryData[],
+    CategoryListData[],
     Error
   >(queryKey, () => ExpenseService.getExpenseCategory(filter));
 

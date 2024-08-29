@@ -4,7 +4,6 @@ import { TransactionService } from "../services/TransactionService";
 import { useState } from "react";
 import { message } from "antd";
 import { Page } from "../models/Page";
-import { useDebounceFn } from "ahooks";
 
 export type EditTransaction = {
   content: string;

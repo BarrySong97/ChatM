@@ -22,7 +22,7 @@ import {
 } from "@/pages/Index/icon";
 import { Trend } from "@/pages/Index/components/trend";
 import { BarChartComponent } from "@/pages/Index/components/bar-chart";
-import { Category } from "@/pages/Index/components/category";
+import { CategoryBarChart } from "@/pages/Index/components/category";
 
 export interface SectionCardProps {
   title: string | React.ReactNode;
