@@ -1,9 +1,10 @@
-import { and, eq, gte, like, lte, or, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, like, lte, or, sql } from "drizzle-orm";
 import { Transaction, transaction } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditTransaction, TransactionListParams } from "../hooks/transaction";
 import { Page } from "../models/Page";
+import Decimal from "decimal.js";
 
 export class TransactionService {
   // 创建 transaction
@@ -108,7 +109,10 @@ export class TransactionService {
       .offset(offset);
 
     const response: Page<Transaction> = {
-      list: res.map(({ totalCount, ...item }) => item),
+      list: res.map(({ totalCount, ...item }) => ({
+        ...item,
+        amount: new Decimal(item.amount ?? 0).dividedBy(100).toNumber(),
+      })),
       totalCount: res[0]?.totalCount ?? 0,
       currentPage: page,
       pageSize: pageSize,
@@ -137,6 +141,14 @@ export class TransactionService {
   // 删除 transaction
   public static async deleteTransaction(id: string) {
     const res = await db.delete(transaction).where(eq(transaction.id, id));
+    return res;
+  }
+
+  // 删除多个 transaction
+  public static async deleteTransactions(ids: string[]) {
+    const res = await db
+      .delete(transaction)
+      .where(inArray(transaction.id, ids));
     return res;
   }
 }

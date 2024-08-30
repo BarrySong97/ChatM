@@ -4,6 +4,7 @@ import { TransactionService } from "../services/TransactionService";
 import { useState } from "react";
 import { message } from "antd";
 import { Page } from "../models/Page";
+import Decimal from "decimal.js";
 
 export type EditTransaction = {
   content: string;
@@ -48,7 +49,6 @@ export function useTransactionService(
     transactionListParams?.filterConditions ?? "and",
   ];
 
-  const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
 
@@ -63,6 +63,7 @@ export function useTransactionService(
       keepPreviousData: true,
     }
   );
+
   // Create transaction
   const { mutateAsync: createTransaction } = useMutation(
     (params: { transaction: EditTransaction }) =>
@@ -110,62 +111,63 @@ export function useTransactionService(
   );
 
   // Edit transaction
-  const { mutateAsync: editTransaction } = useMutation(
-    (params: {
-      transactionId: string;
-      transaction: Partial<EditTransaction>;
-    }) =>
-      TransactionService.editTransaction(
-        params.transactionId,
-        params.transaction
-      ),
-    {
-      onMutate: async ({ transactionId, transaction }) => {
-        setIsEditLoading(true);
-        await queryClient.cancelQueries(queryKey);
-        const previousTransactions =
-          queryClient.getQueryData<Page<Transaction>>(queryKey);
-        queryClient.setQueryData<Page<Transaction>>(
-          queryKey,
-          // @ts-ignore
-          (
-            oldTransactions: Page<Transaction> = {
-              list: [],
-              totalCount: 0,
-              currentPage: 0,
-              pageSize: 0,
-              totalPages: 0,
+  const { mutateAsync: editTransaction, isLoading: isEditLoading } =
+    useMutation(
+      (params: {
+        transactionId: string;
+        transaction: Partial<EditTransaction>;
+      }) =>
+        TransactionService.editTransaction(
+          params.transactionId,
+          params.transaction
+        ),
+      {
+        onMutate: async ({ transactionId, transaction }) => {
+          await queryClient.cancelQueries(queryKey);
+          const previousTransactions =
+            queryClient.getQueryData<Page<Transaction>>(queryKey);
+          queryClient.setQueryData<Page<Transaction>>(
+            queryKey,
+            // @ts-ignore
+            (
+              oldTransactions: Page<Transaction> = {
+                list: [],
+                totalCount: 0,
+                currentPage: 0,
+                pageSize: 0,
+                totalPages: 0,
+              }
+            ) => {
+              return {
+                ...oldTransactions,
+                list: oldTransactions.list.map((t) =>
+                  t.id === transactionId
+                    ? {
+                        ...t,
+                        ...transaction,
+                        amount: new Decimal(transaction.amount ?? 0)
+                          .dividedBy(100)
+                          .toNumber(),
+                      }
+                    : t
+                ),
+              };
             }
-          ) => {
-            return {
-              ...oldTransactions,
-              list: oldTransactions.list.map((t) =>
-                t.id === transactionId
-                  ? {
-                      ...t,
-                      ...transaction,
-                    }
-                  : t
-              ),
-            };
+          );
+          return { previousTransactions };
+        },
+        onSuccess() {
+          message.success("修改成功");
+          queryClient.invalidateQueries(["side"]);
+        },
+        onError: (_error, _variables, context) => {
+          if (context?.previousTransactions) {
+            message.error("修改失败: " + (_error as Error).message);
+            queryClient.setQueryData(queryKey, context.previousTransactions);
           }
-        );
-        return { previousTransactions };
-      },
-      onSuccess() {
-        message.success("修改成功");
-        queryClient.invalidateQueries(["side"]);
-      },
-      onSettled() {
-        setIsEditLoading(false);
-      },
-      onError: (_error, _variables, context) => {
-        if (context?.previousTransactions) {
-          queryClient.setQueryData(queryKey, context.previousTransactions);
-        }
-      },
-    }
-  );
+        },
+      }
+    );
 
   // Delete transaction
   const { mutateAsync: deleteTransaction } = useMutation(
@@ -204,13 +206,33 @@ export function useTransactionService(
       },
       onError: (_error, _variables, context) => {
         if (context?.previousTransactions) {
+          message.error("删除失败: " + (_error as Error).message);
           queryClient.setQueryData(queryKey, context.previousTransactions);
         }
       },
     }
   );
 
+  const {
+    mutateAsync: deleteTransactions,
+    isLoading: isDeleteTransactionsLoading,
+  } = useMutation(
+    (transactionIds: string[]) =>
+      TransactionService.deleteTransactions(transactionIds),
+    {
+      onError(error) {
+        message.error("删除失败: " + (error as Error).message);
+      },
+      onSuccess() {
+        message.success("删除成功");
+        queryClient.invalidateQueries(queryKey);
+      },
+    }
+  );
+
   return {
+    deleteTransactions,
+    isDeleteTransactionsLoading,
     transactions,
     isLoadingTransactions,
     editTransaction,

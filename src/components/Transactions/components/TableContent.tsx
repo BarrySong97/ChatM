@@ -2,12 +2,17 @@ import React, { useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 import { Transaction } from "@db/schema";
-import { DatePicker, Tag } from "antd";
+import { DatePicker, InputNumber, Tag } from "antd";
 import { Select, SelectItem } from "@nextui-org/react";
 import dayjs from "dayjs";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";
 import Decimal from "decimal.js";
+import {
+  EditTransaction,
+  TransactionListParams,
+  useTransactionService,
+} from "@/api/hooks/transaction";
 
 interface TableContentProps {
   transactions: Transaction[];
@@ -20,19 +25,17 @@ interface TableContentProps {
   totalPages: number;
   totalCount: number;
   onSelectionChanged: (rows: Transaction[]) => void;
+  transactionListParams?: TransactionListParams;
 }
 
 const TableContent: React.FC<TableContentProps> = ({
   transactions,
+  transactionListParams,
   assets,
   liabilities,
   incomes,
   expenses,
   onSelectionChanged,
-  pageSize,
-  onPageSizeChange,
-  totalPages,
-  totalCount,
 }) => {
   const [colDefs, setColDefs] = useState<ColDef<Transaction>[]>([
     {
@@ -50,8 +53,7 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 120,
       editable: true,
       cellEditor: ({ value, onValueChange }) => {
-        const date = typeof value === "string" ? dayjs(value) : value;
-        console.log(value, onValueChange);
+        console.log(onValueChange);
 
         return (
           <DatePicker
@@ -62,9 +64,9 @@ const TableContent: React.FC<TableContentProps> = ({
               document.getElementById("import-data-table")!
             }
             onChange={(v) => {
-              onValueChange(v.toString());
+              onValueChange(dayjs(v).toDate().getTime());
             }}
-            value={date}
+            value={dayjs(value)}
           />
         );
       },
@@ -83,14 +85,23 @@ const TableContent: React.FC<TableContentProps> = ({
       type: "rightAligned",
       width: 100,
       editable: true,
-      headerName: "金额",
-      cellRenderer: (params: any) => {
-        const { data } = params;
+      cellEditor: ({ value, onValueChange }) => {
         return (
-          <div>
-            {new Decimal(data.amount).dividedBy(100).toNumber().toFixed(2)}
+          <div className="flex items-stretch">
+            <input
+              type="number"
+              value={value.toFixed(2)}
+              className="w-full outline-none    rounded-none text-right"
+              onChange={(v) => {
+                onValueChange(Number(v.target.value));
+              }}
+            />
           </div>
         );
+      },
+      headerName: "金额",
+      cellRenderer: (params: any) => {
+        return <div>{params.value.toFixed(2)}</div>;
       },
     },
     {
@@ -297,16 +308,36 @@ const TableContent: React.FC<TableContentProps> = ({
     },
   ]);
 
+  const { editTransaction } = useTransactionService(transactionListParams);
   return (
     <div className="ag-theme-custom mt-4" style={{ height: 500 }}>
       <AgGridReact
         rowData={transactions}
+        onCellValueChanged={(e) => {
+          const editBody = {
+            [e.colDef.field as string]: e.newValue,
+          };
+          console.log(editBody);
+          if (e.colDef.field === "transaction_date") {
+            editBody.transaction_date = dayjs(e.newValue).toDate().getTime();
+          }
+
+          if (e.colDef.field === "amount") {
+            editBody.amount = new Decimal(e.newValue).mul(100).toNumber();
+          }
+
+          editTransaction({
+            transactionId: e.data.id,
+            transaction: editBody,
+          });
+        }}
         onSelectionChanged={(e) => {
           const nodes = e.api.getSelectedNodes();
           const rows = nodes.map((node) => node.data);
           onSelectionChanged(rows);
         }}
         columnDefs={colDefs}
+        rowSelection="multiple"
         suppressRowClickSelection={true}
       />
     </div>
