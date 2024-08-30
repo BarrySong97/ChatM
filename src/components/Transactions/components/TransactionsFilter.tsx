@@ -19,9 +19,9 @@ export interface TransactionsFilterProps {
   setSelectedTypes: (types: Set<string>) => void;
   selectedSource: Set<string>;
   setSelectedSource: (source: Set<string>) => void;
-  minAmount: number;
+  minAmount?: number;
   setMinAmount: (amount: number) => void;
-  maxAmount: number;
+  maxAmount?: number;
   setMaxAmount: (amount: number) => void;
   startDate: Date | null;
   setStartDate: (date: Date | null) => void;
@@ -137,7 +137,7 @@ const TransactionsFilter: React.FC<TransactionsFilterProps> = ({
               placeholder="输入最小金额"
               size="sm"
               label="最小金额"
-              value={minAmount.toString()}
+              value={minAmount?.toString() ?? ""}
               onValueChange={(e) => setMinAmount(Number(e))}
               startContent={
                 <div className="pointer-events-none flex items-center">
@@ -150,7 +150,7 @@ const TransactionsFilter: React.FC<TransactionsFilterProps> = ({
               placeholder="输入最大金额"
               label="最大金额"
               size="sm"
-              value={maxAmount.toString()}
+              value={maxAmount?.toString() ?? ""}
               onValueChange={(e) => setMaxAmount(Number(e))}
               startContent={
                 <div className="pointer-events-none flex items-center">
@@ -162,41 +162,41 @@ const TransactionsFilter: React.FC<TransactionsFilterProps> = ({
         </div>
       ),
     },
-    {
-      label: "日期",
-      content: (
-        <div className="w-[240px] p-2 space-y-3">
-          <DatePicker
-            radius="sm"
-            size="sm"
-            value={
-              startDate
-                ? parseDate(startDate.toISOString().split("T")[0])
-                : undefined
-            }
-            onChange={(e) => {
-              setStartDate(new Date(e.toString()));
-            }}
-            showMonthAndYearPickers
-            label="开始日期"
-          />
-          <DatePicker
-            radius="sm"
-            size="sm"
-            showMonthAndYearPickers
-            value={
-              endDate
-                ? parseDate(endDate.toISOString().split("T")[0])
-                : undefined
-            }
-            onChange={(e) => {
-              setEndDate(new Date(e.toString()));
-            }}
-            label="结束日期"
-          />
-        </div>
-      ),
-    },
+    // {
+    //   label: "日期",
+    //   content: (
+    //     <div className="w-[240px] p-2 space-y-3">
+    //       <DatePicker
+    //         radius="sm"
+    //         size="sm"
+    //         value={
+    //           startDate
+    //             ? parseDate(startDate.toISOString().split("T")[0])
+    //             : undefined
+    //         }
+    //         onChange={(e) => {
+    //           setStartDate(new Date(e.toString()));
+    //         }}
+    //         showMonthAndYearPickers
+    //         label="开始日期"
+    //       />
+    //       <DatePicker
+    //         radius="sm"
+    //         size="sm"
+    //         showMonthAndYearPickers
+    //         value={
+    //           endDate
+    //             ? parseDate(endDate.toISOString().split("T")[0])
+    //             : undefined
+    //         }
+    //         onChange={(e) => {
+    //           setEndDate(new Date(e.toString()));
+    //         }}
+    //         label="结束日期"
+    //       />
+    //     </div>
+    //   ),
+    // },
   ];
 
   return (

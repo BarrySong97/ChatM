@@ -7,6 +7,7 @@ import { Select, SelectItem } from "@nextui-org/react";
 import dayjs from "dayjs";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";
+import Decimal from "decimal.js";
 
 interface TableContentProps {
   transactions: Transaction[];
@@ -14,6 +15,10 @@ interface TableContentProps {
   liabilities: any[];
   incomes: any[];
   expenses: any[];
+  pageSize: number;
+  onPageSizeChange: (pageSize: number) => void;
+  totalPages: number;
+  totalCount: number;
   onSelectionChanged: (rows: Transaction[]) => void;
 }
 
@@ -24,6 +29,10 @@ const TableContent: React.FC<TableContentProps> = ({
   incomes,
   expenses,
   onSelectionChanged,
+  pageSize,
+  onPageSizeChange,
+  totalPages,
+  totalCount,
 }) => {
   const [colDefs, setColDefs] = useState<ColDef<Transaction>[]>([
     {
@@ -75,6 +84,14 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 100,
       editable: true,
       headerName: "金额",
+      cellRenderer: (params: any) => {
+        const { data } = params;
+        return (
+          <div>
+            {new Decimal(data.amount).dividedBy(100).toNumber().toFixed(2)}
+          </div>
+        );
+      },
     },
     {
       field: "type",
@@ -289,7 +306,6 @@ const TableContent: React.FC<TableContentProps> = ({
           const rows = nodes.map((node) => node.data);
           onSelectionChanged(rows);
         }}
-        rowSelection={"multiple"}
         columnDefs={colDefs}
         suppressRowClickSelection={true}
       />

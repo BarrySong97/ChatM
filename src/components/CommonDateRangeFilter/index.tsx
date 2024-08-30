@@ -6,7 +6,7 @@ import React, { FC, useEffect, useState } from "react";
 export interface CommonDateRangeFilterProps {
   onChange: (value: { start: Date; end: Date }) => void;
   onReset?: () => void;
-  value: { start: Date; end: Date };
+  value: { start: Date | null; end: Date | null };
 }
 const timezone = getBrowserTimezone();
 const CommonDateRangeFilter: FC<CommonDateRangeFilterProps> = ({

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ag-grid-theme-builder.css";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
@@ -20,15 +20,21 @@ export default function TransactionsTable() {
   const { liabilities } = useLiabilityService();
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [page, setPage] = React.useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedTypes, setSelectedTypes] = React.useState<Set<string>>(
     new Set()
   );
   const [selectedSource, setSelectedSource] = React.useState<Set<string>>(
     new Set()
   );
-  const [minAmount, setMinAmount] = React.useState<number>(0);
-  const [maxAmount, setMaxAmount] = React.useState<number>(0);
+  const [minAmount, setMinAmount] = React.useState<number | undefined>(
+    undefined
+  );
+  const [maxAmount, setMaxAmount] = React.useState<number | undefined>(
+    undefined
+  );
   const [startDate, setStartDate] = React.useState<Date | null>(null);
+  const [totalPages, setTotalPages] = React.useState(1);
   const [endDate, setEndDate] = React.useState<Date | null>(null);
   const [filterConditions, setFilterConditions] = React.useState<"or" | "and">(
     "and"
@@ -39,8 +45,8 @@ export default function TransactionsTable() {
     search: filterValue,
     accountId: selectedSource.size > 0 ? Array.from(selectedSource) : undefined,
     type: selectedTypes.size > 0 ? Array.from(selectedTypes) : undefined,
-    minAmount: minAmount,
-    maxAmount: maxAmount,
+    minAmount: minAmount ? minAmount * 100 : undefined,
+    maxAmount: maxAmount ? maxAmount * 100 : undefined,
     startDate: startDate ? startDate.getTime() : undefined,
     endDate: endDate ? endDate.getTime() : undefined,
     filterConditions: filterConditions,
@@ -53,6 +59,15 @@ export default function TransactionsTable() {
     },
     []
   );
+
+  const [visibleRowsCount, setVisibleRowsCount] = useState(0);
+  useEffect(() => {
+    if (transactions) {
+      setTotalPages(transactions.totalPages);
+      setTotalCount(transactions.totalCount);
+      setVisibleRowsCount(transactions.list.length);
+    }
+  }, [transactions]);
   return (
     <div>
       <TopContent
@@ -76,12 +91,16 @@ export default function TransactionsTable() {
         expenses={expenses ?? []}
         assets={assets ?? []}
         liabilities={liabilities ?? []}
-        totalCount={transactions?.totalCount ?? 0}
+        totalCount={totalCount}
         selectedRowsCount={selectedRows.length}
-        visibleRowsCount={transactions?.list.length ?? 0}
+        visibleRowsCount={visibleRowsCount}
         onRowsPerPageChange={onRowsPerPageChange}
       />
       <TableContent
+        pageSize={rowsPerPage}
+        onPageSizeChange={setRowsPerPage}
+        totalPages={transactions?.totalPages ?? 0}
+        totalCount={transactions?.totalCount ?? 0}
         transactions={transactions?.list ?? []}
         assets={assets ?? []}
         liabilities={liabilities ?? []}
@@ -89,13 +108,11 @@ export default function TransactionsTable() {
         expenses={expenses ?? []}
         onSelectionChanged={setSelectedRows}
       />
-      {transactions && (
-        <BottomContent
-          page={page}
-          totalPages={transactions.totalPages}
-          onPageChange={setPage}
-        />
-      )}
+      <BottomContent
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

@@ -33,18 +33,19 @@ export function useTransactionService(
   transactionListParams?: TransactionListParams
 ) {
   const queryClient = useQueryClient();
+
   const queryKey = [
     "transactions",
-    transactionListParams?.page,
-    transactionListParams?.pageSize,
-    transactionListParams?.search,
+    transactionListParams?.page ?? 1,
+    transactionListParams?.pageSize ?? 10,
+    transactionListParams?.search ?? "",
     transactionListParams?.accountId,
     transactionListParams?.type,
     transactionListParams?.minAmount,
     transactionListParams?.maxAmount,
     transactionListParams?.startDate,
     transactionListParams?.endDate,
-    transactionListParams?.filterConditions,
+    transactionListParams?.filterConditions ?? "and",
   ];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
@@ -55,7 +56,13 @@ export function useTransactionService(
   const { data: transactions, isLoading: isLoadingTransactions } = useQuery<
     Page<Transaction>,
     Error
-  >(queryKey, () => TransactionService.listTransactions(transactionListParams));
+  >(
+    queryKey,
+    () => TransactionService.listTransactions(transactionListParams),
+    {
+      keepPreviousData: true,
+    }
+  );
   // Create transaction
   const { mutateAsync: createTransaction } = useMutation(
     (params: { transaction: EditTransaction }) =>
