@@ -44,12 +44,12 @@ const Index: FC<IndexProps> = () => {
     {
       key: "1",
       label: "支出",
-      children: <ExpenseSectionCard />,
+      children: <ExpenseSectionCard showDefaultTitle />,
     },
     {
       key: "2",
       label: "收入",
-      children: <IncomeSectionCard />,
+      children: <IncomeSectionCard showDefaultTitle />,
     },
     {
       key: "3",

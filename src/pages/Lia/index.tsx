@@ -7,14 +7,13 @@ import { useAssetCategoryService } from "@/api/hooks/assets";
 import { PageWrapper } from "@/components/PageWrapper";
 import { CategoryBarChart } from "@/components/PieChart";
 import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
+import { useLiabilityCategoryService } from "@/api/hooks/liability";
 
 export interface PageProps {}
 
 const now = new Date().getTime();
 const Page: FC<PageProps> = () => {
-  const navigate = useNavigate();
-
-  const { categoryData } = useAssetCategoryService({
+  const { categoryData } = useLiabilityCategoryService({
     startDate: now,
     endDate: now,
   });
@@ -31,9 +30,22 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <LiabilitySectionCard />
+        <LiabilitySectionCard
+          title={
+            <div className="pl-4 font-semibold text-lg">
+              金额：{liabilitiesData?.totalAmount}
+            </div>
+          }
+          showLeft={false}
+        />
       </div>
       <div className="grid grid-cols-2 gap-8">
+        <Card shadow="sm" radius="sm">
+          <CardHeader className="">分类排行</CardHeader>
+          <CardBody className="min-h-[200px]">
+            <CategoryList items={categoryData ?? []} />
+          </CardBody>
+        </Card>
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类占比</CardHeader>
           <CardBody className="min-h-[200px]">
@@ -46,12 +58,6 @@ const Page: FC<PageProps> = () => {
                 })) ?? []
               }
             />
-          </CardBody>
-        </Card>
-        <Card shadow="sm" radius="sm">
-          <CardHeader className="">分类排行</CardHeader>
-          <CardBody className="min-h-[200px]">
-            <CategoryList items={categoryData ?? []} />
           </CardBody>
         </Card>
       </div>

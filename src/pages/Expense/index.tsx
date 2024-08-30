@@ -44,7 +44,7 @@ const Page: FC<PageProps> = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">
-            支出({expenditureData?.totalAmount})
+            支出(总:{expenditureData?.totalAmount})
           </h1>
         </div>
         <Button size="sm" color="primary">
@@ -53,9 +53,15 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <ExpenseSectionCard />
+        <ExpenseSectionCard showLeft={false} showDefaultTitle />
       </div>
       <div className="grid grid-cols-2 gap-8">
+        <Card shadow="sm" radius="sm">
+          <CardHeader className="">分类排行</CardHeader>
+          <CardBody className="min-h-[200px]">
+            <CategoryList items={categoryData ?? []} />
+          </CardBody>
+        </Card>
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类占比</CardHeader>
           <CardBody className="min-h-[200px]">
@@ -68,12 +74,6 @@ const Page: FC<PageProps> = () => {
                 })) ?? []
               }
             />
-          </CardBody>
-        </Card>
-        <Card shadow="sm" radius="sm">
-          <CardHeader className="">分类排行</CardHeader>
-          <CardBody className="min-h-[200px]">
-            <CategoryList items={categoryData ?? []} />
           </CardBody>
         </Card>
       </div>

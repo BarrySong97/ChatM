@@ -24,7 +24,7 @@ import {
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { FC, useRef, useState } from "react";
+import { FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccountModal from "@/components/AccountModal";
 import { useAssetsService } from "@/api/hooks/assets";
@@ -40,7 +40,10 @@ import TransactionModal from "@/components/TransactionModal";
 import { useSideData } from "@/api/hooks/side";
 import Decimal from "decimal.js";
 import DataImportModal from "./data-import";
+import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
+import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
 export interface SideProps {}
+const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
   const menuList = [
@@ -78,7 +81,6 @@ const Side: FC<SideProps> = () => {
   >();
 
   const [month, setMonth] = useState<[Date, Date]>(() => {
-    const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     return [start, end];
@@ -387,47 +389,38 @@ const Side: FC<SideProps> = () => {
             showArrow
           >
             <PopoverTrigger>
-              <Button size="sm" variant="light" radius="sm">
+              <Button
+                startContent={
+                  <MaterialSymbolsCalendarMonth className="text-base" />
+                }
+                size="sm"
+                variant="light"
+                radius="sm"
+              >
                 {formatDateRange(month[0], month[1])}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0">
-              <Calendar
-                showShadow={false}
-                showMonthAndYearPickers
-                value={parseDate(month[1].toISOString().slice(0, 10))}
-                classNames={{
-                  base: "shadow-none",
+              <CommonDateRangeFilter
+                onReset={() => {
+                  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                  const end = new Date(
+                    now.getFullYear(),
+                    now.getMonth() + 1,
+                    0
+                  );
+                  setShowPopover(false);
+                  setMonth([start, end]);
                 }}
-                isHeaderExpanded={true}
-                onFocusChange={(date) => {
-                  const _month = date.month;
-                  const year = date.year;
-
-                  if (
-                    month[1].getFullYear() !== year ||
-                    month[1].getMonth() + 1 !== _month
-                  ) {
-                    setMonth([
-                      new Date(year, _month - 1, 1),
-                      new Date(year, _month, 0),
-                    ]);
-                  }
-                }}
-                aria-label="Date (No Selection)"
-              />
-              <Button
-                variant="flat"
-                radius="full"
-                size="sm"
-                onClick={() => {
-                  setMonth([new Date(), new Date()]);
+                onChange={(value) => {
+                  setMonth([value.start, value.end]);
                   setShowPopover(false);
                 }}
-                className="my-2"
-              >
-                当前月
-              </Button>
+                value={{
+                  start: month[0],
+                  end: month[1],
+                }}
+              />
             </PopoverContent>
           </Popover>
           <Button

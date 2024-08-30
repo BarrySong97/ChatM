@@ -12,7 +12,10 @@ import { colors } from "./constant";
 
 const timeFilter = ["近1年", "近3年", "近5年", "近十年"];
 
-export const LiabilitySectionCard: React.FC = () => {
+export const LiabilitySectionCard: React.FC<{
+  showLeft?: boolean;
+  title?: React.ReactNode;
+}> = ({ showLeft = true, title }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +46,7 @@ export const LiabilitySectionCard: React.FC = () => {
         />
         <CustomDatePopover
           value={value}
+          time={time}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           onChange={setValue}
@@ -50,19 +54,22 @@ export const LiabilitySectionCard: React.FC = () => {
         />
       </div>
       <div className="flex gap-8">
-        <Card className="block gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0 flex justify-end items-center">
-            <CategoryChart
-              categoryType={categoryType}
-              setCategoryType={setCategoryType}
-              categoryData={categoryData}
-              colors={colors}
-            />
-          </CardHeader>
-        </Card>
+        {showLeft ? (
+          <Card className="block gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
+            <CardHeader className="!mb-0 flex justify-end items-center">
+              <CategoryChart
+                categoryType={categoryType}
+                setCategoryType={setCategoryType}
+                categoryData={categoryData}
+                colors={colors}
+              />
+            </CardHeader>
+          </Card>
+        ) : null}
         <Card className="block gap-8 flex-[3] mb-8" shadow="sm" radius="sm">
           <CardHeader className="!mb-0 flex justify-end items-start">
             <TrendChart
+              title={title}
               chartType={chartType}
               setChartType={setChartType}
               lineData={lineData}

@@ -35,3 +35,12 @@ export function formatDate(date: string) {
     return `${fullDate} (${yearsAgo}y ago)`;
   }
 }
+
+export function getBrowserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch (error) {
+    console.error("Error getting browser timezone:", error);
+    return "UTC"; // Fallback to UTC if unable to get the timezone
+  }
+}

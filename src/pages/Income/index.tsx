@@ -13,8 +13,6 @@ export interface PageProps {}
 const date = new Date();
 
 const Page: FC<PageProps> = () => {
-  const navigate = useNavigate();
-
   const { incomeData } = useIndexData();
 
   const [value, setValue] = useState<{
@@ -44,7 +42,7 @@ const Page: FC<PageProps> = () => {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">
-            收入({incomeData?.totalAmount})
+            收入(总:{incomeData?.totalAmount})
           </h1>
         </div>
         <Button size="sm" color="primary">
@@ -53,9 +51,15 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <IncomeSectionCard />
+        <IncomeSectionCard showLeft={false} showDefaultTitle />
       </div>
       <div className="grid grid-cols-2 gap-8">
+        <Card shadow="sm" radius="sm">
+          <CardHeader className="">分类排行</CardHeader>
+          <CardBody className="min-h-[200px]">
+            <CategoryList items={categoryData ?? []} />
+          </CardBody>
+        </Card>
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类占比</CardHeader>
           <CardBody className="min-h-[200px]">
@@ -68,12 +72,6 @@ const Page: FC<PageProps> = () => {
                 })) ?? []
               }
             />
-          </CardBody>
-        </Card>
-        <Card shadow="sm" radius="sm">
-          <CardHeader className="">分类排行</CardHeader>
-          <CardBody className="min-h-[200px]">
-            <CategoryList items={categoryData ?? []} />
           </CardBody>
         </Card>
       </div>

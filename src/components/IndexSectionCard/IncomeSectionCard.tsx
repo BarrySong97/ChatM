@@ -12,7 +12,11 @@ import dayjs from "dayjs";
 import { colors } from "./constant";
 
 const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
-export const IncomeSectionCard: React.FC = () => {
+export const IncomeSectionCard: React.FC<{
+  showLeft?: boolean;
+  title?: React.ReactNode;
+  showDefaultTitle?: boolean;
+}> = ({ showLeft = true, title, showDefaultTitle = false }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [isOpen, setIsOpen] = useState(false);
@@ -87,25 +91,30 @@ export const IncomeSectionCard: React.FC = () => {
         <CustomDatePopover
           value={value}
           isOpen={isOpen}
+          time={time}
           setIsOpen={setIsOpen}
           onChange={setValue}
           onTimeReset={() => setTime("")}
         />
       </div>
       <div className="flex gap-8">
-        <Card className="block gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
-          <CardHeader className="!mb-0 flex justify-end items-center">
-            <CategoryChart
-              categoryType={categoryType}
-              setCategoryType={setCategoryType}
-              categoryData={categoryData}
-              colors={colors}
-            />
-          </CardHeader>
-        </Card>
+        {showLeft ? (
+          <Card className="block gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
+            <CardHeader className="!mb-0 flex justify-end items-center">
+              <CategoryChart
+                categoryType={categoryType}
+                setCategoryType={setCategoryType}
+                categoryData={categoryData}
+                colors={colors}
+              />
+            </CardHeader>
+          </Card>
+        ) : null}
         <Card className="block gap-8 flex-[3] mb-8" shadow="sm" radius="sm">
           <CardHeader className="!mb-0 flex justify-end items-start">
             <TrendChart
+              title={title}
+              showDefaultTitle={showDefaultTitle}
               chartType={chartType}
               setChartType={setChartType}
               lineData={lineData}
