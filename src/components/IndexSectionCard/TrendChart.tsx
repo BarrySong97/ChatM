@@ -2,8 +2,9 @@ import React from "react";
 import { Tab, Tabs } from "@nextui-org/react";
 import { MaterialSymbolsShowChart, MaterialSymbolsBarChart } from "./icon";
 import { Trend } from "../LineChart";
-import { CategoryBarChart } from "../BarChart";
+import { CategoryBarChart } from "../PieChart";
 import { NormalChartData } from "@/api/models/Chart";
+import { Barchart } from "../BarChart";
 
 interface TrendChartProps {
   chartType: string;
@@ -16,7 +17,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   setChartType,
   lineData,
 }) => (
-  <>
+  <div className="w-full">
     <Tabs
       onSelectionChange={(key) => setChartType(key as string)}
       selectedKey={chartType}
@@ -43,12 +44,12 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         }
       />
     </Tabs>
-    <div className="h-[300px] w-full">
+    <div className="h-[300px] w-full mt-2">
       {chartType === "line" ? (
         <Trend data={lineData ?? []} />
       ) : (
-        <CategoryBarChart data={lineData ?? []} />
+        <Barchart chartData={lineData ?? []} />
       )}
     </div>
-  </>
+  </div>
 );

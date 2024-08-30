@@ -1,4 +1,5 @@
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import * as React from "react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   ChartConfig,
@@ -6,7 +7,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { CategoryListData, NormalChartData } from "@/api/models/Chart";
+import { NormalChartData } from "@/api/models/Chart";
 
 const chartConfig = {
   views: {
@@ -21,29 +22,50 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
-
-export function CategoryBarChart({
-  data,
-}: {
-  data: CategoryListData[]; // Replace 'any' with the correct type
-}) {
+export type props = {
+  chartData: NormalChartData[];
+};
+export function Barchart({ chartData }: props) {
+  const data = chartData.map((item) => ({
+    label: item.label,
+    amount: Number(item.amount),
+  }));
   return (
-    <ChartContainer config={chartConfig} className="aspect-auto h-full">
+    <ChartContainer config={chartConfig} className="aspect-auto  h-full ">
       <BarChart
         accessibilityLayer
         data={data}
         margin={{
-          left: 12,
+          top: 12,
+          left: 0,
           right: 12,
         }}
       >
-        <CartesianGrid vertical={false} />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="#e5e7eb"
+          vertical={false}
+        />
+        <YAxis
+          tickFormatter={(value) => `${value}`}
+          tickLine={false}
+          axisLine={false}
+          interval={3}
+          tickMargin={8}
+          minTickGap={32}
+        />
         <XAxis
           dataKey="label"
           tickLine={false}
-          axisLine={false}
           tickMargin={8}
           minTickGap={32}
+          tickFormatter={(value) => {
+            const date = new Date(value);
+            return date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+          }}
         />
         <ChartTooltip
           content={
@@ -60,7 +82,7 @@ export function CategoryBarChart({
             />
           }
         />
-        <Bar dataKey="amount" fill={`var(--color-desktop)`} />
+        <Bar dataKey="amount" fill={chartConfig.desktop.color} />
       </BarChart>
     </ChartContainer>
   );

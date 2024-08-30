@@ -3,10 +3,10 @@ import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIncomeCategoryService } from "@/api/hooks/income";
 import CategoryList from "@/components/CategoryList";
-import { CategoryBarChart } from "../Index/components/category";
 import { useIndexData } from "@/api/hooks";
-import IncomeDetailSectionCard from "./components/section-card";
 import { PageWrapper } from "@/components/PageWrapper";
+import { IncomeSectionCard } from "@/components/IndexSectionCard/IncomeSectionCard";
+import { CategoryBarChart } from "@/components/PieChart";
 
 export interface PageProps {}
 
@@ -53,7 +53,7 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <IncomeDetailSectionCard onTimeChange={setValue} value={value} />
+        <IncomeSectionCard />
       </div>
       <div className="grid grid-cols-2 gap-8">
         <Card shadow="sm" radius="sm">

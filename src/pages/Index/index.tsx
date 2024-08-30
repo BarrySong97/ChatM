@@ -4,7 +4,6 @@ import React, { FC, useRef, useState } from "react";
 import { atom } from "jotai";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import FinancialItem from "./components/metic-card";
 import { Tabs, TabsProps } from "antd";
 import { useIndexData } from "@/api/hooks";
 import Decimal from "decimal.js";
@@ -13,6 +12,7 @@ import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCa
 import { IncomeSectionCard } from "@/components/IndexSectionCard/IncomeSectionCard";
 import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
+import FinancialItem from "./components/metic-card";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {

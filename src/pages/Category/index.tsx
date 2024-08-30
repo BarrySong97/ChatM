@@ -2,12 +2,12 @@ import { Card, CardBody, Divider } from "@nextui-org/react";
 import { FC, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAssetsService } from "@/api/hooks/assets";
-import AssetsSubDetailSectionCard from "./components/assets-section-card";
 import CategoryTransactionsTable from "@/components/CategoryTable";
 import { useLiabilityService } from "@/api/hooks/liability";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useIncomeService } from "@/api/hooks/income";
 import { PageWrapper } from "@/components/PageWrapper";
+import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCard";
 export interface CategoryProps {}
 const date = new Date();
 const Category: FC<CategoryProps> = () => {
@@ -66,7 +66,7 @@ const Category: FC<CategoryProps> = () => {
         </div>
       </div>
       <Divider className="my-6" />
-      <AssetsSubDetailSectionCard setValue={setValue} value={value} />
+      {/* <AssetsSectionCard /> */}
       <Card>
         <CardBody>
           <CategoryTransactionsTable accountId={id!} />

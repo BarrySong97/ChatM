@@ -6,7 +6,7 @@ import {
   PopoverContent,
 } from "@nextui-org/react";
 import dayjs from "dayjs";
-import DateFilter from "./DateFilter"; // Assuming you have this component
+// import DateFilter from "./DateFilter"; // Assuming you have this component
 
 interface CustomDatePopoverProps {
   value: { start: number; end: number };
@@ -45,13 +45,14 @@ export const CustomDatePopover: React.FC<CustomDatePopoverProps> = ({
       </Button>
     </PopoverTrigger>
     <PopoverContent className="p-0">
-      <DateFilter
+      <div>22</div>
+      {/* <DateFilter
         onChange={(v) => {
           onChange(v);
           onTimeReset();
           setIsOpen(false);
         }}
-      />
+      /> */}
     </PopoverContent>
   </Popover>
 );

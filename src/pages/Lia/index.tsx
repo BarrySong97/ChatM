@@ -1,12 +1,12 @@
 import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { FC } from "react";
 import { useNavigate } from "react-router-dom";
-import LiaDetailSectionCard from "./components/section-card"; // You'll need to create this component
-import { CategoryBarChart } from "../Index/components/category";
 import CategoryList from "@/components/CategoryList";
 import { useIndexData } from "@/api/hooks";
 import { useAssetCategoryService } from "@/api/hooks/assets";
 import { PageWrapper } from "@/components/PageWrapper";
+import { CategoryBarChart } from "@/components/PieChart";
+import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
 
 export interface PageProps {}
 
@@ -31,16 +31,7 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <LiaDetailSectionCard
-          title={
-            <div>
-              <div className="text-sm font-medium text-gray-500">负债总额</div>
-              <div className="text-gray-900 text-3xl font-medium">
-                {liabilitiesData?.totalAmount}
-              </div>
-            </div>
-          }
-        />
+        <LiabilitySectionCard />
       </div>
       <div className="grid grid-cols-2 gap-8">
         <Card shadow="sm" radius="sm">

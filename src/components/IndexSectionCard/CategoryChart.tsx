@@ -3,7 +3,7 @@ import { Tab, Tabs } from "@nextui-org/react";
 import { MaterialSymbolsBarChart, MaterialSymbolsLightPieChart } from "./icon";
 import { CategoryListData } from "@/api/models/Chart";
 import CategoryList from "../CategoryList";
-import { CategoryBarChart } from "../BarChart";
+import { CategoryBarChart } from "../PieChart";
 
 interface CategoryChartProps {
   categoryType: string;
@@ -18,7 +18,7 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
   categoryData,
   colors,
 }) => (
-  <>
+  <div className="w-full ">
     <Tabs
       onSelectionChange={(key) => setCategoryType(key as string)}
       selectedKey={categoryType}
@@ -45,21 +45,23 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
         }
       />
     </Tabs>
-    {categoryType !== "rank" ? (
-      <div className="h-[280px]">
-        <CategoryBarChart
-          data={
-            (categoryData?.map((v, index) => ({
-              content: v.content,
-              color: colors[index],
-              fill: colors[index],
-              amount: Number(v.amount) as unknown as string,
-            })) as CategoryListData[]) ?? []
-          }
-        />
-      </div>
-    ) : (
-      <CategoryList items={categoryData ?? []} />
-    )}
-  </>
+    <div className="mt-2">
+      {categoryType !== "rank" ? (
+        <div className="h-[300px]">
+          <CategoryBarChart
+            data={
+              (categoryData?.map((v, index) => ({
+                content: v.content,
+                color: colors[index],
+                fill: colors[index],
+                amount: Number(v.amount) as unknown as string,
+              })) as CategoryListData[]) ?? []
+            }
+          />
+        </div>
+      ) : (
+        <CategoryList items={categoryData ?? []} />
+      )}
+    </div>
+  </div>
 );
