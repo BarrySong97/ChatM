@@ -109,6 +109,7 @@ export default function TransactionsTable() {
         assets={assets ?? []}
         liabilities={liabilities ?? []}
         incomes={incomes ?? []}
+        selectedTransactions={selectedRows}
         expenses={expenses ?? []}
         onSelectionChanged={setSelectedRows}
       />
@@ -131,6 +132,14 @@ export default function TransactionsTable() {
             已选择 <span className="font-bold">{selectedRows.length}</span> 项
           </div>
           <div className="space-x-2">
+            <Button
+              onClick={() => setSelectedRows([])}
+              variant="flat"
+              size="sm"
+              radius="sm"
+            >
+              取消选择
+            </Button>
             <PopoverConfirm
               title="删除所选多个流水"
               desc="删除所选多个流水将无法恢复，请谨慎操作"
@@ -139,7 +148,7 @@ export default function TransactionsTable() {
                 return Promise.resolve();
               }}
             >
-              <Button size="sm" color="danger">
+              <Button radius="sm" size="sm" color="danger">
                 删除所选
               </Button>
             </PopoverConfirm>

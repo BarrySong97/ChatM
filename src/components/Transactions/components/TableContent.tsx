@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
+import { ColDef, GridApi } from "ag-grid-community";
 import { Transaction } from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
 import { Select, SelectItem } from "@nextui-org/react";
@@ -26,6 +26,7 @@ interface TableContentProps {
   totalCount: number;
   onSelectionChanged: (rows: Transaction[]) => void;
   transactionListParams?: TransactionListParams;
+  selectedTransactions: Transaction[];
 }
 
 const TableContent: React.FC<TableContentProps> = ({
@@ -36,6 +37,7 @@ const TableContent: React.FC<TableContentProps> = ({
   incomes,
   expenses,
   onSelectionChanged,
+  selectedTransactions,
 }) => {
   const [colDefs, setColDefs] = useState<ColDef<Transaction>[]>([
     {
@@ -309,10 +311,27 @@ const TableContent: React.FC<TableContentProps> = ({
   ]);
 
   const { editTransaction } = useTransactionService(transactionListParams);
+  const gridRef = useRef<AgGridReact>(null);
+  useEffect(() => {
+    if (gridRef.current && gridRef.current.api) {
+      const api: GridApi = gridRef.current.api;
+      api.deselectAll();
+
+      if (selectedTransactions.length > 0) {
+        const selectedIds = new Set(selectedTransactions.map((t) => t.id));
+        api.forEachNode((node) => {
+          if (selectedIds.has(node.data.id)) {
+            node.setSelected(true);
+          }
+        });
+      }
+    }
+  }, [selectedTransactions]);
   return (
     <div className="ag-theme-custom mt-4" style={{ height: 500 }}>
       <AgGridReact
         rowData={transactions}
+        ref={gridRef}
         onCellValueChanged={(e) => {
           const editBody = {
             [e.colDef.field as string]: e.newValue,
