@@ -9,7 +9,6 @@ import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";
 import Decimal from "decimal.js";
 import {
-  EditTransaction,
   TransactionListParams,
   useTransactionService,
 } from "@/api/hooks/transaction";

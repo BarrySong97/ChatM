@@ -8,6 +8,7 @@ import {
   MdiArrowDownCircle,
   MdiArrowUpCircle,
   SolarCardBoldDuotone,
+  SolarHashtagBold,
   SolarSettingsBold,
   TablerTransactionDollar,
 } from "@/assets/icon";
@@ -42,6 +43,7 @@ import Decimal from "decimal.js";
 import DataImportModal from "./data-import";
 import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
 import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
+import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -60,8 +62,14 @@ const Side: FC<SideProps> = () => {
       icon: <TablerTransactionDollar />,
     },
     {
+      key: "tags",
+      href: "/tags",
+      title: "标签",
+      icon: <SolarHashtagBold />,
+    },
+    {
       key: "settings",
-      href: "/navigation/setting",
+      href: "/settings",
       title: "设置",
       icon: <SolarSettingsBold />,
     },
@@ -91,7 +99,7 @@ const Side: FC<SideProps> = () => {
       endDate: month[1].getTime(),
     });
 
-  const items1: MenuItem[] = [
+  const items1: TreeNode[] = [
     {
       onTitleClick: () => {
         navigate("/assets");
@@ -110,7 +118,7 @@ const Side: FC<SideProps> = () => {
         ...(assets || []).map((item) => {
           return {
             key: item.id,
-            onClick: () => {
+            onTitleClick: () => {
               navigate(`/category/assets/${item.id}`);
             },
             label: (
@@ -124,7 +132,8 @@ const Side: FC<SideProps> = () => {
         {
           key: "new_assets",
           label: "新增资产",
-          onClick: () => {
+          hasMore: false,
+          onTitleClick: () => {
             setShowAccountModal(true);
             setModalType("asset");
           },
@@ -150,7 +159,7 @@ const Side: FC<SideProps> = () => {
         ...(liabilities || []).map((item) => {
           return {
             key: item.id,
-            onClick: () => {
+            onTitleClick: () => {
               navigate(`/category/liabilities/${item.id}`);
             },
             label: (
@@ -168,7 +177,9 @@ const Side: FC<SideProps> = () => {
         {
           key: "new_liability",
           label: "新增负债",
-          onClick: () => {
+          hasMore: false,
+          icon: <MaterialSymbolsAddRounded />,
+          onTitleClick: () => {
             setShowAccountModal(true);
             setModalType("liability");
           },
@@ -176,7 +187,7 @@ const Side: FC<SideProps> = () => {
       ],
     },
   ];
-  const items2: MenuItem[] = [
+  const items2: TreeNode[] = [
     {
       key: "income",
       onTitleClick: () => {
@@ -193,7 +204,7 @@ const Side: FC<SideProps> = () => {
         ...(incomes || []).map((item) => {
           return {
             key: item.id,
-            onClick: () => {
+            onTitleClick: () => {
               navigate(`/category/income/${item.id}`);
             },
             label: (
@@ -207,7 +218,8 @@ const Side: FC<SideProps> = () => {
         {
           key: "new_income",
           label: "新增收入",
-          onClick: () => {
+          icon: <MaterialSymbolsAddRounded />,
+          onTitleClick: () => {
             setShowAccountModal(true);
             setModalType("income");
           },
@@ -233,7 +245,7 @@ const Side: FC<SideProps> = () => {
         ...(expenses || []).map((item) => {
           return {
             key: item.id,
-            onClick: () => {
+            onTitleClick: () => {
               navigate(`/category/expense/${item.id}`);
             },
             label: (
@@ -251,7 +263,9 @@ const Side: FC<SideProps> = () => {
         {
           key: "new_expense",
           label: "新增支出",
-          onClick: () => {
+          hasMore: false,
+          icon: <MaterialSymbolsAddRounded />,
+          onTitleClick: () => {
             setShowAccountModal(true);
             setModalType("expense");
           },
@@ -299,6 +313,7 @@ const Side: FC<SideProps> = () => {
     setShowDataImportModal(true);
   };
   const [showDataImportModal, setShowDataImportModal] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string>();
   return (
     <ConfigProvider
       theme={{
@@ -330,7 +345,9 @@ const Side: FC<SideProps> = () => {
               variant="flat"
               size="sm"
               className="bg-white"
-              onClick={() => setShowTransactionModal(true)}
+              onClick={() => {
+                setShowTransactionModal(true);
+              }}
             >
               <MaterialSymbolsEditDocumentOutlineRounded className="text-lg" />
             </Button>
@@ -433,9 +450,14 @@ const Side: FC<SideProps> = () => {
             <MaterialSymbolsArrowForwardIosRounded />
           </Button>
         </div>
-        <div className="mt-4 overflow-auto scrollbar h-[calc(100vh-352px)] px-4">
+        <div
+          className="mt-4 overflow-auto scrollbar  "
+          style={{
+            height: `calc(100vh - ${menuList.length * 40 + 220}px)`,
+          }}
+        >
           <div className="mb-4">
-            <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
+            <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
               <div className="">资产/负债</div>
               <div className=" pr-3 ">
                 <Tooltip
@@ -450,8 +472,13 @@ const Side: FC<SideProps> = () => {
                 </Tooltip>
               </div>
             </div>
-            <div>
-              <Menu
+            <div className="px-4 pr-2">
+              <ExpandTreeMenu
+                data={items1}
+                selectedKey={selectedKey}
+                onSelectionChange={setSelectedKey}
+              />
+              {/* <Menu
                 className="!border-none"
                 multiple={false}
                 selectedKeys={[selectKeys ?? ""]}
@@ -460,11 +487,11 @@ const Side: FC<SideProps> = () => {
                 }}
                 mode="inline"
                 items={items1}
-              />
+              /> */}
             </div>
           </div>
           <div>
-            <div className="flex items-center justify-between text-xs font-medium text-default-500 mb-2">
+            <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
               <div className="">支出/收入</div>
               <div className=" pr-3 ">
                 <Tooltip
@@ -480,16 +507,11 @@ const Side: FC<SideProps> = () => {
               </div>
             </div>
 
-            <div>
-              <Menu
-                className="!border-none"
-                multiple={false}
-                mode="inline"
-                selectedKeys={[selectKeys ?? ""]}
-                onSelect={({ key }) => {
-                  setSelectKeys(key);
-                }}
-                items={items2}
+            <div className="px-4 pr-2">
+              <ExpandTreeMenu
+                data={items2}
+                selectedKey={selectedKey}
+                onSelectionChange={setSelectedKey}
               />
             </div>
           </div>

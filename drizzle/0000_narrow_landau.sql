@@ -48,6 +48,13 @@ CREATE TABLE `transactions` (
 	`source_account_id` text,
 	`remark` text,
 	`destination_account_id` text,
-	`tags` text,
 	`amount` integer
+);
+--> statement-breakpoint
+CREATE TABLE `transaction_tags` (
+	`id` text PRIMARY KEY NOT NULL,
+	`transaction_id` text NOT NULL,
+	`tag_id` text NOT NULL,
+	FOREIGN KEY (`transaction_id`) REFERENCES `transactions`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON UPDATE no action ON DELETE no action
 );

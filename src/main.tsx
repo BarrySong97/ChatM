@@ -6,6 +6,7 @@ import router from "./routes";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ModalProvider } from "./components/GlobalConfirmModal";
 import { DarkModeProvider } from "./pages/providers";
+import "@/components/Transactions/ag-grid-theme-builder.css";
 // import { seed } from "./db";
 const queryClient = new QueryClient();
 window.global = globalThis;

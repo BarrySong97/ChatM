@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { tags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -35,6 +35,12 @@ export class TagService {
   // delete tag
   public static async deleteTag(id: string) {
     const res = await db.delete(tags).where(eq(tags.id, id));
+    return res;
+  }
+
+  // delete tags
+  public static async deleteTags(ids: string[]) {
+    const res = await db.delete(tags).where(inArray(tags.id, ids));
     return res;
   }
 }

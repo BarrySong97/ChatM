@@ -109,8 +109,24 @@ export function useTagService() {
     }
   );
 
+  const { mutateAsync: deleteTags } = useMutation(
+    (tagIds: string[]) => TagService.deleteTags(tagIds),
+    {
+      onSuccess() {
+        message.success("删除成功");
+      },
+      onSettled() {
+        queryClient.invalidateQueries(queryKey);
+      },
+      onError: (_error, _tagId, context) => {
+        message.error("删除失败");
+      },
+    }
+  );
+
   return {
     tags,
+    deleteTags,
     isLoadingTags,
     editTag,
     deleteTag,
