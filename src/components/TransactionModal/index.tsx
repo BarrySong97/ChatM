@@ -339,6 +339,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                   <Input
                     aria-label="remark"
                     size="sm"
+                    isClearable
                     placeholder="请输入备注"
                   />
                 </Form.Item>

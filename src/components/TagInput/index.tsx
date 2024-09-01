@@ -1,86 +1,115 @@
-import React, { useEffect, useState } from "react";
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Button,
+  Input,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
 import { useTagService } from "@/api/hooks/tag";
 
 interface TagInputProps {
   // Add any additional props specific to TagInput here
-  onChange?: (value: string) => void;
-  value?: string;
+  onChange?: (value: string[] | undefined) => void;
+  value?: string[];
 }
 const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
   const [inputValue, setInputValue] = useState("");
-  const { tags } = useTagService();
-  const [selectKey, setselectKey] = useState<string>();
-  const myFilter = (textValue: string, inputValue: string) => {
-    const lastChar = inputValue.slice(-1);
-    const last = inputValue.split("#").pop();
-    if (inputValue.includes(textValue)) {
-      return false;
+  const { tags, createTag } = useTagService();
+
+  const filteredTags = useMemo(() => {
+    let filteredLength = 0;
+    const temp = tags?.map((tag) => {
+      if (tag.name?.includes(`${inputValue}`)) {
+        filteredLength++;
+        return <SelectItem key={tag.id}>{tag.name}</SelectItem>;
+      } else {
+        return (
+          <SelectItem
+            classNames={{
+              base: "hidden",
+            }}
+            key={tag.id}
+          >
+            {tag.name}
+          </SelectItem>
+        );
+      }
+    });
+    if (filteredLength === 0) {
+      temp?.push(<SelectItem key="new">{`创建标签 ${inputValue}`}</SelectItem>);
     }
+    return temp;
+  }, [tags, inputValue]);
 
-    if (
-      lastChar === "#" ||
-      (last && textValue.toLowerCase().includes(last.toLowerCase()))
-    ) {
-      return true;
-    }
-
-    return false;
-  };
-
-  useEffect(() => {
-    onChange?.(inputValue);
-  }, [inputValue]);
   return (
-    <Autocomplete
-      allowsCustomValue
+    <Select
       variant="flat"
       aria-label="tag"
-      placeholder="添加标签, 多个标签用空格隔开"
+      selectionMode="multiple"
+      listboxProps={{
+        topContent: (
+          <Input
+            placeholder="搜索或添加标签"
+            size="sm"
+            radius="sm"
+            onChange={(e) => {
+              setInputValue(e.target.value);
+            }}
+          />
+        ),
+      }}
+      placeholder="添加标签"
       size="sm"
-      onClear={() => {
-        setInputValue("");
-        setselectKey("");
-      }}
-      defaultFilter={myFilter}
-      inputValue={value}
-      onSelectionChange={(e) => {
-        setselectKey(e as string);
-      }}
-      onInputChange={(e) => {
-        setInputValue((prevValue) => {
-          // Check if there's a previous value
-          if (prevValue) {
-            // If the new input is different from selectKey, it's a regular input
-            if (e.toLowerCase() !== selectKey?.toLowerCase()) {
-              return e;
-            }
-            // If it's the same as selectKey, concatenate it
-            if (prevValue.endsWith("#")) {
-              return prevValue + e.slice(1);
-            } else {
-              const lastHashIndex = prevValue.lastIndexOf("#");
-              if (lastHashIndex !== -1) {
-                const lastPart = prevValue
-                  .slice(lastHashIndex + 1)
-                  .toLowerCase();
-                if (selectKey && selectKey.toLowerCase().includes(lastPart)) {
-                  return prevValue.slice(0, lastHashIndex) + " " + e;
-                }
-              }
-              return prevValue + e;
-            }
-          }
+      selectedKeys={new Set(value)}
+      endContent={
+        value?.length ? (
+          <div
+            onClick={(e) => {
+              onChange?.([]);
+            }}
+            className="hover:!opacity-100 cursor-pointer  !opacity-60"
+          >
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              height="1em"
+              role="presentation"
+              viewBox="0 0 24 24"
+              width="1em"
+            >
+              <path
+                d="M12 2a10 10 0 1010 10A10.016 10.016 0 0012 2zm3.36 12.3a.754.754 0 010 1.06.748.748 0 01-1.06 0l-2.3-2.3-2.3 2.3a.748.748 0 01-1.06 0 .754.754 0 010-1.06l2.3-2.3-2.3-2.3A.75.75 0 019.7 8.64l2.3 2.3 2.3-2.3a.75.75 0 011.06 1.06l-2.3 2.3z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </div>
+        ) : null
+      }
+      renderValue={() => {
+        const items = tags?.filter((tag) => value?.includes(tag.id));
 
-          // If there's no previous value, just return the new input
-
-          return e;
-        });
+        return items?.map((item) => `#${item.name}`).join(" ");
       }}
-      defaultItems={tags ?? []}
+      onSelectionChange={async (e) => {
+        if (e instanceof Set && e.has("new")) {
+          // Create new tag
+          const newTag = { name: inputValue };
+          const res = await createTag({
+            tag: newTag,
+          });
+          onChange?.([...(value ?? []), res.id]);
+          setInputValue("");
+        } else {
+          // Set select key
+          onChange?.(Array.from(e as Set<string>));
+          setInputValue("");
+        }
+      }}
     >
-      {(item) => <AutocompleteItem key={item.id}>{item.name}</AutocompleteItem>}
-    </Autocomplete>
+      {filteredTags ?? []}
+    </Select>
   );
 };
 
