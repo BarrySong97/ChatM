@@ -4,12 +4,15 @@ import { Button, Divider } from "@nextui-org/react";
 import { AgGridReact } from "ag-grid-react";
 import { FC, useState } from "react";
 import { Tag } from "@db/schema";
-import { useTagService } from "@/api/hooks/tag";
+import { EditTag, useTagService } from "@/api/hooks/tag";
 import TagEditModal from "@/components/TagEditModal";
 import SelectedRowsActions from "@/components/Transactions/components/SelectedRowsActions";
+import { TagService } from "@/api/services/TagService";
+import to from "await-to-js";
+import { message } from "antd";
 export interface TagsProps {}
 const Tags: FC<TagsProps> = () => {
-  const { tags, deleteTags } = useTagService();
+  const { tags, deleteTags, editTag } = useTagService();
   const [colDefs, setColDefs] = useState<
     ColDef<Tag & { transactionCount: number }>[]
   >([
@@ -56,7 +59,24 @@ const Tags: FC<TagsProps> = () => {
       <div className="ag-theme-custom" style={{ width: 500, height: 500 }}>
         <AgGridReact
           rowData={tags}
-          onCellValueChanged={(e) => {}}
+          onCellValueChanged={async (e) => {
+            const editBody = {
+              [e.colDef.field as string]: e.newValue,
+            };
+            if (e.colDef.field === "name") {
+              const [err, res] = await to(TagService.checkTagName(e.newValue));
+
+              if (res) {
+                e.data.name = e.oldValue;
+                e.api.applyTransaction({
+                  update: [e.data],
+                });
+                message.error("标签名称已存在");
+                return;
+              }
+              editTag({ tagId: e.data.id, tag: editBody as EditTag });
+            }
+          }}
           onSelectionChanged={(e) => {
             const nodes = e.api.getSelectedNodes();
             const rows = nodes.map((node) => node.data);
@@ -64,7 +84,7 @@ const Tags: FC<TagsProps> = () => {
           }}
           columnDefs={colDefs}
           rowSelection="multiple"
-          // suppressRowClickSelection={true}
+          suppressRowClickSelection={true}
         />
       </div>
       <SelectedRowsActions

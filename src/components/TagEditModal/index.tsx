@@ -11,6 +11,7 @@ import {
 } from "@nextui-org/react";
 import { Form } from "antd";
 import { Tag } from "@db/schema";
+import { TagService } from "@/api/services/TagService";
 export interface TagEditModalProps {}
 const TagEditModal: FC<TagEditModalProps> = () => {
   const { createTag, editTag, isCreateLoading, isEditLoading } =
@@ -62,7 +63,29 @@ const TagEditModal: FC<TagEditModalProps> = () => {
                   <Form.Item
                     name="name"
                     label="标签名称"
-                    rules={[{ required: true, message: "请输入标签名称" }]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "请输入标签名称",
+                      },
+                      {
+                        validateTrigger: "onBlur",
+                        async validator(rule, value) {
+                          console.log(value);
+                          if (value) {
+                            const res = await TagService.checkTagName(value);
+
+                            if (res) {
+                              return Promise.reject(
+                                new Error("标签名称已存在")
+                              );
+                            } else {
+                              return Promise.resolve();
+                            }
+                          }
+                        },
+                      },
+                    ]}
                   >
                     <Input />
                   </Form.Item>

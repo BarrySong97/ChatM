@@ -43,4 +43,12 @@ export class TagService {
     const res = await db.delete(tags).where(inArray(tags.id, ids));
     return res;
   }
+
+  // check tag name is exist
+  public static async checkTagName(name: string) {
+    console.log(name);
+
+    const res = await db.select().from(tags).where(eq(tags.name, name));
+    return res.length > 0;
+  }
 }
