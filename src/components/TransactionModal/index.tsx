@@ -28,7 +28,6 @@ import { useExpenseService } from "@/api/hooks/expense";
 import { useIncomeService } from "@/api/hooks/income";
 import { FinancialOperation } from "@/api/db/manager";
 import { useTransactionService } from "@/api/hooks/transaction";
-import { Transaction } from "@db/schema";
 import Decimal from "decimal.js";
 
 interface TransactionModalProps {
@@ -42,7 +41,7 @@ export type TransactionModalForm = {
   source: string;
   destination: string;
   type: string;
-  tags: string;
+  tags: string[];
   remark: string;
 };
 
@@ -143,6 +142,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             )) ?? []}
           </SelectSection>
         );
+      case FinancialOperation.Refund:
+        return (
+          <SelectSection title="退款来源">
+            {expenses?.map((expense) => (
+              <SelectItem key={expense.id} value={expense.id}>
+                {expense.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
       default:
         return null;
     }
@@ -205,6 +214,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             {expenses?.map((expense) => (
               <SelectItem key={expense.id} value={expense.id}>
                 {expense.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Refund:
+        return (
+          <SelectSection title="退款账户">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
               </SelectItem>
             )) ?? []}
           </SelectSection>
@@ -299,6 +318,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                     </SelectItem>
                     <SelectItem key={FinancialOperation.Borrow} value="6">
                       借款
+                    </SelectItem>
+                    <SelectItem key={FinancialOperation.Refund} value="7">
+                      退款
                     </SelectItem>
                   </Select>
                 </Form.Item>

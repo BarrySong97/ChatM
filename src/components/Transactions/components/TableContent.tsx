@@ -136,7 +136,6 @@ const TableContent: React.FC<TableContentProps> = ({
         );
       },
       cellRenderer: (params: any) => {
-        const { data } = params;
         const color = operationColors[params.value as FinancialOperation];
         const text = operationTranslations[params.value as FinancialOperation];
         return (
@@ -156,7 +155,6 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 100,
       editable: true,
       cellRenderer: (params: any) => {
-        const { data } = params;
         let source = assets?.find((asset) => asset.id === params.value)?.name;
         if (!source) {
           source = liabilities?.find(
@@ -314,15 +312,9 @@ const TableContent: React.FC<TableContentProps> = ({
   useEffect(() => {
     if (gridRef.current && gridRef.current.api) {
       const api: GridApi = gridRef.current.api;
-      api.deselectAll();
-
-      if (selectedTransactions.length > 0) {
-        const selectedIds = new Set(selectedTransactions.map((t) => t.id));
-        api.forEachNode((node) => {
-          if (selectedIds.has(node.data.id)) {
-            node.setSelected(true);
-          }
-        });
+      const nodes = api.getSelectedNodes();
+      if (selectedTransactions.length == 0 && nodes.length > 0) {
+        api.deselectAll();
       }
     }
   }, [selectedTransactions]);

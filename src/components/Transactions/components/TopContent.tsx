@@ -1,15 +1,6 @@
 import React, { useState } from "react";
-import {
-  Input,
-  Button,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  Listbox,
-  ListboxItem,
-} from "@nextui-org/react";
+import { Input, Button, Listbox, ListboxItem } from "@nextui-org/react";
 import { SearchIcon, PlusIcon } from "./PluseIcon";
-import TransactionsFilter from "./TransactionsFilter";
 import { Tag, Popover as AntdPopover } from "antd";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";

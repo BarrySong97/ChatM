@@ -13,7 +13,7 @@ export type EditTransaction = {
   source?: string;
   source_account_id: string;
   remark?: string;
-  tags?: string;
+  tags?: string[];
   destination_account_id: string;
   amount: string;
 };
@@ -61,6 +61,7 @@ export function useTransactionService(
     () => TransactionService.listTransactions(transactionListParams),
     {
       keepPreviousData: true,
+      refetchOnWindowFocus: false,
     }
   );
 

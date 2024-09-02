@@ -1,5 +1,5 @@
 import { and, eq, gte, inArray, like, lte, or, sql } from "drizzle-orm";
-import { Transaction, transaction } from "@db/schema";
+import { Transaction, transaction, transactionTags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditTransaction, TransactionListParams } from "../hooks/transaction";
@@ -10,6 +10,8 @@ export class TransactionService {
   // 创建 transaction
   public static async createTransaction(body: EditTransaction) {
     const now = Date.now();
+    const tags = body.tags;
+    delete body.tags;
     const res = await db
       .insert(transaction)
       .values({
@@ -19,6 +21,16 @@ export class TransactionService {
         updated_at: now,
       })
       .returning();
+    const id = res[0].id;
+    if (tags?.length) {
+      await db.insert(transactionTags).values(
+        tags.map((tag) => ({
+          id: uuidv4(),
+          transaction_id: id,
+          tag_id: tag,
+        }))
+      );
+    }
     return res[0];
   }
 
@@ -87,6 +99,34 @@ export class TransactionService {
       transactionListParams?.filterConditions === "or"
         ? or(...condition)
         : and(...condition);
+    // const res = await db.query.transaction.findMany({
+    //   columns: {
+    //     id: true,
+    //     content: true,
+    //     created_at: true,
+    //     updated_at: true,
+    //     transaction_date: true,
+    //     type: true,
+    //     source: true,
+    //     source_account_id: true,
+    //     remark: true,
+    //     destination_account_id: true,
+    //     amount: true,
+    //   },
+    //   with: {
+    //     tags: {
+    //       columns: {
+    //         tag_id: true,
+    //       },
+    //     },
+    //   },
+    //   where: and(finalCondition),
+    //   limit: pageSize,
+    //   offset: offset,
+    //   extras: {
+    //     totalCount: sql<number>`COUNT(*) OVER()`.as("totalCount"),
+    //   },
+    // });
     const res = await db
       .select({
         id: transaction.id,
@@ -99,11 +139,15 @@ export class TransactionService {
         source_account_id: transaction.source_account_id,
         remark: transaction.remark,
         destination_account_id: transaction.destination_account_id,
-        tags: transaction.tags,
         amount: transaction.amount,
         totalCount: sql<number>`COUNT(*) OVER()`,
+        tags: transactionTags.tag_id,
       })
       .from(transaction)
+      .leftJoin(
+        transactionTags,
+        eq(transaction.id, transactionTags.transaction_id)
+      )
       .where(and(finalCondition))
       .limit(pageSize)
       .offset(offset);
