@@ -111,7 +111,10 @@ export class AssetsService {
 
     // Calculate the number of days from the earliest transaction to now
     const today = new Date();
-    const daysDifference = dayjs(today).diff(dayjs(earliestDate), "day");
+    const daysDifference = dayjs(today).diff(
+      dayjs(earliestDate).format("YYYY-MM-DD"),
+      "days"
+    );
 
     const netWorthData = [];
 
