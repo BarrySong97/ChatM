@@ -12,9 +12,18 @@ import { useTagService } from "@/api/hooks/tag";
 interface TagInputProps {
   // Add any additional props specific to TagInput here
   onChange?: (value: string[] | undefined) => void;
+  table?: boolean;
   value?: string[];
+  onBlur?: () => void;
 }
-const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
+const TagInput: React.FC<TagInputProps> = ({
+  onChange,
+  value,
+  onBlur,
+  table = false,
+}) => {
+  console.log(value);
+
   const [inputValue, setInputValue] = useState("");
   const { tags, createTag } = useTagService();
 
@@ -45,8 +54,9 @@ const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
 
   return (
     <Select
-      variant="flat"
+      variant={table ? "underlined" : "flat"}
       aria-label="tag"
+      onBlur={onBlur}
       selectionMode="multiple"
       listboxProps={{
         topContent: (
@@ -60,8 +70,10 @@ const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
           />
         ),
       }}
+      defaultOpen={table}
       placeholder="添加标签"
       size="sm"
+      fullWidth={!table}
       selectedKeys={new Set(value)}
       endContent={
         value?.length ? (
@@ -87,6 +99,10 @@ const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
           </div>
         ) : null
       }
+      classNames={{
+        base: table ? "h-[40px] justify-center" : "",
+        trigger: table ? "data-[open=true]:after:!hidden h-[38px]" : "",
+      }}
       renderValue={() => {
         const items = tags?.filter((tag) => value?.includes(tag.id));
 

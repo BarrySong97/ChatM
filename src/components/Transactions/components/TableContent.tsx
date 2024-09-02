@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef, GridApi } from "ag-grid-community";
+import { useClickAway } from "ahooks";
+import { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
 import { Tags, Transaction } from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
 import { Select, SelectItem, SelectSection } from "@nextui-org/react";
@@ -12,6 +13,8 @@ import {
   TransactionListParams,
   useTransactionService,
 } from "@/api/hooks/transaction";
+import AccountSelect from "@/components/AccountSelect";
+import TagInput from "@/components/TagInput";
 
 interface TableContentProps {
   transactions: Transaction[];
@@ -38,160 +41,47 @@ const TableContent: React.FC<TableContentProps> = ({
   onSelectionChanged,
   selectedTransactions,
 }) => {
-  console.log(transactions);
-
   const renderSource = (type: FinancialOperation) => {
     switch (type) {
       case FinancialOperation.RepayLoan:
-        return (
-          <SelectSection title="还款来源">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Income:
-        return (
-          <SelectSection title="收入来源">
-            {incomes?.map((income) => (
-              <SelectItem key={income.id} value={income.id}>
-                {income.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["incomes", incomes];
       case FinancialOperation.Expenditure:
-        return (
-          <SelectSection title="支出账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Transfer:
-        return (
-          <SelectSection title="转账账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Borrow:
-        return (
-          <SelectSection title="借入来源">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["liabilities", liabilities];
       case FinancialOperation.LoanExpenditure:
-        return (
-          <SelectSection title="贷款来源">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["liabilities", liabilities];
       case FinancialOperation.Refund:
-        return (
-          <SelectSection title="退款来源">
-            {expenses?.map((expense) => (
-              <SelectItem key={expense.id} value={expense.id}>
-                {expense.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["expenses", expenses];
       default:
-        return null;
+        return ["", null];
     }
   };
   const renderDestination = (type: FinancialOperation) => {
     switch (type) {
       case FinancialOperation.Income:
-        return (
-          <SelectSection title="收入账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Expenditure:
-        return (
-          <SelectSection title="支出类别">
-            {expenses?.map((expense) => (
-              <SelectItem key={expense.id} value={expense.id}>
-                {expense.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["expenses", expenses];
       case FinancialOperation.Transfer:
-        return (
-          <SelectSection title="转账收款账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.RepayLoan:
-        return (
-          <SelectSection title="还款账户">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["liabilities", liabilities];
       case FinancialOperation.Borrow:
-        return (
-          <SelectSection title="目标资产">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.LoanExpenditure:
-        return (
-          <SelectSection title="支出类别">
-            {expenses?.map((expense) => (
-              <SelectItem key={expense.id} value={expense.id}>
-                {expense.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["expenses", expenses];
       case FinancialOperation.Refund:
-        return (
-          <SelectSection title="退款账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       default:
-        return null;
+        return ["", null];
     }
   };
+
   const [colDefs, setColDefs] = useState<
     ColDef<
       Transaction & {
@@ -272,7 +162,7 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 110,
       headerName: "类型",
       editable: true,
-      cellEditor: ({ value, onValueChange, data }) => {
+      cellEditor: ({ value, onValueChange, api }) => {
         return (
           <Select
             items={Object.values(FinancialOperation).map((type) => ({
@@ -285,10 +175,14 @@ const TableContent: React.FC<TableContentProps> = ({
             classNames={{
               trigger: "data-[open=true]:after:!hidden",
             }}
+            onBlur={() => {
+              api.stopEditing();
+            }}
             selectionMode="single"
             selectedKeys={new Set([value])}
             onSelectionChange={(v) => {
               onValueChange(Array.from(v)[0]);
+              api.stopEditing();
             }}
           >
             {(item) => {
@@ -342,23 +236,23 @@ const TableContent: React.FC<TableContentProps> = ({
           </Tag>
         );
       },
-      cellEditor: ({ value, onValueChange, data }) => {
+      cellEditor: ({ value, onValueChange, data, api }) => {
+        const source = renderSource(data.type);
         return (
-          <Select
-            variant="underlined"
-            defaultOpen
+          <AccountSelect
             radius="none"
-            classNames={{
-              trigger: "data-[open=true]:after:!hidden",
+            type={source[0] as any}
+            data={source[1] as any}
+            onBlur={() => {
+              api.stopEditing();
             }}
-            selectionMode="single"
-            selectedKeys={new Set([value])}
-            onSelectionChange={(v) => {
-              onValueChange(Array.from(v)[0]);
+            value={value}
+            table
+            onChange={(v) => {
+              onValueChange(v);
+              api.stopEditing();
             }}
-          >
-            {renderSource(data.type) ?? []}
-          </Select>
+          />
         );
       },
     },
@@ -397,23 +291,23 @@ const TableContent: React.FC<TableContentProps> = ({
           </Tag>
         );
       },
-      cellEditor: ({ value, onValueChange, data }) => {
+      cellEditor: ({ value, onValueChange, data, api }) => {
+        const destination = renderDestination(data.type);
         return (
-          <Select
-            variant="underlined"
-            defaultOpen
+          <AccountSelect
+            type={destination[0] as any}
+            data={destination[1] as any}
             radius="none"
-            classNames={{
-              trigger: "data-[open=true]:after:!hidden",
+            onBlur={() => {
+              // api.stopEditing();
             }}
-            selectionMode="single"
-            selectedKeys={new Set([value])}
-            onSelectionChange={(v) => {
-              onValueChange(Array.from(v)[0]);
+            table
+            value={value}
+            onChange={(v) => {
+              onValueChange(v);
+              // api.stopEditing();
             }}
-          >
-            {renderDestination(data.type) ?? []}
-          </Select>
+          />
         );
       },
     },
@@ -427,6 +321,27 @@ const TableContent: React.FC<TableContentProps> = ({
             (tag: { tag: { name: string; id: string } }) => `#${tag.tag.name}`
           )
           .join(" ");
+      },
+      cellEditor: ({ value, onValueChange, api }) => {
+        const ids = value.map((v: { tag: { id: string } }) => {
+          if (v.tag) {
+            return v.tag.id;
+          }
+          return v;
+        });
+        return (
+          <TagInput
+            onBlur={() => {
+              api.stopEditing();
+            }}
+            table
+            value={ids}
+            onChange={(v) => {
+              onValueChange(v);
+              api.stopEditing();
+            }}
+          />
+        );
       },
     },
     {

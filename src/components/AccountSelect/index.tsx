@@ -11,13 +11,19 @@ export interface AccountSelectProps {
   data?: Assets | Liabilities | Expenses | Incomes;
   type: "assets" | "liabilities" | "expense" | "income";
   placeholder?: string;
+  table?: boolean;
+  radius?: "sm" | "md" | "lg" | "none";
+  onBlur?: () => void;
 }
 const AccountSelect: FC<AccountSelectProps> = ({
   value,
   onChange,
   data,
+  onBlur,
   type,
-  placeholder = "选择账户",
+  placeholder = "选择账户（先选择类型）",
+  radius,
+  table = false,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const { createAsset } = useAssetsService();
@@ -52,9 +58,12 @@ const AccountSelect: FC<AccountSelectProps> = ({
 
   return (
     <Select
-      variant="flat"
+      variant={table ? "underlined" : "flat"}
       aria-label="account"
       placeholder={placeholder}
+      defaultOpen={table}
+      radius={radius}
+      onBlur={onBlur}
       listboxProps={{
         topContent: (
           <Input
@@ -66,6 +75,17 @@ const AccountSelect: FC<AccountSelectProps> = ({
             }}
           />
         ),
+      }}
+      fullWidth={!table}
+      popoverProps={{
+        classNames: {
+          content: table ? "w-[180px]" : "",
+        },
+      }}
+      selectionMode="single"
+      classNames={{
+        base: table ? "h-[40px] justify-center" : "",
+        trigger: table ? "data-[open=true]:after:!hidden h-[38px]" : "",
       }}
       size="sm"
       selectedKeys={value ? [value] : []}
