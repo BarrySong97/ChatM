@@ -94,6 +94,8 @@ const TableContent: React.FC<TableContentProps> = ({
   const incomesRef = useRef<Income[]>([]);
   const expensesRef = useRef<Expense[]>([]);
   asssetsRef.current = assets;
+  expensesRef.current = expenses;
+  incomesRef.current = incomes;
   liabilitiesRef.current = liabilities;
 
   const { tags } = useTagService();
@@ -281,9 +283,12 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 100,
       editable: true,
       cellRenderer: (params: any) => {
+        console.log(params);
+
         let destination = expensesRef.current?.find(
           (expense) => expense.id === params.value
         )?.name;
+
         if (!destination) {
           destination = incomesRef.current?.find(
             (income) => income.id === params.value

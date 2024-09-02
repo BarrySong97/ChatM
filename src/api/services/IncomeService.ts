@@ -1,4 +1,4 @@
-import { eq, gte, lte, and } from "drizzle-orm";
+import { eq, gte, lte, and, sql, or } from "drizzle-orm";
 import { income, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -208,7 +208,22 @@ export class IncomeService {
 
   // delete income
   public static async deleteIncome(id: string) {
-    const res = await db.delete(income).where(eq(income.id, id));
+    const res = await db.transaction(async (tx) => {
+      const res = await tx.delete(income).where(eq(income.id, id));
+      await tx
+        .update(transaction)
+        .set({
+          destination_account_id: sql`CASE WHEN ${transaction.destination_account_id} = ${id} THEN NULL ELSE ${transaction.destination_account_id} END`,
+          source_account_id: sql`CASE WHEN ${transaction.source_account_id} = ${id} THEN NULL ELSE ${transaction.source_account_id} END`,
+        })
+        .where(
+          or(
+            eq(transaction.destination_account_id, id),
+            eq(transaction.source_account_id, id)
+          )
+        );
+      return res;
+    });
     return res;
   }
 }
