@@ -54,6 +54,7 @@ export default function TransactionsTable() {
   };
   const { transactions, deleteTransactions } =
     useTransactionService(queryFilter);
+  console.log(transactions);
 
   const onRowsPerPageChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {

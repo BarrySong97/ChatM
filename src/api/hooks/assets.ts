@@ -4,6 +4,7 @@ import { AssetsService } from "../services/AssetsSevice";
 import { useState } from "react";
 import { message } from "antd";
 import { Filter } from "./expense";
+import { CategoryListData, NormalChartData } from "../models/Chart";
 export type EditAsset = {
   name: string;
   initial_balance: number;
@@ -160,7 +161,7 @@ export function useAssetCategoryService(filter: Filter) {
 export function useAssetTrendService(filter: Filter) {
   const queryKey = ["assets", "trend", filter];
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
-    NoramlChartData[],
+    NormalChartData[],
     Error
   >(queryKey, () => AssetsService.getTrend(filter));
 

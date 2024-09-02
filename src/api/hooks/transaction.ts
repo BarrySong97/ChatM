@@ -190,7 +190,10 @@ export function useTransactionService(
       },
       onSuccess() {
         message.success("删除成功");
+        console.log(queryKey);
+
         queryClient.invalidateQueries(queryKey);
+        queryClient.invalidateQueries(["side"]);
       },
     }
   );

@@ -42,7 +42,7 @@ const ConfirmModal: FC<ConfirmModalProps> = ({
                   onCancel?.();
                 }}
               >
-                Cancel
+                取消
               </Button>
               <Button
                 className="bg-black text-white"
@@ -51,7 +51,7 @@ const ConfirmModal: FC<ConfirmModalProps> = ({
                   onConfirm?.();
                 }}
               >
-                Confirm
+                确认
               </Button>
             </ModalFooter>
           </>

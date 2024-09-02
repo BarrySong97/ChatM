@@ -7,7 +7,7 @@ import { assets, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq, lte, gte, and, min, or } from "drizzle-orm";
+import { eq, lte, gte, and, min, or, sql } from "drizzle-orm";
 
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
@@ -214,6 +214,7 @@ export class AssetsService {
     const startDate = filter.startDate;
     const endDate = filter.endDate;
     const assets = await this.listAssets();
+    console.log(dayjs(endDate).format("YYYY-MM-DD"));
 
     const conditions = [
       lte(transaction.transaction_date, endDate),
@@ -256,9 +257,14 @@ export class AssetsService {
     const assetIds = filter.accountId
       ? new Set([filter.accountId])
       : new Set(assets.map((asset) => asset.id));
+    let assetsInitialBalance = 0;
+    assets.forEach((asset) => {
+      assetsInitialBalance += asset.initial_balance || 0;
+    });
+
     transactions.forEach((t) => {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
-      const amount = new Decimal(t.amount || "0");
+      const amount = new Decimal(t.amount || 0);
 
       if (!dailyTotals.has(date)) {
         dailyTotals.set(date, new Decimal(0));
@@ -287,7 +293,7 @@ export class AssetsService {
       }
       trendData.push({
         label: dateString,
-        amount: runningTotal.div(100).toFixed(2),
+        amount: runningTotal.add(assetsInitialBalance).div(100).toFixed(2),
       });
       currentDate = currentDate.add(1, "day");
     }
@@ -311,7 +317,23 @@ export class AssetsService {
 
   // delete asset
   public static async deleteAsset(assetId: string) {
-    const res = await db.delete(assets).where(eq(assets.id, assetId));
+    const res = await db.transaction(async (tx) => {
+      const res = await tx.delete(assets).where(eq(assets.id, assetId));
+      await tx
+        .update(transaction)
+        .set({
+          destination_account_id: sql`CASE WHEN ${transaction.destination_account_id} = ${assetId} THEN NULL ELSE ${transaction.destination_account_id} END`,
+          source_account_id: sql`CASE WHEN ${transaction.source_account_id} = ${assetId} THEN NULL ELSE ${transaction.source_account_id} END`,
+        })
+        .where(
+          or(
+            eq(transaction.destination_account_id, assetId),
+            eq(transaction.source_account_id, assetId)
+          )
+        );
+      return res;
+    });
+
     return res;
   }
 

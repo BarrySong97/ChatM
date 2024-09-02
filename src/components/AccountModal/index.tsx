@@ -13,25 +13,42 @@ import {
 } from "@nextui-org/react";
 import { Form } from "antd";
 import to from "await-to-js";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import Decimal from "decimal.js";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   type: "income" | "expense" | "asset" | "liability";
+  data: any;
 }
 
 const AccountModal: FC<AccountModalProps> = ({
   isOpen,
   onOpenChange,
   type,
+  data,
 }) => {
   const [form] = Form.useForm();
   const { createAsset, editAsset, isCreateLoading, isEditLoading } =
     useAssetsService();
-  const { createIncome } = useIncomeService();
-  const { createExpense } = useExpenseService();
-  const { createLiability } = useLiabilityService();
+  const {
+    createIncome,
+    editIncome,
+    isCreateLoading: isCreateIncomeLoading,
+    isEditLoading: isEditIncomeLoading,
+  } = useIncomeService();
+  const {
+    createExpense,
+    editExpense,
+    isCreateLoading: isCreateExpenseLoading,
+    isEditLoading: isEditExpenseLoading,
+  } = useExpenseService();
+  const {
+    createLiability,
+    editLiability,
+    isCreateLoading: isCreateLiabilityLoading,
+    isEditLoading: isEditLiabilityLoading,
+  } = useLiabilityService();
 
   const getModalTitle = (type: string) => {
     switch (type) {
@@ -50,27 +67,59 @@ const AccountModal: FC<AccountModalProps> = ({
     if (err) return;
     switch (type) {
       case "income":
-        await createIncome({ income: { name: value.name } });
+        if (data) {
+          await editIncome({ income: { name: value.name }, incomeId: data.id });
+        } else {
+          await createIncome({ income: { name: value.name } });
+        }
         break;
       case "expense":
-        await createExpense({ expense: { name: value.name } });
+        if (data) {
+          await editExpense({
+            expense: { name: value.name },
+            expenseId: data.id,
+          });
+        } else {
+          await createExpense({ expense: { name: value.name } });
+        }
         break;
       case "asset":
-        await createAsset({
-          asset: {
-            name: value.name,
-            initial_balance: value.initial_balance
-              ? new Decimal(value.initial_balance).mul(100).number()
-              : 0,
-          },
-        });
+        if (data) {
+          await editAsset({
+            asset: {
+              name: value.name,
+              initial_balance: value.initial_balance
+                ? new Decimal(value.initial_balance).mul(100).toNumber()
+                : 0,
+            },
+            assetId: data.id,
+          });
+        } else {
+          await createAsset({
+            asset: {
+              name: value.name,
+              initial_balance: value.initial_balance
+                ? new Decimal(value.initial_balance).mul(100).toNumber()
+                : 0,
+            },
+          });
+        }
         break;
       case "liability":
-        await createLiability({
-          liability: {
-            name: value.name,
-          },
-        });
+        if (data) {
+          await editLiability({
+            liability: {
+              name: value.name,
+            },
+            liabilityId: data.id,
+          });
+        } else {
+          await createLiability({
+            liability: {
+              name: value.name,
+            },
+          });
+        }
         break;
     }
   };
@@ -107,6 +156,16 @@ const AccountModal: FC<AccountModalProps> = ({
         return renderLiabilityForm();
     }
   };
+  useEffect(() => {
+    if (data) {
+      form.setFieldsValue({
+        ...data,
+        initial_balance: data.initial_balance
+          ? new Decimal(data.initial_balance).div(100).toNumber()
+          : 0,
+      });
+    }
+  }, [data]);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -143,7 +202,16 @@ const AccountModal: FC<AccountModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                isLoading={isCreateLoading || isEditLoading}
+                isLoading={
+                  isCreateLoading ||
+                  isEditLoading ||
+                  isCreateIncomeLoading ||
+                  isEditIncomeLoading ||
+                  isCreateExpenseLoading ||
+                  isEditExpenseLoading ||
+                  isCreateLiabilityLoading ||
+                  isEditLiabilityLoading
+                }
                 onPress={async () => {
                   await onCreate();
                   form.resetFields();

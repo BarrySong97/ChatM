@@ -25,6 +25,8 @@ interface TreeMenuProps {
   data: TreeNode[];
   selectedKey?: string;
   onSelectionChange?: (key: string) => void;
+  onDelete?: (key: string, type: string) => void;
+  onEdit?: (key: string, type: string, data: any) => void;
 }
 
 interface TreeMenuItemProps {
@@ -32,7 +34,10 @@ interface TreeMenuItemProps {
   level: number;
   isSelected?: boolean;
   selectedKey?: string;
+  onDelete?: (key: string, type: string) => void;
+  onEdit?: (key: string, type: string, data: any) => void;
   onSelectionChange?: (key: string) => void;
+  root?: string;
 }
 const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
   node,
@@ -40,6 +45,9 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
   isSelected,
   selectedKey,
   onSelectionChange,
+  onDelete,
+  onEdit,
+  root,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -145,8 +153,14 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
                       </div>
                     </DropdownTrigger>
                     <DropdownMenu>
-                      <DropdownItem key="edit">编辑</DropdownItem>
                       <DropdownItem
+                        onClick={() => onEdit?.(node.key, root ?? "", node)}
+                        key="edit"
+                      >
+                        编辑
+                      </DropdownItem>
+                      <DropdownItem
+                        onClick={() => onDelete?.(node.key, root ?? "")}
                         className="text-danger"
                         color="danger"
                         key="delete"
@@ -175,6 +189,9 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
                 key={child.key}
                 node={child}
                 level={level + 1}
+                root={node.key}
+                onDelete={onDelete}
+                onEdit={onEdit}
                 isSelected={selectedKey === child.key}
                 selectedKey={selectedKey}
                 onSelectionChange={onSelectionChange}
@@ -191,6 +208,8 @@ const ExpandTreeMenu: React.FC<TreeMenuProps> = ({
   data,
   selectedKey,
   onSelectionChange,
+  onDelete,
+  onEdit,
 }) => {
   return (
     <div className=" overflow-hidden space-y-0.5">
@@ -199,6 +218,8 @@ const ExpandTreeMenu: React.FC<TreeMenuProps> = ({
           key={node.key}
           onSelectionChange={onSelectionChange}
           node={node}
+          onDelete={onDelete}
+          onEdit={onEdit}
           selectedKey={selectedKey}
           level={0}
           isSelected={selectedKey === node.key}

@@ -44,6 +44,7 @@ import DataImportModal from "./data-import";
 import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
 import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
 import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
+import { useModal } from "@/components/GlobalConfirmModal";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -79,11 +80,11 @@ const Side: FC<SideProps> = () => {
   const navigate = useNavigate();
 
   const [showAccountModal, setShowAccountModal] = useState(false);
-  const { assets } = useAssetsService();
-  const { liabilities } = useLiabilityService();
-  const { incomes } = useIncomeService();
-  const { expenses } = useExpenseService();
-
+  const { assets, deleteAsset } = useAssetsService();
+  const { liabilities, deleteLiability } = useLiabilityService();
+  const { incomes, deleteIncome } = useIncomeService();
+  const { expenses, deleteExpense } = useExpenseService();
+  const [editData, setEditData] = useState<any>();
   const [modalType, setModalType] = useState<
     "income" | "expense" | "asset" | "liability"
   >();
@@ -104,7 +105,7 @@ const Side: FC<SideProps> = () => {
       onTitleClick: () => {
         navigate("/assets");
       },
-      key: "assets",
+      key: "asset",
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>资产</div>
@@ -317,6 +318,42 @@ const Side: FC<SideProps> = () => {
   };
   const [showDataImportModal, setShowDataImportModal] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string>();
+  const modal = useModal();
+  const onDelete = (key: string, type: string) => {
+    modal.showModal({
+      title: "删除",
+      description: "确定删除吗？删除之后关联流水数据对应账户会被设置为空",
+      onCancel: () => {},
+      onConfirm: () => {
+        switch (type) {
+          case "asset":
+            deleteAsset(key);
+            break;
+          case "liability":
+            deleteLiability(key);
+            break;
+          case "income":
+            deleteIncome(key);
+            break;
+          case "expense":
+            deleteExpense(key);
+            break;
+        }
+      },
+    });
+  };
+  const onEdit = (key: string, type: string) => {
+    setShowAccountModal(true);
+    setModalType(type as "asset" | "liability" | "income" | "expense");
+    const data = [
+      ...(assets ?? []),
+      ...(liabilities ?? []),
+      ...(incomes ?? []),
+      ...(expenses ?? []),
+    ].find((item) => item.id === key);
+
+    setEditData(data);
+  };
   return (
     <ConfigProvider
       theme={{
@@ -479,18 +516,10 @@ const Side: FC<SideProps> = () => {
               <ExpandTreeMenu
                 data={items1}
                 selectedKey={selectedKey}
+                onDelete={onDelete}
+                onEdit={onEdit}
                 onSelectionChange={setSelectedKey}
               />
-              {/* <Menu
-                className="!border-none"
-                multiple={false}
-                selectedKeys={[selectKeys ?? ""]}
-                onSelect={({ key }) => {
-                  setSelectKeys(key);
-                }}
-                mode="inline"
-                items={items1}
-              /> */}
             </div>
           </div>
           <div>
@@ -514,6 +543,8 @@ const Side: FC<SideProps> = () => {
               <ExpandTreeMenu
                 data={items2}
                 selectedKey={selectedKey}
+                onDelete={onDelete}
+                onEdit={onEdit}
                 onSelectionChange={setSelectedKey}
               />
             </div>
@@ -537,6 +568,7 @@ const Side: FC<SideProps> = () => {
         <AccountModal
           isOpen={showAccountModal}
           onOpenChange={() => setShowAccountModal(false)}
+          data={editData}
           type={modalType ?? "income"}
         />
         <TransactionModal

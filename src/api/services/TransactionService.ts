@@ -178,15 +178,23 @@ export class TransactionService {
 
   // 删除 transaction
   public static async deleteTransaction(id: string) {
-    const res = await db.delete(transaction).where(eq(transaction.id, id));
-    return res;
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(transactionTags)
+        .where(eq(transactionTags.transaction_id, id));
+      await tx.delete(transaction).where(eq(transaction.id, id));
+    });
   }
 
   // 删除多个 transaction
   public static async deleteTransactions(ids: string[]) {
-    const res = await db
-      .delete(transaction)
-      .where(inArray(transaction.id, ids));
-    return res;
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(transactionTags)
+        .where(inArray(transactionTags.transaction_id, ids));
+      const res = await db
+        .delete(transaction)
+        .where(inArray(transaction.id, ids));
+    });
   }
 }
