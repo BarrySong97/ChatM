@@ -8,8 +8,6 @@ import TopContent from "./components/TopContent";
 import TableContent from "./components/TableContent";
 import BottomContent from "./components/BottomContent";
 import { Transaction } from "@db/schema";
-import { Button } from "@nextui-org/react";
-import PopoverConfirm from "../PopoverConfirm";
 import SelectedRowsActions from "./components/SelectedRowsActions";
 
 export default function TransactionsTable() {

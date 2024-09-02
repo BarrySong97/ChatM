@@ -2,7 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { useClickAway } from "ahooks";
 import { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
-import { Tags, Transaction } from "@db/schema";
+import {
+  Asset,
+  Expense,
+  Income,
+  Liability,
+  Tags,
+  Transaction,
+} from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
 import { Select, SelectItem, SelectSection } from "@nextui-org/react";
 import dayjs from "dayjs";
@@ -82,6 +89,12 @@ const TableContent: React.FC<TableContentProps> = ({
         return ["", null];
     }
   };
+  const asssetsRef = useRef<Asset[]>([]);
+  const liabilitiesRef = useRef<Liability[]>([]);
+  const incomesRef = useRef<Income[]>([]);
+  const expensesRef = useRef<Expense[]>([]);
+  asssetsRef.current = assets;
+  liabilitiesRef.current = liabilities;
 
   const { tags } = useTagService();
   const [colDefs, setColDefs] = useState<
@@ -213,17 +226,21 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 100,
       editable: true,
       cellRenderer: (params: any) => {
-        let source = assets?.find((asset) => asset.id === params.value)?.name;
+        let source = asssetsRef.current?.find(
+          (asset) => asset.id === params.value
+        )?.name;
         if (!source) {
-          source = liabilities?.find(
+          source = liabilitiesRef.current?.find(
             (liability) => liability.id === params.value
           )?.name;
         }
         if (!source) {
-          source = incomes?.find((income) => income.id === params.value)?.name;
+          source = incomesRef.current?.find(
+            (income) => income.id === params.value
+          )?.name;
         }
         if (!source) {
-          source = expenses?.find(
+          source = expensesRef.current?.find(
             (expense) => expense.id === params.value
           )?.name;
         }
@@ -264,22 +281,21 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 100,
       editable: true,
       cellRenderer: (params: any) => {
-        const { data } = params;
-        let destination = expenses?.find(
+        let destination = expensesRef.current?.find(
           (expense) => expense.id === params.value
         )?.name;
         if (!destination) {
-          destination = incomes?.find(
+          destination = incomesRef.current?.find(
             (income) => income.id === params.value
           )?.name;
         }
         if (!destination) {
-          destination = assets?.find(
+          destination = asssetsRef.current?.find(
             (asset) => asset.id === params.value
           )?.name;
         }
         if (!destination) {
-          destination = liabilities?.find(
+          destination = liabilitiesRef.current?.find(
             (liability) => liability.id === params.value
           )?.name;
         }
