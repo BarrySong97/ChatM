@@ -7,7 +7,7 @@ import { assets, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq, lte, gte, and, min, or, sql } from "drizzle-orm";
+import { eq, lte, gte, and, min, or, sql, lt } from "drizzle-orm";
 
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
@@ -39,7 +39,7 @@ export class AssetsService {
   public static async getAssetsSumAmount(filter?: SideFilter) {
     // Calculate the sum of all asset amounts
     const assetResults = await db.select().from(assets);
-
+    const date = dayjs(filter?.endDate).add(1, "day").toDate().getTime();
     // Get all transactions
     const transactionResults = await db
       .select()
@@ -47,10 +47,12 @@ export class AssetsService {
       .where(
         filter
           ? filter.endDate
-            ? and(lte(transaction.transaction_date, filter.endDate))
+            ? and(lt(transaction.transaction_date, date))
             : undefined
           : undefined
       );
+
+    console.log(transactionResults);
 
     let totalAssetAmount = new Decimal(0);
 
@@ -109,9 +111,7 @@ export class AssetsService {
 
     // Calculate the number of days from the earliest transaction to now
     const today = new Date();
-    const daysDifference = Math.ceil(
-      (today.getTime() - new Date(earliestDate).getTime()) / (1000 * 3600 * 24)
-    );
+    const daysDifference = dayjs(today).diff(dayjs(earliestDate), "day");
 
     const netWorthData = [];
 
@@ -124,8 +124,10 @@ export class AssetsService {
       };
 
       const { totalAmount } = await this.getAssetsSumAmount(customFilter);
+
       const { totalAmount: liabilityAmount } =
         await LiabilityService.getLiabilitySumAmount(customFilter);
+
       const netWorth = new Decimal(totalAmount).sub(
         new Decimal(liabilityAmount)
       );
@@ -214,7 +216,6 @@ export class AssetsService {
     const startDate = filter.startDate;
     const endDate = filter.endDate;
     const assets = await this.listAssets();
-    console.log(dayjs(endDate).format("YYYY-MM-DD"));
 
     const conditions = [
       lte(transaction.transaction_date, endDate),

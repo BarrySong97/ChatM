@@ -22,7 +22,7 @@ export type IncomeData = {
   incomeAmounts: Map<string, string>;
 };
 export type SideFilter = {
-  startDate: number;
+  startDate?: number;
   endDate: number;
   accountId?: string;
 };
