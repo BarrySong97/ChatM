@@ -37,7 +37,7 @@ const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
         );
       }
     });
-    if (filteredLength === 0) {
+    if (filteredLength === 0 && inputValue) {
       temp?.push(<SelectItem key="new">{`创建标签 ${inputValue}`}</SelectItem>);
     }
     return temp;
@@ -93,7 +93,7 @@ const TagInput: React.FC<TagInputProps> = ({ onChange, value }) => {
         return items?.map((item) => `#${item.name}`).join(" ");
       }}
       onSelectionChange={async (e) => {
-        if (e instanceof Set && e.has("new")) {
+        if (e instanceof Set && e.has("new") && inputValue) {
           // Create new tag
           const newTag = { name: inputValue };
           const res = await createTag({

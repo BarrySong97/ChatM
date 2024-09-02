@@ -44,7 +44,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
         );
       }
     });
-    if (filteredLength === 0) {
+    if (filteredLength === 0 && inputValue) {
       return <SelectItem key="new">新建账户 {inputValue}</SelectItem>;
     }
     return temp;
@@ -71,7 +71,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
       selectedKeys={value ? [value] : []}
       onSelectionChange={async (e) => {
         if (e instanceof Set) {
-          if (e.has("new")) {
+          if (e.has("new") && inputValue) {
             // Create new account
             const newAccount = { name: inputValue };
             let res;
