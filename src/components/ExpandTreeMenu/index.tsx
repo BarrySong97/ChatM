@@ -2,6 +2,15 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type ClassValue, clsx } from "clsx";
 import { IcBaselineKeyboardArrowRight, IonMdMore } from "./icon";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@nextui-org/react";
 
 export interface TreeNode {
   key: string;
@@ -115,6 +124,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
             {node.label}
           </div>
         </div>
+
         {isLeaf && node.hasMore !== false ? (
           <AnimatePresence>
             {isHovered ? (
@@ -128,7 +138,23 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <IonMdMore />
+                  <Dropdown>
+                    <DropdownTrigger>
+                      <div>
+                        <IonMdMore />
+                      </div>
+                    </DropdownTrigger>
+                    <DropdownMenu>
+                      <DropdownItem key="edit">编辑</DropdownItem>
+                      <DropdownItem
+                        className="text-danger"
+                        color="danger"
+                        key="delete"
+                      >
+                        删除
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </Dropdown>
                 </motion.div>
               </>
             ) : null}
