@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, GridApi } from "ag-grid-community";
-import { Transaction } from "@db/schema";
+import { Tags, Transaction } from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
 import { Select, SelectItem } from "@nextui-org/react";
 import dayjs from "dayjs";
@@ -38,7 +38,17 @@ const TableContent: React.FC<TableContentProps> = ({
   onSelectionChanged,
   selectedTransactions,
 }) => {
-  const [colDefs, setColDefs] = useState<ColDef<Transaction>[]>([
+  console.log(transactions);
+
+  const [colDefs, setColDefs] = useState<
+    ColDef<
+      Transaction & {
+        transactionTags: {
+          tag: { name: string; id: string };
+        };
+      }
+    >[]
+  >([
     {
       field: "id",
       headerName: "",
@@ -296,9 +306,16 @@ const TableContent: React.FC<TableContentProps> = ({
       },
     },
     {
-      field: "tags",
+      field: "transactionTags",
       headerName: "标签",
       editable: true,
+      cellRenderer: (params: any) => {
+        return params.value
+          .map(
+            (tag: { tag: { name: string; id: string } }) => `#${tag.tag.name}`
+          )
+          .join(" ");
+      },
     },
     {
       field: "remark",

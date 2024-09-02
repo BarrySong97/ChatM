@@ -71,7 +71,6 @@ export default function TransactionsTable() {
       setVisibleRowsCount(transactions.list.length);
     }
   }, [transactions]);
-  console.log(transactions);
 
   return (
     <div>

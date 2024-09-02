@@ -14,6 +14,12 @@ export const transaction = sqliteTable("transactions", {
   destination_account_id: text("destination_account_id"),
   amount: integer("amount"),
 });
+
+export const tags = sqliteTable("tags", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+});
+
 export const transactionTags = sqliteTable("transaction_tags", {
   id: text("id").primaryKey(),
   transaction_id: text("transaction_id")
@@ -23,25 +29,26 @@ export const transactionTags = sqliteTable("transaction_tags", {
     .notNull()
     .references(() => tags.id),
 });
-export const tags = sqliteTable("tags", {
-  id: text("id").primaryKey(),
-  name: text("name"),
-});
 
-export const transactionRelations = relations(transaction, ({ one, many }) => ({
-  sourceAccount: one(assets, {
-    fields: [transaction.source_account_id],
-    references: [assets.id],
-  }),
-  destinationAccount: one(assets, {
-    fields: [transaction.destination_account_id],
-    references: [assets.id],
-  }),
-  tags: many(tags),
+export const transactionRelations = relations(transaction, ({ many }) => ({
+  transactionTags: many(transactionTags),
 }));
 export const tagRelations = relations(tags, ({ many }) => ({
-  transactions: many(transaction),
+  transactionTags: many(transactionTags),
 }));
+export const transactionTagsRelations = relations(
+  transactionTags,
+  ({ one }) => ({
+    transaction: one(transaction, {
+      fields: [transactionTags.transaction_id],
+      references: [transaction.id],
+    }),
+    tag: one(tags, {
+      fields: [transactionTags.tag_id],
+      references: [tags.id],
+    }),
+  })
+);
 export const assets = sqliteTable("assets", {
   id: text("id").primaryKey(),
   created_at: integer("created_at"),

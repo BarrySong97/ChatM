@@ -99,58 +99,35 @@ export class TransactionService {
       transactionListParams?.filterConditions === "or"
         ? or(...condition)
         : and(...condition);
-    // const res = await db.query.transaction.findMany({
-    //   columns: {
-    //     id: true,
-    //     content: true,
-    //     created_at: true,
-    //     updated_at: true,
-    //     transaction_date: true,
-    //     type: true,
-    //     source: true,
-    //     source_account_id: true,
-    //     remark: true,
-    //     destination_account_id: true,
-    //     amount: true,
-    //   },
-    //   with: {
-    //     tags: {
-    //       columns: {
-    //         tag_id: true,
-    //       },
-    //     },
-    //   },
-    //   where: and(finalCondition),
-    //   limit: pageSize,
-    //   offset: offset,
-    //   extras: {
-    //     totalCount: sql<number>`COUNT(*) OVER()`.as("totalCount"),
-    //   },
-    // });
-    const res = await db
-      .select({
-        id: transaction.id,
-        content: transaction.content,
-        created_at: transaction.created_at,
-        updated_at: transaction.updated_at,
-        transaction_date: transaction.transaction_date,
-        type: transaction.type,
-        source: transaction.source,
-        source_account_id: transaction.source_account_id,
-        remark: transaction.remark,
-        destination_account_id: transaction.destination_account_id,
-        amount: transaction.amount,
-        totalCount: sql<number>`COUNT(*) OVER()`,
-        tags: transactionTags.tag_id,
-      })
-      .from(transaction)
-      .leftJoin(
-        transactionTags,
-        eq(transaction.id, transactionTags.transaction_id)
-      )
-      .where(and(finalCondition))
-      .limit(pageSize)
-      .offset(offset);
+
+    const res = await db.query.transaction.findMany({
+      columns: {
+        id: true,
+        content: true,
+        created_at: true,
+        updated_at: true,
+        transaction_date: true,
+        type: true,
+        source: true,
+        source_account_id: true,
+        remark: true,
+        destination_account_id: true,
+        amount: true,
+      },
+      with: {
+        transactionTags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
+      where: and(finalCondition),
+      limit: pageSize,
+      offset: offset,
+      extras: {
+        totalCount: sql<number>`COUNT(*) OVER()`.as("totalCount"),
+      },
+    });
 
     const response: Page<Transaction> = {
       list: res.map(({ totalCount, ...item }) => ({
