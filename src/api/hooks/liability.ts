@@ -4,6 +4,7 @@ import { LiabilityService } from "../services/LiabilityService";
 import { useState } from "react";
 import { message } from "antd";
 import { Filter } from "./expense";
+import { CategoryListData, NormalChartData } from "../models/Chart";
 
 export type EditLiability = {
   name: string;
@@ -156,7 +157,7 @@ export function useLiabilityTrendService(filter: Filter) {
   const queryKey = ["liabilities", "trend", filter];
 
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
-    NoramlChartData[],
+    NormalChartData[],
     Error
   >(queryKey, () => LiabilityService.getTrend(filter));
 

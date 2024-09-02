@@ -143,7 +143,7 @@ const Side: FC<SideProps> = () => {
       ],
     },
     {
-      key: "liabilities",
+      key: "liability",
       onTitleClick: () => {
         navigate("/liabilities");
       },
@@ -232,7 +232,7 @@ const Side: FC<SideProps> = () => {
       ],
     },
     {
-      key: "expenses",
+      key: "expense",
       onTitleClick: () => {
         navigate("/expense");
       },

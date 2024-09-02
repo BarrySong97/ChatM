@@ -1,5 +1,5 @@
 import { eq, inArray } from "drizzle-orm";
-import { tags } from "@db/schema";
+import { tags, transactionTags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditTag } from "../hooks/tag";
@@ -40,14 +40,16 @@ export class TagService {
 
   // delete tags
   public static async deleteTags(ids: string[]) {
-    const res = await db.delete(tags).where(inArray(tags.id, ids));
-    return res;
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(transactionTags)
+        .where(inArray(transactionTags.tag_id, ids));
+      await tx.delete(tags).where(inArray(tags.id, ids));
+    });
   }
 
   // check tag name is exist
   public static async checkTagName(name: string) {
-    console.log(name);
-
     const res = await db.select().from(tags).where(eq(tags.name, name));
     return res.length > 0;
   }

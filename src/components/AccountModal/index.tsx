@@ -51,15 +51,17 @@ const AccountModal: FC<AccountModalProps> = ({
   } = useLiabilityService();
 
   const getModalTitle = (type: string) => {
+    console.log(type);
+
     switch (type) {
       case "income":
-        return "添加收入账户";
+        return data ? "编辑收入账户" : "添加收入账户";
       case "expense":
-        return "添加支出账户";
+        return data ? "编辑支出账户" : "添加支出账户";
       case "asset":
-        return "添加资产账户";
+        return data ? "编辑资产账户" : "添加资产账户";
       case "liability":
-        return "添加负债账户";
+        return data ? "编辑负债账户" : "添加负债账户";
     }
   };
   const onCreate = async () => {
