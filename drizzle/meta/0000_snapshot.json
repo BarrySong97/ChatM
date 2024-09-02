@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "cd490f2f-144f-486b-8b36-a1144c574136",
+  "id": "072d5934-158e-4d34-b969-803a2eebcfd5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "assets": {
@@ -37,7 +37,7 @@
         },
         "initial_balance": {
           "name": "initial_balance",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -169,13 +169,6 @@
         },
         "color": {
           "name": "color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "initial_balance": {
-          "name": "initial_balance",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

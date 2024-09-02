@@ -54,7 +54,7 @@ export const assets = sqliteTable("assets", {
   created_at: integer("created_at"),
   name: text("name"),
   color: text("color"),
-  initial_balance: text("initial_balance"),
+  initial_balance: integer("initial_balance"),
   icon: text("icon"),
 });
 
@@ -70,7 +70,6 @@ export const liability = sqliteTable("liability", {
   created_at: integer("created_at"),
   name: text("name"),
   color: text("color"),
-  initial_balance: text("initial_balance"),
   icon: text("icon"),
 });
 

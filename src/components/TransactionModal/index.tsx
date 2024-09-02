@@ -29,6 +29,8 @@ import { useIncomeService } from "@/api/hooks/income";
 import { FinancialOperation } from "@/api/db/manager";
 import { useTransactionService } from "@/api/hooks/transaction";
 import Decimal from "decimal.js";
+import AccountSelect from "../AccountSelect";
+import { liability } from "@db/schema";
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -83,155 +85,45 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   const renderSource = () => {
     switch (type) {
       case FinancialOperation.RepayLoan:
-        return (
-          <SelectSection title="还款来源">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Income:
-        return (
-          <SelectSection title="收入来源">
-            {incomes?.map((income) => (
-              <SelectItem key={income.id} value={income.id}>
-                {income.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["incomes", incomes];
       case FinancialOperation.Expenditure:
-        return (
-          <SelectSection title="支出账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Transfer:
-        return (
-          <SelectSection title="转账账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Borrow:
-        return (
-          <SelectSection title="借入来源">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["liabilities", liabilities];
       case FinancialOperation.LoanExpenditure:
-        return (
-          <SelectSection title="贷款来源">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["liabilities", liabilities];
       case FinancialOperation.Refund:
-        return (
-          <SelectSection title="退款来源">
-            {expenses?.map((expense) => (
-              <SelectItem key={expense.id} value={expense.id}>
-                {expense.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["expenses", expenses];
       default:
-        return null;
+        return ["", null];
     }
   };
   const renderDestination = () => {
     switch (type) {
       case FinancialOperation.Income:
-        return (
-          <SelectSection title="收入账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.Expenditure:
-        return (
-          <SelectSection title="支出类别">
-            {expenses?.map((expense) => (
-              <SelectItem key={expense.id} value={expense.id}>
-                {expense.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["expenses", expenses];
       case FinancialOperation.Transfer:
-        return (
-          <SelectSection title="转账收款账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.RepayLoan:
-        return (
-          <SelectSection title="还款账户">
-            {liabilities?.map((liability) => (
-              <SelectItem key={liability.id} value={liability.id}>
-                {liability.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["liabilities", liabilities];
       case FinancialOperation.Borrow:
-        return (
-          <SelectSection title="目标资产">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       case FinancialOperation.LoanExpenditure:
-        return (
-          <SelectSection title="支出类别">
-            {expenses?.map((expense) => (
-              <SelectItem key={expense.id} value={expense.id}>
-                {expense.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["expenses", expenses];
       case FinancialOperation.Refund:
-        return (
-          <SelectSection title="退款账户">
-            {assets?.map((asset) => (
-              <SelectItem key={asset.id} value={asset.id}>
-                {asset.name}
-              </SelectItem>
-            )) ?? []}
-          </SelectSection>
-        );
+        return ["assets", assets];
       default:
-        return null;
+        return ["", null];
     }
   };
+  const source = renderSource();
+  const destination = renderDestination();
   return (
     <Modal
       isOpen={isOpen}
@@ -331,13 +223,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                     { required: true, message: "请选择来源(先选择类型)" },
                   ]}
                 >
-                  <Select
-                    aria-label="source"
-                    size="sm"
-                    placeholder="请选择来源(先选择类型)"
-                  >
-                    {renderSource() ?? []}
-                  </Select>
+                  <AccountSelect
+                    type={source[0] as any}
+                    data={source[1] as any}
+                  />
                 </Form.Item>
                 <Form.Item
                   name="destination"
@@ -346,13 +235,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                     { required: true, message: "请选择流向(先选择类型)" },
                   ]}
                 >
-                  <Select
-                    aria-label="destination"
-                    size="sm"
-                    placeholder="请选择流向(先选择类型)"
-                  >
-                    {renderDestination() ?? []}
-                  </Select>
+                  <AccountSelect
+                    type={destination[0] as any}
+                    data={destination[1] as any}
+                  />
                 </Form.Item>
                 <Form.Item name="tags" label="标签">
                   <TagInput />

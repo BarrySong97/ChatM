@@ -3,7 +3,7 @@ CREATE TABLE `assets` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`initial_balance` text,
+	`initial_balance` integer,
 	`icon` text
 );
 --> statement-breakpoint
@@ -28,7 +28,6 @@ CREATE TABLE `liability` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`initial_balance` text,
 	`icon` text
 );
 --> statement-breakpoint

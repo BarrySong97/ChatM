@@ -10,7 +10,6 @@ import dayjs from "dayjs";
 export class LiabilityService {
   // 创建liability
   public static async createLiability(body: EditLiability) {
-    const now = Date.now();
     const res = await db
       .insert(liability)
       .values({
@@ -44,7 +43,7 @@ export class LiabilityService {
 
     const liabilitiesData = new Map<string, string>();
     for (const liab of liabilityResults) {
-      let liabilityAmount = new Decimal(liab.initial_balance || "0");
+      let liabilityAmount = new Decimal(0);
 
       // Calculate inflows (asset to liability, liability to liability transfers)
       const inflows = transactionResults.filter(

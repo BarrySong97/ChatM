@@ -157,6 +157,14 @@ const Side: FC<SideProps> = () => {
       icon: <SolarCardBoldDuotone className="!text-base" />,
       children: [
         ...(liabilities || []).map((item) => {
+          const liabilityAmount = liabilitiesData?.liabilityAmounts?.get(
+            item.id
+          );
+          const displayAmount =
+            liabilityAmount && liabilityAmount !== "0.00"
+              ? `-${liabilityAmount}`
+              : "0.00";
+
           return {
             key: item.id,
             onTitleClick: () => {
@@ -165,11 +173,7 @@ const Side: FC<SideProps> = () => {
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
-                <div>
-                  {liabilitiesData?.liabilityAmounts?.get(item.id) !== "0.00"
-                    ? `-${liabilitiesData?.liabilityAmounts?.get(item.id)}`
-                    : "0.00"}
-                </div>
+                <div>{displayAmount}</div>
               </div>
             ),
           };
@@ -243,6 +247,9 @@ const Side: FC<SideProps> = () => {
       icon: <MdiArrowUpCircle className="!text-base" />,
       children: [
         ...(expenses || []).map((item) => {
+          const amount = expenditureData?.expenseAmounts?.get(item.id);
+          const formattedAmount =
+            amount && amount !== "0.00" ? `-${amount}` : "0.00";
           return {
             key: item.id,
             onTitleClick: () => {
@@ -251,11 +258,7 @@ const Side: FC<SideProps> = () => {
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
-                <div>
-                  {expenditureData?.expenseAmounts?.get(item.id) !== "0.00"
-                    ? `-${expenditureData?.expenseAmounts?.get(item.id)}`
-                    : "0.00"}
-                </div>
+                <div>{formattedAmount}</div>
               </div>
             ),
           };

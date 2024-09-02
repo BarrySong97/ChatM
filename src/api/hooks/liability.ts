@@ -7,7 +7,6 @@ import { Filter } from "./expense";
 
 export type EditLiability = {
   name: string;
-  initial_balance: string;
 };
 
 export function useLiabilityService() {

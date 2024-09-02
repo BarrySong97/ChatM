@@ -3,7 +3,7 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef, GridApi } from "ag-grid-community";
 import { Tags, Transaction } from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
-import { Select, SelectItem } from "@nextui-org/react";
+import { Select, SelectItem, SelectSection } from "@nextui-org/react";
 import dayjs from "dayjs";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";
@@ -40,6 +40,158 @@ const TableContent: React.FC<TableContentProps> = ({
 }) => {
   console.log(transactions);
 
+  const renderSource = (type: FinancialOperation) => {
+    switch (type) {
+      case FinancialOperation.RepayLoan:
+        return (
+          <SelectSection title="还款来源">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Income:
+        return (
+          <SelectSection title="收入来源">
+            {incomes?.map((income) => (
+              <SelectItem key={income.id} value={income.id}>
+                {income.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Expenditure:
+        return (
+          <SelectSection title="支出账户">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Transfer:
+        return (
+          <SelectSection title="转账账户">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Borrow:
+        return (
+          <SelectSection title="借入来源">
+            {liabilities?.map((liability) => (
+              <SelectItem key={liability.id} value={liability.id}>
+                {liability.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.LoanExpenditure:
+        return (
+          <SelectSection title="贷款来源">
+            {liabilities?.map((liability) => (
+              <SelectItem key={liability.id} value={liability.id}>
+                {liability.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Refund:
+        return (
+          <SelectSection title="退款来源">
+            {expenses?.map((expense) => (
+              <SelectItem key={expense.id} value={expense.id}>
+                {expense.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      default:
+        return null;
+    }
+  };
+  const renderDestination = (type: FinancialOperation) => {
+    switch (type) {
+      case FinancialOperation.Income:
+        return (
+          <SelectSection title="收入账户">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Expenditure:
+        return (
+          <SelectSection title="支出类别">
+            {expenses?.map((expense) => (
+              <SelectItem key={expense.id} value={expense.id}>
+                {expense.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Transfer:
+        return (
+          <SelectSection title="转账收款账户">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.RepayLoan:
+        return (
+          <SelectSection title="还款账户">
+            {liabilities?.map((liability) => (
+              <SelectItem key={liability.id} value={liability.id}>
+                {liability.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Borrow:
+        return (
+          <SelectSection title="目标资产">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.LoanExpenditure:
+        return (
+          <SelectSection title="支出类别">
+            {expenses?.map((expense) => (
+              <SelectItem key={expense.id} value={expense.id}>
+                {expense.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      case FinancialOperation.Refund:
+        return (
+          <SelectSection title="退款账户">
+            {assets?.map((asset) => (
+              <SelectItem key={asset.id} value={asset.id}>
+                {asset.name}
+              </SelectItem>
+            )) ?? []}
+          </SelectSection>
+        );
+      default:
+        return null;
+    }
+  };
   const [colDefs, setColDefs] = useState<
     ColDef<
       Transaction & {
@@ -193,24 +345,6 @@ const TableContent: React.FC<TableContentProps> = ({
       cellEditor: ({ value, onValueChange, data }) => {
         return (
           <Select
-            items={[
-              ...assets?.map((asset) => ({
-                label: asset.name,
-                value: asset.id,
-              })),
-              ...liabilities?.map((liability) => ({
-                label: liability.name,
-                value: liability.id,
-              })),
-              ...incomes?.map((income) => ({
-                label: income.name,
-                value: income.id,
-              })),
-              ...expenses?.map((expense) => ({
-                label: expense.name,
-                value: expense.id,
-              })),
-            ]}
             variant="underlined"
             defaultOpen
             radius="none"
@@ -223,9 +357,7 @@ const TableContent: React.FC<TableContentProps> = ({
               onValueChange(Array.from(v)[0]);
             }}
           >
-            {(item) => {
-              return <SelectItem key={item.value}>{item.label}</SelectItem>;
-            }}
+            {renderSource(data.type) ?? []}
           </Select>
         );
       },
@@ -268,24 +400,6 @@ const TableContent: React.FC<TableContentProps> = ({
       cellEditor: ({ value, onValueChange, data }) => {
         return (
           <Select
-            items={[
-              ...assets?.map((asset) => ({
-                label: asset.name,
-                value: asset.id,
-              })),
-              ...liabilities?.map((liability) => ({
-                label: liability.name,
-                value: liability.id,
-              })),
-              ...incomes?.map((income) => ({
-                label: income.name,
-                value: income.id,
-              })),
-              ...expenses?.map((expense) => ({
-                label: expense.name,
-                value: expense.id,
-              })),
-            ]}
             variant="underlined"
             defaultOpen
             radius="none"
@@ -298,9 +412,7 @@ const TableContent: React.FC<TableContentProps> = ({
               onValueChange(Array.from(v)[0]);
             }}
           >
-            {(item) => {
-              return <SelectItem key={item.value}>{item.label}</SelectItem>;
-            }}
+            {renderDestination(data.type) ?? []}
           </Select>
         );
       },

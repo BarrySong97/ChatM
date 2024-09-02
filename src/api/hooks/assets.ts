@@ -6,7 +6,7 @@ import { message } from "antd";
 import { Filter } from "./expense";
 export type EditAsset = {
   name: string;
-  initial_balance: string;
+  initial_balance: number;
 };
 export function useAssetsService(assetId?: string) {
   const queryClient = useQueryClient();
