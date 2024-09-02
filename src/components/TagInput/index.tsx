@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -8,6 +8,7 @@ import {
   SelectItem,
 } from "@nextui-org/react";
 import { useTagService } from "@/api/hooks/tag";
+import { useClickAway } from "ahooks";
 
 interface TagInputProps {
   // Add any additional props specific to TagInput here
@@ -52,11 +53,14 @@ const TagInput: React.FC<TagInputProps> = ({
     return temp;
   }, [tags, inputValue]);
 
+  const ref = useRef<HTMLDivElement>(null);
+  useClickAway(() => {
+    onBlur?.();
+  }, ref);
   return (
     <Select
       variant={table ? "underlined" : "flat"}
       aria-label="tag"
-      onBlur={onBlur}
       selectionMode="multiple"
       listboxProps={{
         topContent: (
@@ -75,6 +79,9 @@ const TagInput: React.FC<TagInputProps> = ({
       size="sm"
       fullWidth={!table}
       selectedKeys={new Set(value)}
+      popoverProps={{
+        ref: ref,
+      }}
       endContent={
         value?.length ? (
           <div

@@ -1,5 +1,6 @@
-import React, { FC, useMemo, useState } from "react";
+import React, { FC, useMemo, useRef, useState } from "react";
 import { Select, SelectItem, Input } from "@nextui-org/react";
+import { useClickAway } from "ahooks";
 import { Assets, Expenses, Incomes, Liabilities } from "@db/schema";
 import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
@@ -55,7 +56,10 @@ const AccountSelect: FC<AccountSelectProps> = ({
     }
     return temp;
   }, [data, inputValue]);
-
+  const ref = useRef<HTMLDivElement>(null);
+  useClickAway(() => {
+    onBlur?.();
+  }, ref);
   return (
     <Select
       variant={table ? "underlined" : "flat"}
@@ -63,11 +67,11 @@ const AccountSelect: FC<AccountSelectProps> = ({
       placeholder={placeholder}
       defaultOpen={table}
       radius={radius}
-      onBlur={onBlur}
       listboxProps={{
         topContent: (
           <Input
             placeholder="搜索账户"
+            id="account-search"
             size="sm"
             radius="sm"
             onChange={(e) => {
@@ -78,6 +82,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
       }}
       fullWidth={!table}
       popoverProps={{
+        ref: ref,
         classNames: {
           content: table ? "w-[180px]" : "",
         },

@@ -123,49 +123,13 @@ export function useTransactionService(
           params.transaction
         ),
       {
-        onMutate: async ({ transactionId, transaction }) => {
-          await queryClient.cancelQueries(queryKey);
-          const previousTransactions =
-            queryClient.getQueryData<Page<Transaction>>(queryKey);
-          queryClient.setQueryData<Page<Transaction>>(
-            queryKey,
-            // @ts-ignore
-            (
-              oldTransactions: Page<Transaction> = {
-                list: [],
-                totalCount: 0,
-                currentPage: 0,
-                pageSize: 0,
-                totalPages: 0,
-              }
-            ) => {
-              return {
-                ...oldTransactions,
-                list: oldTransactions.list.map((t) =>
-                  t.id === transactionId
-                    ? {
-                        ...t,
-                        ...transaction,
-                        amount: new Decimal(transaction.amount ?? 0)
-                          .dividedBy(100)
-                          .toNumber(),
-                      }
-                    : t
-                ),
-              };
-            }
-          );
-          return { previousTransactions };
-        },
         onSuccess() {
           message.success("修改成功");
           queryClient.invalidateQueries(["side"]);
+          queryClient.invalidateQueries(queryKey);
         },
         onError: (_error, _variables, context) => {
-          if (context?.previousTransactions) {
-            message.error("修改失败: " + (_error as Error).message);
-            queryClient.setQueryData(queryKey, context.previousTransactions);
-          }
+          message.error("修改失败: " + (_error as Error).message);
         },
       }
     );

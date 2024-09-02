@@ -15,6 +15,7 @@ import {
 } from "@/api/hooks/transaction";
 import AccountSelect from "@/components/AccountSelect";
 import TagInput from "@/components/TagInput";
+import { useTagService } from "@/api/hooks/tag";
 
 interface TableContentProps {
   transactions: Transaction[];
@@ -82,6 +83,7 @@ const TableContent: React.FC<TableContentProps> = ({
     }
   };
 
+  const { tags } = useTagService();
   const [colDefs, setColDefs] = useState<
     ColDef<
       Transaction & {
@@ -299,13 +301,13 @@ const TableContent: React.FC<TableContentProps> = ({
             data={destination[1] as any}
             radius="none"
             onBlur={() => {
-              // api.stopEditing();
+              api.stopEditing();
             }}
             table
             value={value}
             onChange={(v) => {
               onValueChange(v);
-              // api.stopEditing();
+              api.stopEditing();
             }}
           />
         );
@@ -317,9 +319,15 @@ const TableContent: React.FC<TableContentProps> = ({
       editable: true,
       cellRenderer: (params: any) => {
         return params.value
-          .map(
-            (tag: { tag: { name: string; id: string } }) => `#${tag.tag.name}`
-          )
+          .map((tag: { tag: { name: string; id: string } }) => {
+            if (tag.tag) {
+              return `#${tag.tag.name}`;
+            }
+            const name = tags?.find(
+              (t) => t.id === (tag as unknown as string)
+            )?.name;
+            return name ? `#${name}` : "";
+          })
           .join(" ");
       },
       cellEditor: ({ value, onValueChange, api }) => {
@@ -338,7 +346,6 @@ const TableContent: React.FC<TableContentProps> = ({
             value={ids}
             onChange={(v) => {
               onValueChange(v);
-              api.stopEditing();
             }}
           />
         );
@@ -380,6 +387,9 @@ const TableContent: React.FC<TableContentProps> = ({
             editBody.amount = new Decimal(e.newValue).mul(100).toNumber();
           }
 
+          if (e.colDef.field === "transactionTags") {
+            editBody.tags = e.newValue;
+          }
           editTransaction({
             transactionId: e.data.id,
             transaction: editBody,

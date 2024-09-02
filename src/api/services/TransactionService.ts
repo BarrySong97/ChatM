@@ -149,6 +149,8 @@ export class TransactionService {
     body: Partial<EditTransaction>
   ) {
     const now = Date.now();
+    const tags = body.tags;
+    delete body.tags;
     const res = await db
       .update(transaction)
       .set({
@@ -156,6 +158,21 @@ export class TransactionService {
         updated_at: now,
       })
       .where(eq(transaction.id, id));
+
+    if (tags) {
+      await db
+        .delete(transactionTags)
+        .where(eq(transactionTags.transaction_id, id));
+      if (tags.length) {
+        await db.insert(transactionTags).values(
+          tags.map((tag) => ({
+            id: uuidv4(),
+            transaction_id: id,
+            tag_id: tag,
+          }))
+        );
+      }
+    }
     return res;
   }
 
