@@ -8,6 +8,7 @@ import { CategoryListData, NormalChartData, SankeyData } from "../models/Chart";
 export type EditAsset = {
   name: string;
   initial_balance: number;
+  icon?: string;
 };
 export function useAssetsService(assetId?: string) {
   const queryClient = useQueryClient();

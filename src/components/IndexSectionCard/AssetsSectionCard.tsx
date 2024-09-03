@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader } from "@nextui-org/react";
 import { TimeFilterButtons } from "./TimeFilterButtons";
-import { CustomDatePopover } from "./CustomDatePopover";
 import { CategoryChart } from "./CategoryChart";
 import { TrendChart } from "./TrendChart";
 import {
@@ -11,7 +10,7 @@ import {
 import dayjs from "dayjs";
 import { colors } from "./constant";
 
-const timeFilter = ["近1年", "近3年", "近5年", "近十年"];
+const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
 export const AssetsSectionCard: React.FC<{
   showLeft?: boolean;
@@ -26,6 +25,12 @@ export const AssetsSectionCard: React.FC<{
   useEffect(() => {
     const now = dayjs();
     switch (time) {
+      case "近3月":
+        setValue({
+          start: now.subtract(3, "months").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
       case "近1年":
         setValue({
           start: now.subtract(1, "year").valueOf(),

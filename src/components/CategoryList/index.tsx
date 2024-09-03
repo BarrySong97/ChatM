@@ -5,6 +5,7 @@ interface CategoryItem {
   color?: string;
   content: string;
   amount: string;
+  icon?: string;
 }
 
 interface CategoryListProps {
@@ -46,7 +47,12 @@ const CategoryList: React.FC<CategoryListProps> = ({ items, type }) => {
                 }}
               >
                 <div className="flex justify-between absolute left-3 right-3 items-center h-full ">
-                  <span className="text-sm  truncate">{item.content}</span>
+                  <span className="text-sm  truncate">
+                    {item.icon ? (
+                      <em-emoji id={item.icon} size="1em"></em-emoji>
+                    ) : null}
+                    {item.content}
+                  </span>
                   <span className="text-sm  ">
                     {item.amount} (
                     {item.amount.includes("-") ? 0 : percentage.toFixed(1)}%)

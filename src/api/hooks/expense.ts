@@ -7,6 +7,7 @@ import { CategoryListData, NormalChartData } from "../models/Chart";
 
 export type EditExpense = {
   name: string;
+  icon?: string;
 };
 export type Filter = {
   startDate: number;

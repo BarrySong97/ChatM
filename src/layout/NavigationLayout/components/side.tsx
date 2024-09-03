@@ -122,6 +122,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/assets/${item.id}`);
             },
+            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>

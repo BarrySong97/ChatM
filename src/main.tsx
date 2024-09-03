@@ -7,6 +7,10 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ModalProvider } from "./components/GlobalConfirmModal";
 import { DarkModeProvider } from "./pages/providers";
 import "@/components/Transactions/ag-grid-theme-builder.css";
+import data from "@emoji-mart/data";
+import { init } from "emoji-mart";
+
+init({ data });
 // import { seed } from "./db";
 const queryClient = new QueryClient();
 window.global = globalThis;

@@ -13,7 +13,7 @@ export class ExpenseService {
       .insert(expense)
       .values({
         id: uuidv4(),
-        name: body.name,
+        ...body,
       })
       .returning();
     return res[0];
@@ -170,6 +170,7 @@ export class ExpenseService {
       ([accountId, totalAmount]) => ({
         content: accountNameMap.get(accountId)?.name || "Unknown",
         amount: totalAmount.toNumber(),
+        icon: accountNameMap.get(accountId)?.icon ?? "",
         color: accountNameMap.get(accountId)?.color ?? "",
       })
     );
@@ -205,7 +206,7 @@ export class ExpenseService {
   public static async editExpense(id: string, body: Partial<EditExpense>) {
     const res = await db
       .update(expense)
-      .set({ name: body.name })
+      .set({ ...body })
       .where(eq(expense.id, id));
     return res;
   }

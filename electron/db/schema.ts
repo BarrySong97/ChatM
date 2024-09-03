@@ -54,6 +54,7 @@ export const assets = sqliteTable("assets", {
   created_at: integer("created_at"),
   name: text("name"),
   color: text("color"),
+  type: integer("type"),
   initial_balance: integer("initial_balance"),
   icon: text("icon"),
 });

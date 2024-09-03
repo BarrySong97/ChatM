@@ -62,7 +62,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         {chartType === "line" ? (
           <Trend data={lineData ?? []} type={type} />
         ) : (
-          <Barchart chartData={lineData ?? []} />
+          <Barchart type={type} chartData={lineData ?? []} />
         )}
       </div>
     </div>

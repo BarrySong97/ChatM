@@ -7,6 +7,7 @@ import { Filter } from "./expense";
 
 export type EditIncome = {
   name: string;
+  icon?: string;
 };
 
 export function useIncomeService() {

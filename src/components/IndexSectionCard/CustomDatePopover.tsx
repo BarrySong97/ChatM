@@ -8,7 +8,6 @@ import {
 import dayjs from "dayjs";
 import CommonDateRangeFilter from "../CommonDateRangeFilter";
 import { MaterialSymbolsCalendarMonth } from "./icon";
-// import DateFilter from "./DateFilter"; // Assuming you have this component
 
 interface CustomDatePopoverProps {
   value: { start: number; end: number };
@@ -41,7 +40,6 @@ export const CustomDatePopover: React.FC<CustomDatePopoverProps> = ({
           startContent={<MaterialSymbolsCalendarMonth className="text-base" />}
           variant={time ? "light" : "flat"}
           radius="sm"
-          // color={time ? "default" : "primary"}
         >
           {value
             ? `${dayjs(value.start).format("YYYY-MM-DD")} - ${dayjs(

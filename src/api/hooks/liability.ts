@@ -8,6 +8,7 @@ import { CategoryListData, NormalChartData } from "../models/Chart";
 
 export type EditLiability = {
   name: string;
+  icon?: string;
 };
 
 export function useLiabilityService() {

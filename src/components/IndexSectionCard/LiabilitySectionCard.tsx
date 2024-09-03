@@ -11,7 +11,7 @@ import {
 import { colors } from "./constant";
 import dayjs from "dayjs";
 
-const timeFilter = ["近1年", "近3年", "近5年", "近十年"];
+const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
 export const LiabilitySectionCard: React.FC<{
   showLeft?: boolean;
@@ -19,13 +19,18 @@ export const LiabilitySectionCard: React.FC<{
 }> = ({ showLeft = true, title }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
-  const [isOpen, setIsOpen] = useState(false);
   const [categoryType, setCategoryType] = useState("rank");
   const [chartType, setChartType] = useState("line");
 
   useEffect(() => {
     const now = dayjs();
     switch (time) {
+      case "近3月":
+        setValue({
+          start: now.subtract(3, "months").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
       case "近1年":
         setValue({
           start: now.subtract(1, "year").valueOf(),

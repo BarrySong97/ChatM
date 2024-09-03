@@ -24,8 +24,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 export type props = {
   chartData: NormalChartData[];
+  type: string;
 };
-export function Barchart({ chartData }: props) {
+export function Barchart({ chartData, type }: props) {
   const data = chartData.map((item) => ({
     label: item.label,
     amount: Number(item.amount),
@@ -82,7 +83,7 @@ export function Barchart({ chartData }: props) {
             />
           }
         />
-        <Bar dataKey="amount" fill={chartConfig.desktop.color} />
+        <Bar dataKey="amount" fill={`var(--chart-${type}-color)`} />
       </BarChart>
     </ChartContainer>
   );

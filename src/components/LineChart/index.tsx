@@ -24,7 +24,6 @@ const chartConfig = {
 } satisfies ChartConfig;
 export function Trend(props: TrendProps) {
   const type = props.type;
-  console.log(type);
 
   const dataMax = Math.max(...props.data.map((i: any) => i.data));
   const dataMin = Math.min(...props.data.map((i: any) => i.data));
@@ -43,7 +42,6 @@ export function Trend(props: TrendProps) {
     label: v.label,
     amount: Number(v.amount),
   }));
-  console.log(`var(--chart-${type}-color)`);
 
   return (
     <>
@@ -72,14 +70,14 @@ export function Trend(props: TrendProps) {
           <defs>
             <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
               <stop
-                offset={off}
+                offset="5%"
                 stopColor={`hsl(var(--chart-${type}))`}
-                stopOpacity={1}
+                stopOpacity={0.8}
               />
               <stop
-                offset={off}
+                offset="95%"
                 stopColor={`hsl(var(--chart-${type}))`}
-                stopOpacity={1}
+                stopOpacity={0.1}
               />
             </linearGradient>
           </defs>
