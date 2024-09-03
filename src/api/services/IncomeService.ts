@@ -100,7 +100,9 @@ export class IncomeService {
       .getTime();
 
     // Calculate the number of days between start and end dates
-    const daysDifference = dayjs(filterEndDate).diff(filterStartDate, "day");
+    const startDate = dayjs(filter?.startDate).format("YYYY-MM-DD");
+    const endDate = dayjs(filter?.endDate).format("YYYY-MM-DD");
+    const daysDifference = dayjs(endDate).diff(startDate, "day");
 
     const trendData = [];
 
@@ -128,8 +130,6 @@ export class IncomeService {
         (dailyIncomes.get(date) || new Decimal(0)).add(amount)
       );
     }
-    const startDate = dayjs(filter?.startDate).format("YYYY-MM-DD");
-    const endDate = dayjs(filter?.endDate).format("YYYY-MM-DD");
     // Generate trend data for each day in the date range
     for (let i = 0; i <= daysDifference; i++) {
       const currentDate = dayjs(startDate).add(i, "day");
