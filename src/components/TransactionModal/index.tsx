@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   parseZonedDateTime,
   parseAbsoluteToLocal,
@@ -53,6 +53,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const { createTransaction, isCreateLoading } = useTransactionService();
+  const [date, setDate] = useState(new Date());
   const onCreate = async (onClose: () => void) => {
     const [err, values] = await to<TransactionModalForm, Error>(
       form.validateFields()
@@ -62,7 +63,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
       return;
     }
     const transaction = {
-      transaction_date: values.date ? values.date.millisecond : Date.now(),
+      transaction_date: date.getTime(),
       content: values.content,
       amount: new Decimal(values.amount).mul(100).toString(),
       source_account_id: values.source,
@@ -142,23 +143,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <Form form={form} labelCol={{ span: 3 }}>
-                <Form.Item
-                  name="date"
-                  label="日期"
-                  trigger="onChange"
-                  valuePropName="value"
-                >
+                <Form.Item name="date" label="日期">
                   <DatePicker
                     size="sm"
                     variant="flat"
                     aria-label="date"
                     onChange={(date) => {
-                      form.setFieldValue("date", date);
+                      setDate(date.toDate());
                     }}
                     showMonthAndYearPickers
-                    defaultValue={parseAbsoluteToLocal(
-                      new Date().toISOString()
-                    )}
+                    defaultValue={parseAbsoluteToLocal(date.toISOString())}
                   />
                 </Form.Item>
                 <Form.Item

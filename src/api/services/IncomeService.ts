@@ -1,4 +1,4 @@
-import { eq, gte, lte, and, sql, or } from "drizzle-orm";
+import { eq, gte, lte, and, sql, or, gt, lt } from "drizzle-orm";
 import { income, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -29,7 +29,14 @@ export class IncomeService {
   public static async getIncomeSumAmount(filter?: SideFilter) {
     // Calculate the sum of all income amounts
     const incomeResults = await db.select().from(income);
-
+    const startDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
+      .subtract(1, "day")
+      .toDate()
+      .getTime();
+    const endDate = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"))
+      .add(1, "day")
+      .toDate()
+      .getTime();
     // Get all transactions
     const transactionResults = await db
       .select()
@@ -38,10 +45,10 @@ export class IncomeService {
         filter
           ? and(
               ...(filter.startDate
-                ? [gte(transaction.transaction_date, filter.startDate)]
+                ? [gt(transaction.transaction_date, startDate)]
                 : []),
               ...(filter.endDate
-                ? [lte(transaction.transaction_date, filter.endDate)]
+                ? [lt(transaction.transaction_date, endDate)]
                 : [])
             )
           : undefined
@@ -83,15 +90,17 @@ export class IncomeService {
 
   public static async getTrend(filter?: SideFilter) {
     // Get the start and end dates from the filter
-    const startDate = filter?.startDate
-      ? new Date(filter.startDate)
-      : new Date(0);
-    const endDate = filter?.endDate ? new Date(filter.endDate) : new Date();
+    const filterStartDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
+      .subtract(1, "day")
+      .toDate()
+      .getTime();
+    const filterEndDate = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"))
+      .add(1, "day")
+      .toDate()
+      .getTime();
 
     // Calculate the number of days between start and end dates
-    const daysDifference = Math.ceil(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)
-    );
+    const daysDifference = dayjs(filterEndDate).diff(filterStartDate, "day");
 
     const trendData = [];
 
@@ -101,8 +110,8 @@ export class IncomeService {
       .from(transaction)
       .where(
         and(
-          gte(transaction.transaction_date, startDate.getTime()),
-          lte(transaction.transaction_date, endDate.getTime()),
+          gt(transaction.transaction_date, filterStartDate),
+          lt(transaction.transaction_date, filterEndDate),
           eq(transaction.type, FinancialOperation.Income)
         )
       );
@@ -119,7 +128,8 @@ export class IncomeService {
         (dailyIncomes.get(date) || new Decimal(0)).add(amount)
       );
     }
-
+    const startDate = dayjs(filter?.startDate).format("YYYY-MM-DD");
+    const endDate = dayjs(filter?.endDate).format("YYYY-MM-DD");
     // Generate trend data for each day in the date range
     for (let i = 0; i <= daysDifference; i++) {
       const currentDate = dayjs(startDate).add(i, "day");

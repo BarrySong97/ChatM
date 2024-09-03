@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lte, or, sql } from "drizzle-orm";
 import { request as __request } from "../core/request";
 import { liability, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
@@ -114,7 +114,8 @@ export class LiabilityService {
             eq(transaction.type, FinancialOperation.RepayLoan)
           )
         )
-      );
+      )
+      .orderBy(asc(transaction.transaction_date));
 
     // Initialize the result array
     const trendData: { label: string; amount: string }[] = [];
@@ -130,7 +131,7 @@ export class LiabilityService {
     );
     transactions.forEach((t) => {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
-      const amount = new Decimal(t.amount || "0");
+      const amount = new Decimal(t.amount || 0);
 
       if (!dailyTotals.has(date)) {
         dailyTotals.set(date, new Decimal(0));
@@ -155,11 +156,13 @@ export class LiabilityService {
     });
 
     // Fill in the trend data
+
     let currentDate = dayjs(
-      filter?.startDate ?? transactions[0]?.transaction_date
+      dayjs(transactions[0]?.transaction_date).format("YYYY-MM-DD")
     );
-    const endDateDayjs = dayjs(filter?.endDate ?? new Date());
+    const endDateDayjs = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"));
     let runningTotal = new Decimal(0);
+    console.log(currentDate, endDateDayjs);
 
     while (
       currentDate.isBefore(endDateDayjs) ||

@@ -51,7 +51,6 @@ export class AssetsService {
             : undefined
           : undefined
       );
-
     console.log(transactionResults);
 
     let totalAssetAmount = new Decimal(0);
@@ -146,6 +145,10 @@ export class AssetsService {
 
   public static async getCategory(filter?: SideFilter) {
     // Fetch all asset-related transactions within the date range
+    const endDate = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"))
+      .add(1, "day")
+      .toDate()
+      .getTime();
     const transactions = await db
       .select({
         amount: transaction.amount,
@@ -155,9 +158,7 @@ export class AssetsService {
       })
       .from(transaction)
       .where(
-        filter?.endDate
-          ? lte(transaction.transaction_date, filter.endDate)
-          : undefined
+        filter?.endDate ? lt(transaction.transaction_date, endDate) : undefined
       );
 
     // Fetch all asset accounts
@@ -217,11 +218,14 @@ export class AssetsService {
   public static async getTrend(filter: SideFilter) {
     // Get the start and end dates from the filter
     const startDate = filter.startDate;
-    const endDate = filter.endDate;
+    const endDate = dayjs(dayjs(filter.endDate).format("YYYY-MM-DD"))
+      .add(1, "day")
+      .toDate()
+      .getTime();
     const assets = await this.listAssets();
 
     const conditions = [
-      lte(transaction.transaction_date, endDate),
+      lt(transaction.transaction_date, endDate),
       or(
         eq(transaction.type, FinancialOperation.Income),
         eq(transaction.type, FinancialOperation.Expenditure),

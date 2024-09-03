@@ -76,14 +76,14 @@ export const AssetsSectionCard: React.FC<{
           selectedTime={time}
           onTimeChange={setTime}
         />
-        <CustomDatePopover
+        {/* <CustomDatePopover
           time={time}
           value={value}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           onChange={setValue}
           onTimeReset={() => setTime("")}
-        />
+        /> */}
       </div>
       <div className="flex gap-8">
         {showLeft ? (
