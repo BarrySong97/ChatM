@@ -25,7 +25,7 @@ import {
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccountModal from "@/components/AccountModal";
 import { useAssetsService } from "@/api/hooks/assets";
@@ -354,6 +354,12 @@ const Side: FC<SideProps> = () => {
 
     setEditData(data);
   };
+  const ignorePath = ["/settings", "/", "/transactions", "/tags"];
+  useEffect(() => {
+    if (ignorePath.includes(pathname)) {
+      setSelectedKey(undefined);
+    }
+  }, [pathname]);
   return (
     <ConfigProvider
       theme={{
@@ -395,11 +401,12 @@ const Side: FC<SideProps> = () => {
         </div>
         <div className="flex flex-col gap-2 mt-4 justify-start px-4 mb-4">
           {menuList.map((item) => {
+            const isActive = pathname === item.href;
             return (
               <Button
                 key={item.key}
                 className={cn("justify-start", {
-                  "font-semibold": pathname === item.href,
+                  "font-semibold": isActive,
                 })}
                 onClick={() => {
                   navigate(item.href);
@@ -407,7 +414,7 @@ const Side: FC<SideProps> = () => {
                 startContent={
                   <span className="text-lg text-[#575859]">{item.icon}</span>
                 }
-                variant={pathname !== item.href ? "light" : "flat"}
+                variant={isActive ? "flat" : "light"}
                 size="sm"
                 radius="sm"
                 // color={pathname === item.href ? "primary" : "default"}

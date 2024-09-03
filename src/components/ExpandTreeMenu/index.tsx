@@ -90,6 +90,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
         if (isLeaf && !node.key.includes("new")) {
           onSelectionChange?.(node.key);
         }
+        node.onTitleClick?.(node.key);
       }}
     >
       <div
@@ -102,7 +103,12 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
           <motion.div
             initial={false}
             className="w-4.5 h-4.5 text-lg flex  items-center justify-center rounded-md  hover:bg-default/100 transition-colors duration-200"
-            onClick={() => hasChildren && setIsOpen(!isOpen)}
+            onClick={(e) => {
+              if (isLeaf) {
+                e.stopPropagation();
+              }
+              hasChildren && setIsOpen(!isOpen);
+            }}
             animate={{ rotate: isOpen ? 90 : 0 }}
             transition={{ duration: 0.3 }}
           >
