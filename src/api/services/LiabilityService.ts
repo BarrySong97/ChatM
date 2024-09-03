@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lt, lte, or, sql } from "drizzle-orm";
 import { request as __request } from "../core/request";
 import { liability, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
@@ -94,6 +94,14 @@ export class LiabilityService {
   }
 
   public static async getTrend(filter?: SideFilter) {
+    const filterStartDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
+      .subtract(1, "day")
+      .toDate()
+      .getTime();
+    const filterEndDate = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"))
+      .add(1, "day")
+      .toDate()
+      .getTime();
     const transactions = await db
       .select({
         amount: transaction.amount,
@@ -106,7 +114,7 @@ export class LiabilityService {
       .where(
         and(
           filter?.endDate
-            ? lte(transaction.transaction_date, filter.endDate)
+            ? lt(transaction.transaction_date, filterEndDate)
             : undefined,
           or(
             eq(transaction.type, FinancialOperation.Borrow),
@@ -162,7 +170,11 @@ export class LiabilityService {
     );
     const endDateDayjs = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"));
     let runningTotal = new Decimal(0);
-    console.log(currentDate, endDateDayjs);
+    console.log(
+      currentDate,
+      filter?.endDate,
+      dayjs(filter?.endDate).format("YYYY-MM-DD")
+    );
 
     while (
       currentDate.isBefore(endDateDayjs) ||

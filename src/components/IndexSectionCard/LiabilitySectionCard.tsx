@@ -9,6 +9,7 @@ import {
   useLiabilityTrendService,
 } from "@/api/hooks/liability";
 import { colors } from "./constant";
+import dayjs from "dayjs";
 
 const timeFilter = ["近1年", "近3年", "近5年", "近十年"];
 
@@ -23,7 +24,38 @@ export const LiabilitySectionCard: React.FC<{
   const [chartType, setChartType] = useState("line");
 
   useEffect(() => {
-    // Your time calculation logic here
+    const now = dayjs();
+    switch (time) {
+      case "近1年":
+        setValue({
+          start: now.subtract(1, "year").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近3年":
+        setValue({
+          start: now.subtract(3, "years").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近5年":
+        setValue({
+          start: now.subtract(5, "years").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      case "近十年":
+        setValue({
+          start: now.subtract(10, "years").valueOf(),
+          end: now.valueOf(),
+        });
+        break;
+      default:
+        setValue({
+          start: now.subtract(1, "year").valueOf(),
+          end: now.valueOf(),
+        });
+    }
   }, [time]);
 
   const { lineData } = useLiabilityTrendService({

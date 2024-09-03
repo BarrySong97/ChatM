@@ -18,7 +18,7 @@ export function useIndexData() {
       const incomeData = await IncomeService.getIncomeSumAmount();
       // const netWorthData = await AssetsService.getNetWorth();
       return {
-        // assetsData,
+        assetsData,
         liabilitiesData,
         expenditureData,
         incomeData,
