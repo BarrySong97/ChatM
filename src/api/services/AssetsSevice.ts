@@ -417,10 +417,10 @@ export class AssetsService {
     const nodes = new Set<string>();
     const links: { source: string; target: string; value: number }[] = [];
 
-    nodes.add(account?.name ?? "");
     // Process inflows
     sourceTransactions.forEach((t) => {
       if (type === "liabilities") {
+        nodes.add(account?.name ?? "");
         nodes.add(`${t.destination_account_name}-借款`);
         links.push({
           source: account?.name ?? "",
@@ -428,17 +428,27 @@ export class AssetsService {
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       } else if (type === "expense") {
+        nodes.add(account?.name ?? "");
         nodes.add(`${t.destination_account_name}-退款`);
         links.push({
           source: account?.name ?? "",
           target: `${t.destination_account_name}-退款`,
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
-      } else {
-        nodes.add(t.destination_account_name as string);
+      } else if (type === "assets") {
+        nodes.add(account?.name ?? "");
+        nodes.add(`${t.destination_account_name}-流出`);
         links.push({
           source: account?.name ?? "",
-          target: t.destination_account_name as string,
+          target: `${t.destination_account_name}-流出`,
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      } else {
+        nodes.add(`${account?.name}-流入`);
+        nodes.add(`${t.destination_account_name}`);
+        links.push({
+          source: `${account?.name}-流入`,
+          target: `${t.destination_account_name}`,
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       }
@@ -447,6 +457,7 @@ export class AssetsService {
     // Process outflows
     destinationTransactions.forEach((t) => {
       if (type === "liabilities") {
+        nodes.add(account?.name ?? "");
         nodes.add(`${t.source_account_name}-还款`);
         links.push({
           source: `${t.source_account_name}-还款`,
@@ -454,16 +465,26 @@ export class AssetsService {
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       } else if (type === "expense") {
+        nodes.add(account?.name ?? "");
         nodes.add(`${t.source_account_name}-支出`);
         links.push({
           source: `${t.source_account_name}-支出`,
           target: account?.name ?? "",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
-      } else {
-        nodes.add(t.source_account_name as string);
+      } else if (type === "assets") {
+        nodes.add(account?.name ?? "");
+        nodes.add(`${t.source_account_name}-流入`);
         links.push({
-          source: t.source_account_name as string,
+          source: `${t.source_account_name}-流入`,
+          target: account?.name ?? "",
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      } else {
+        nodes.add(account?.name ?? "");
+        nodes.add(`${t.source_account_name}`);
+        links.push({
+          source: `${t.source_account_name}`,
           target: account?.name ?? "",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });

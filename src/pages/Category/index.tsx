@@ -9,6 +9,7 @@ import { useIncomeService } from "@/api/hooks/income";
 import { PageWrapper } from "@/components/PageWrapper";
 import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCard";
 import { EChart } from "@kbox-labs/react-echarts";
+import TransactionsTable from "@/components/Transactions";
 export interface CategoryProps {}
 const date = new Date();
 const Category: FC<CategoryProps> = () => {
@@ -39,23 +40,9 @@ const Category: FC<CategoryProps> = () => {
     }
     return null; // Default case if type doesn't match any condition
   };
-  const [value, setValue] = useState<{ start: number; end: number }>({
-    start: new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    ).getTime(),
-    end: new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0,
-      0,
-      0,
-      0
-    ).getTime(),
-  });
-  const { sankeyData, isLoadingSankey } = useAssetSankeyService(id!, type!);
+  const { sankeyData } = useAssetSankeyService(id!, type!);
   console.log(sankeyData);
+
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
@@ -72,37 +59,41 @@ const Category: FC<CategoryProps> = () => {
       <Card className="mb-6">
         <CardHeader>资产流向图</CardHeader>
         <CardBody>
-          <EChart
-            style={{
-              height: "300px",
-              width: "100%",
-            }}
-            series={[
-              {
-                type: "sankey",
-                data: sankeyData?.nodes ?? [],
-                links: sankeyData?.links ?? [],
-                lineStyle: {
-                  color: "source",
-                  curveness: 0.5,
+          {sankeyData?.nodes.length && sankeyData?.links.length ? (
+            <EChart
+              style={{
+                height: "300px",
+                width: "100%",
+              }}
+              series={[
+                {
+                  type: "sankey",
+                  data: sankeyData?.nodes ?? [],
+                  links: sankeyData?.links ?? [],
+                  lineStyle: {
+                    color: "source",
+                    curveness: 0.5,
+                  },
+                  itemStyle: {
+                    color: "#1f77b4",
+                    borderColor: "#1f77b4",
+                  },
+                  label: {
+                    color: "rgba(0,0,0,0.7)",
+                    fontFamily: "Arial",
+                    fontSize: 16,
+                  },
                 },
-                itemStyle: {
-                  color: "#1f77b4",
-                  borderColor: "#1f77b4",
-                },
-                label: {
-                  color: "rgba(0,0,0,0.7)",
-                  fontFamily: "Arial",
-                  fontSize: 10,
-                },
-              },
-            ]}
-          />
+              ]}
+            />
+          ) : (
+            <div className="h-[300px]"></div>
+          )}
         </CardBody>
       </Card>
       <Card>
         <CardBody>
-          <CategoryTransactionsTable accountId={id!} />
+          <TransactionsTable key={id} accountId={id!} />
         </CardBody>
       </Card>
     </PageWrapper>

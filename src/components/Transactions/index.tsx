@@ -10,7 +10,11 @@ import BottomContent from "./components/BottomContent";
 import { Transaction } from "@db/schema";
 import SelectedRowsActions from "./components/SelectedRowsActions";
 
-export default function TransactionsTable() {
+export default function TransactionsTable({
+  accountId,
+}: {
+  accountId: string;
+}) {
   const [selectedRows, setSelectedRows] = useState<Transaction[]>([]);
   const [filterValue, setFilterValue] = React.useState("");
   const { incomes } = useIncomeService();
@@ -24,7 +28,7 @@ export default function TransactionsTable() {
     new Set()
   );
   const [selectedSource, setSelectedSource] = React.useState<Set<string>>(
-    new Set()
+    new Set(accountId ? [accountId] : [])
   );
   const [minAmount, setMinAmount] = React.useState<number | undefined>(
     undefined
@@ -38,6 +42,7 @@ export default function TransactionsTable() {
   const [filterConditions, setFilterConditions] = React.useState<"or" | "and">(
     "and"
   );
+
   const queryFilter = {
     page: page,
     pageSize: rowsPerPage,
