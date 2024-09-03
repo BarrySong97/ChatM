@@ -165,9 +165,7 @@ export class LiabilityService {
 
     // Fill in the trend data
 
-    let currentDate = dayjs(
-      dayjs(transactions[0]?.transaction_date).format("YYYY-MM-DD")
-    );
+    let currentDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"));
     const endDateDayjs = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"));
     let runningTotal = new Decimal(0);
     console.log(
@@ -177,8 +175,8 @@ export class LiabilityService {
     );
 
     while (
-      currentDate.isBefore(endDateDayjs) ||
-      currentDate.isSame(endDateDayjs)
+      currentDate.isBefore(endDateDayjs, "day") ||
+      currentDate.isSame(endDateDayjs, "day")
     ) {
       const dateString = currentDate.format("YYYY-MM-DD");
       if (dailyTotals.has(dateString)) {

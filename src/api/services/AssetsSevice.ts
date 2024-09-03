@@ -51,7 +51,6 @@ export class AssetsService {
             : undefined
           : undefined
       );
-    console.log(transactionResults);
 
     let totalAssetAmount = new Decimal(0);
 
@@ -292,8 +291,8 @@ export class AssetsService {
     let runningTotal = new Decimal(0);
 
     while (
-      currentDate.isBefore(endDateDayjs) ||
-      currentDate.isSame(endDateDayjs)
+      currentDate.isBefore(endDateDayjs, "day") ||
+      currentDate.isSame(endDateDayjs, "day")
     ) {
       const dateString = currentDate.format("YYYY-MM-DD");
       if (dailyTotals.has(dateString)) {
