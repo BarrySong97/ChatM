@@ -1,13 +1,14 @@
-import { Card, CardBody, Divider } from "@nextui-org/react";
+import { Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { FC, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAssetsService } from "@/api/hooks/assets";
+import { useAssetSankeyService, useAssetsService } from "@/api/hooks/assets";
 import CategoryTransactionsTable from "@/components/CategoryTable";
 import { useLiabilityService } from "@/api/hooks/liability";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useIncomeService } from "@/api/hooks/income";
 import { PageWrapper } from "@/components/PageWrapper";
 import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCard";
+import { EChart } from "@kbox-labs/react-echarts";
 export interface CategoryProps {}
 const date = new Date();
 const Category: FC<CategoryProps> = () => {
@@ -53,7 +54,8 @@ const Category: FC<CategoryProps> = () => {
       0
     ).getTime(),
   });
-  console.log(id);
+  const { sankeyData, isLoadingSankey } = useAssetSankeyService(id!);
+  console.log(sankeyData);
 
   return (
     <PageWrapper>
@@ -66,7 +68,39 @@ const Category: FC<CategoryProps> = () => {
         </div>
       </div>
       <Divider className="my-6" />
+
       {/* <AssetsSectionCard /> */}
+      <Card className="mb-6">
+        <CardHeader>资产流向图</CardHeader>
+        <CardBody>
+          <EChart
+            style={{
+              height: "300px",
+              width: "100%",
+            }}
+            series={[
+              {
+                type: "sankey",
+                data: sankeyData?.nodes ?? [],
+                links: sankeyData?.links ?? [],
+                lineStyle: {
+                  color: "source",
+                  curveness: 0.5,
+                },
+                itemStyle: {
+                  color: "#1f77b4",
+                  borderColor: "#1f77b4",
+                },
+                label: {
+                  color: "rgba(0,0,0,0.7)",
+                  fontFamily: "Arial",
+                  fontSize: 10,
+                },
+              },
+            ]}
+          />
+        </CardBody>
+      </Card>
       <Card>
         <CardBody>
           <CategoryTransactionsTable accountId={id!} />

@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { request as __request } from "../core/request";
-import { assets, transaction } from "@db/schema";
+import { assets, transaction, expense, income, liability } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
@@ -13,6 +13,8 @@ import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
 import { LiabilityService } from "./LiabilityService";
 import dayjs from "dayjs";
+import { SankeyData } from "../models/Chart";
+import { alias } from "drizzle-orm/sqlite-core";
 export class AssetsService {
   // 创建assets
   public static async createAsset(body: EditAsset) {
@@ -353,5 +355,72 @@ export class AssetsService {
       .where(eq(assets.id, assetId))
       .get();
     return res;
+  }
+  // get sankey data
+  public static async getSankeyData(accountId: string) {
+    // 1. Query transactions with related account information
+    const asset = await this.getAssetById(accountId);
+    const sourceTransactions = await db
+      .select({
+        id: transaction.id,
+        amount: transaction.amount,
+        type: transaction.type,
+        destination_account_name: sql`COALESCE(${assets.name}, ${expense.name}, ${income.name}, ${liability.name})`,
+        destination_account_id: transaction.destination_account_id,
+      })
+      .from(transaction)
+      .leftJoin(assets, eq(transaction.destination_account_id, assets.id))
+      .leftJoin(expense, eq(transaction.destination_account_id, expense.id))
+      .leftJoin(income, eq(transaction.destination_account_id, income.id))
+      .leftJoin(liability, eq(transaction.destination_account_id, liability.id))
+      .where(eq(transaction.source_account_id, accountId));
+
+    const destinationTransactions = await db
+      .select({
+        id: transaction.id,
+        amount: transaction.amount,
+        type: transaction.type,
+        source_account_name: sql`COALESCE(${assets.name}, ${expense.name}, ${income.name}, ${liability.name})`,
+        source_account_id: transaction.source_account_id,
+      })
+      .from(transaction)
+      .leftJoin(assets, eq(transaction.source_account_id, assets.id))
+      .leftJoin(expense, eq(transaction.source_account_id, expense.id))
+      .leftJoin(income, eq(transaction.source_account_id, income.id))
+      .leftJoin(liability, eq(transaction.source_account_id, liability.id))
+      .where(eq(transaction.destination_account_id, accountId));
+    console.log(destinationTransactions, sourceTransactions);
+
+    // 2. Separate transactions into inflows and outflows
+
+    // 3. Convert to ECharts Sankey chart data format
+    const nodes = new Set<string>();
+    const links: { source: string; target: string; value: number }[] = [];
+
+    nodes.add(asset?.name ?? "");
+    // Process inflows
+    sourceTransactions.forEach((t) => {
+      nodes.add(t.destination_account_name as string);
+      links.push({
+        source: asset?.name ?? "",
+        target: t.destination_account_name as string,
+        value: Number(t.amount) / 100, // Assuming amount is in cents
+      });
+    });
+
+    // Process outflows
+    destinationTransactions.forEach((t) => {
+      nodes.add(t.source_account_name as string);
+      links.push({
+        source: t.source_account_name as string,
+        target: asset?.name ?? "",
+        value: Number(t.amount) / 100, // Assuming amount is in cents
+      });
+    });
+
+    return {
+      nodes: Array.from(nodes).map((name) => ({ name })),
+      links,
+    } as SankeyData;
   }
 }

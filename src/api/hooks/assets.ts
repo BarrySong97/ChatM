@@ -4,7 +4,7 @@ import { AssetsService } from "../services/AssetsSevice";
 import { useState } from "react";
 import { message } from "antd";
 import { Filter } from "./expense";
-import { CategoryListData, NormalChartData } from "../models/Chart";
+import { CategoryListData, NormalChartData, SankeyData } from "../models/Chart";
 export type EditAsset = {
   name: string;
   initial_balance: number;
@@ -168,5 +168,16 @@ export function useAssetTrendService(filter: Filter) {
   return {
     lineData: trendData,
     isLoadingTrend,
+  };
+}
+export function useAssetSankeyService(accountId: string) {
+  const queryKey = ["sankey", accountId];
+  const { data: sankeyData, isLoading: isLoadingSankey } = useQuery<
+    SankeyData,
+    Error
+  >(queryKey, () => AssetsService.getSankeyData(accountId));
+  return {
+    sankeyData,
+    isLoadingSankey,
   };
 }

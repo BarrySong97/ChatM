@@ -13,6 +13,7 @@ export const db = drizzle(
   async (...args) => {
     try {
       // @ts-expect-error
+
       const result = await window.ipcRenderer.invoke("db:execute", ...args);
       return { rows: result };
     } catch (e: any) {
