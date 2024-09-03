@@ -170,12 +170,13 @@ export function useAssetTrendService(filter: Filter) {
     isLoadingTrend,
   };
 }
-export function useAssetSankeyService(accountId: string) {
+export function useAssetSankeyService(accountId: string, type: string) {
   const queryKey = ["sankey", accountId];
   const { data: sankeyData, isLoading: isLoadingSankey } = useQuery<
     SankeyData,
     Error
-  >(queryKey, () => AssetsService.getSankeyData(accountId));
+  >(queryKey, () => AssetsService.getSankeyData(accountId, type));
+
   return {
     sankeyData,
     isLoadingSankey,

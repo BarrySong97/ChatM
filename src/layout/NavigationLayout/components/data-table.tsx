@@ -156,7 +156,6 @@ export default function ImportDataTable({
       editable: true,
       cellEditor: ({ value, onValueChange }) => {
         const date = typeof value === "string" ? dayjs(value) : value;
-        console.log(value, onValueChange);
 
         return (
           <DatePicker

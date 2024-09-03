@@ -23,8 +23,6 @@ const TagInput: React.FC<TagInputProps> = ({
   onBlur,
   table = false,
 }) => {
-  console.log(value);
-
   const [inputValue, setInputValue] = useState("");
   const { tags, createTag } = useTagService();
 

@@ -51,8 +51,6 @@ const AccountModal: FC<AccountModalProps> = ({
   } = useLiabilityService();
 
   const getModalTitle = (type: string) => {
-    console.log(type);
-
     switch (type) {
       case "income":
         return data ? "编辑收入账户" : "添加收入账户";

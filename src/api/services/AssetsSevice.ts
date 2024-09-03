@@ -3,7 +3,17 @@
 /* tslint:disable */
 /* eslint-disable */
 import { request as __request } from "../core/request";
-import { assets, transaction, expense, income, liability } from "@db/schema";
+import {
+  assets,
+  transaction,
+  expense,
+  income,
+  liability,
+  Liability,
+  Income,
+  Expense,
+  Asset,
+} from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
@@ -15,6 +25,8 @@ import { LiabilityService } from "./LiabilityService";
 import dayjs from "dayjs";
 import { SankeyData } from "../models/Chart";
 import { alias } from "drizzle-orm/sqlite-core";
+import { ExpenseService } from "./ExpenseService";
+import { IncomeService } from "./IncomeService";
 export class AssetsService {
   // 创建assets
   public static async createAsset(body: EditAsset) {
@@ -357,9 +369,18 @@ export class AssetsService {
     return res;
   }
   // get sankey data
-  public static async getSankeyData(accountId: string) {
+  public static async getSankeyData(accountId: string, type: string) {
     // 1. Query transactions with related account information
-    const asset = await this.getAssetById(accountId);
+    let account: { name: string | null } | undefined;
+    if (type === "assets") {
+      account = await this.getAssetById(accountId);
+    } else if (type === "expense") {
+      account = await ExpenseService.getExpenseById(accountId);
+    } else if (type === "income") {
+      account = await IncomeService.getIncomeById(accountId);
+    } else {
+      account = await LiabilityService.getLiabilityById(accountId);
+    }
     const sourceTransactions = await db
       .select({
         id: transaction.id,
@@ -389,7 +410,6 @@ export class AssetsService {
       .leftJoin(income, eq(transaction.source_account_id, income.id))
       .leftJoin(liability, eq(transaction.source_account_id, liability.id))
       .where(eq(transaction.destination_account_id, accountId));
-    console.log(destinationTransactions, sourceTransactions);
 
     // 2. Separate transactions into inflows and outflows
 
@@ -397,25 +417,57 @@ export class AssetsService {
     const nodes = new Set<string>();
     const links: { source: string; target: string; value: number }[] = [];
 
-    nodes.add(asset?.name ?? "");
+    nodes.add(account?.name ?? "");
     // Process inflows
     sourceTransactions.forEach((t) => {
-      nodes.add(t.destination_account_name as string);
-      links.push({
-        source: asset?.name ?? "",
-        target: t.destination_account_name as string,
-        value: Number(t.amount) / 100, // Assuming amount is in cents
-      });
+      if (type === "liabilities") {
+        nodes.add(`${t.destination_account_name}-借款`);
+        links.push({
+          source: account?.name ?? "",
+          target: `${t.destination_account_name}-借款`,
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      } else if (type === "expense") {
+        nodes.add(`${t.destination_account_name}-退款`);
+        links.push({
+          source: account?.name ?? "",
+          target: `${t.destination_account_name}-退款`,
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      } else {
+        nodes.add(t.destination_account_name as string);
+        links.push({
+          source: account?.name ?? "",
+          target: t.destination_account_name as string,
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      }
     });
 
     // Process outflows
     destinationTransactions.forEach((t) => {
-      nodes.add(t.source_account_name as string);
-      links.push({
-        source: t.source_account_name as string,
-        target: asset?.name ?? "",
-        value: Number(t.amount) / 100, // Assuming amount is in cents
-      });
+      if (type === "liabilities") {
+        nodes.add(`${t.source_account_name}-还款`);
+        links.push({
+          source: `${t.source_account_name}-还款`,
+          target: account?.name ?? "",
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      } else if (type === "expense") {
+        nodes.add(`${t.source_account_name}-支出`);
+        links.push({
+          source: `${t.source_account_name}-支出`,
+          target: account?.name ?? "",
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      } else {
+        nodes.add(t.source_account_name as string);
+        links.push({
+          source: t.source_account_name as string,
+          target: account?.name ?? "",
+          value: Number(t.amount) / 100, // Assuming amount is in cents
+        });
+      }
     });
 
     return {

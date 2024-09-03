@@ -8,6 +8,11 @@ import { SideFilter } from "../hooks/side";
 import dayjs from "dayjs";
 // 收入服务
 export class IncomeService {
+  // get income by id
+  public static async getIncomeById(id: string) {
+    const res = await db.select().from(income).where(eq(income.id, id));
+    return res[0];
+  }
   // 创建income
   public static async createIncome(body: EditIncome) {
     const res = await db

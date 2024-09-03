@@ -71,7 +71,6 @@ const TagEditModal: FC<TagEditModalProps> = () => {
                       {
                         validateTrigger: "onBlur",
                         async validator(rule, value) {
-                          console.log(value);
                           if (value) {
                             const res = await TagService.checkTagName(value);
 

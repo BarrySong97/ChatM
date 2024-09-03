@@ -123,8 +123,6 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 120,
       editable: true,
       cellEditor: ({ value, onValueChange }) => {
-        console.log(onValueChange);
-
         return (
           <DatePicker
             defaultOpen
@@ -283,8 +281,6 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 100,
       editable: true,
       cellRenderer: (params: any) => {
-        console.log(params);
-
         let destination = expensesRef.current?.find(
           (expense) => expense.id === params.value
         )?.name;
@@ -399,7 +395,6 @@ const TableContent: React.FC<TableContentProps> = ({
           const editBody = {
             [e.colDef.field as string]: e.newValue,
           };
-          console.log(editBody);
           if (e.colDef.field === "transaction_date") {
             editBody.transaction_date = dayjs(e.newValue).toDate().getTime();
           }

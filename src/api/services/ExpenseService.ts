@@ -230,4 +230,9 @@ export class ExpenseService {
     });
     return res;
   }
+  // get expense by id
+  public static async getExpenseById(id: string) {
+    const res = await db.select().from(expense).where(eq(expense.id, id));
+    return res[0];
+  }
 }

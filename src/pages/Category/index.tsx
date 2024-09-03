@@ -54,9 +54,8 @@ const Category: FC<CategoryProps> = () => {
       0
     ).getTime(),
   });
-  const { sankeyData, isLoadingSankey } = useAssetSankeyService(id!);
+  const { sankeyData, isLoadingSankey } = useAssetSankeyService(id!, type!);
   console.log(sankeyData);
-
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">

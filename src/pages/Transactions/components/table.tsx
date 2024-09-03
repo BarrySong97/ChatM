@@ -455,7 +455,6 @@ export default function TransactionsTable() {
       editable: true,
       cellEditor: ({ value, onValueChange }) => {
         const date = typeof value === "string" ? dayjs(value) : value;
-        console.log(value, onValueChange);
 
         return (
           <DatePicker

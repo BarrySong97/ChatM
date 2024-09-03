@@ -16,7 +16,6 @@ const Settings: FC<SettingsProps> = () => {
     { id: "4", label: "22" },
   ];
   const [selectedKey, setSelectedKey] = useState<string>();
-  console.log(selectedKey);
 
   // 在你的应用中使用
   return (

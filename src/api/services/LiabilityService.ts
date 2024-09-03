@@ -8,6 +8,11 @@ import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
 import dayjs from "dayjs";
 export class LiabilityService {
+  // get liability by id
+  public static async getLiabilityById(id: string) {
+    const res = await db.select().from(liability).where(eq(liability.id, id));
+    return res[0];
+  }
   // 创建liability
   public static async createLiability(body: EditLiability) {
     const res = await db
@@ -168,11 +173,6 @@ export class LiabilityService {
     let currentDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"));
     const endDateDayjs = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"));
     let runningTotal = new Decimal(0);
-    console.log(
-      currentDate,
-      filter?.endDate,
-      dayjs(filter?.endDate).format("YYYY-MM-DD")
-    );
 
     while (
       currentDate.isBefore(endDateDayjs, "day") ||
