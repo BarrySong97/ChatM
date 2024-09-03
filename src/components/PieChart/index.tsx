@@ -1,6 +1,7 @@
+import { CategoryListData } from "@/api/models/Chart";
 import { EChart } from "@kbox-labs/react-echarts";
 
-import { CategoryListData } from "@/api/models/Chart";
+export const description = "A pie chart with a label";
 
 export function CategoryBarChart({
   data,
@@ -16,33 +17,24 @@ export function CategoryBarChart({
       tooltip={{
         trigger: "item",
       }}
-      series={{
-        type: "pie",
-        radius: "50%",
-        avoidLabelOverlap: false,
-        data: data.map((item) => ({
-          value: Number(item.amount),
-          name: item.content,
-        })),
-        labelLine: {
-          show: true,
-        },
-        emphasis: {
-          label: {
-            show: true,
-          },
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
+      series={[
+        {
+          name: "分类",
+          type: "pie",
+          radius: "50%",
+          data: data?.map((item) => ({
+            value: Number(item.amount),
+            name: item.content,
+          })),
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
           },
         },
-
-        label: {
-          show: false,
-          position: "center",
-        },
-      }}
+      ]}
     />
   );
 }

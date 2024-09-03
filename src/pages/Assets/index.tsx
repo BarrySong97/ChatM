@@ -48,7 +48,7 @@ const Page: FC<PageProps> = () => {
         <Card shadow="sm" radius="sm">
           <CardHeader className="">分类排行</CardHeader>
           <CardBody className="min-h-[200px]">
-            <CategoryList items={categoryData ?? []} />
+            <CategoryList type="asset" items={categoryData ?? []} />
           </CardBody>
         </Card>
         <Card shadow="sm" radius="sm">

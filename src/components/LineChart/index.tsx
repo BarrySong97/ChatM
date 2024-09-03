@@ -6,10 +6,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { NoramlChartData } from "@/api/hooks/expense";
+import { NormalChartData } from "@/api/models/Chart";
 
 interface TrendProps {
-  data: NoramlChartData[];
+  data: NormalChartData[];
+  type: "asset" | "expense" | "income" | "liability";
 }
 const chartConfig = {
   negative: {
@@ -22,6 +23,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 export function Trend(props: TrendProps) {
+  const type = props.type;
+  console.log(type);
+
   const dataMax = Math.max(...props.data.map((i: any) => i.data));
   const dataMin = Math.min(...props.data.map((i: any) => i.data));
   const gradientOffset = () => {
@@ -39,6 +43,7 @@ export function Trend(props: TrendProps) {
     label: v.label,
     amount: Number(v.amount),
   }));
+  console.log(`var(--chart-${type}-color)`);
 
   return (
     <>
@@ -68,12 +73,12 @@ export function Trend(props: TrendProps) {
             <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
               <stop
                 offset={off}
-                stopColor={chartConfig.positive.color}
+                stopColor={`hsl(var(--chart-${type}))`}
                 stopOpacity={1}
               />
               <stop
                 offset={off}
-                stopColor={chartConfig.negative.color}
+                stopColor={`hsl(var(--chart-${type}))`}
                 stopOpacity={1}
               />
             </linearGradient>
@@ -89,7 +94,13 @@ export function Trend(props: TrendProps) {
             cursor={false}
             content={<ChartTooltipContent indicator="line" />}
           />
-          <Area dataKey="amount" type="monotone" fillOpacity={0.4} />
+          <Area
+            fill="url(#splitColor)"
+            stroke={`hsl(var(--chart-${type}))`}
+            dataKey="amount"
+            type="monotone"
+            fillOpacity={0.4}
+          />
         </AreaChart>
       </ChartContainer>
     </>

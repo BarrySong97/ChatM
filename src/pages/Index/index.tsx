@@ -85,6 +85,7 @@ const Index: FC<IndexProps> = () => {
       <div className="flex gap-4 ">
         <div className="flex-1">
           <FinancialItem
+            type="asset"
             chartData={
               netWorthData?.map((item) => ({
                 label: item.date,
@@ -97,10 +98,12 @@ const Index: FC<IndexProps> = () => {
         </div>
         <div className="grid grid-cols-2 grid-rows-2 gap-4 flex-1">
           <FinancialItem
+            type="asset"
             title="总资产"
             value={assetsData?.totalAmount ?? "0.00"}
           />
           <FinancialItem
+            type="liability"
             title="总负债"
             value={
               liabilitiesData?.totalAmount
@@ -109,10 +112,12 @@ const Index: FC<IndexProps> = () => {
             }
           />
           <FinancialItem
+            type="income"
             title="总收入"
             value={incomeData?.totalAmount ?? "0.00"}
           />
           <FinancialItem
+            type="expense"
             title="总支出"
             value={
               expenditureData?.totalAmount

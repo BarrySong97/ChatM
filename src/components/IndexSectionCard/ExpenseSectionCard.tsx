@@ -104,6 +104,7 @@ export const ExpenseSectionCard: React.FC<{
             <CardHeader className="!mb-0 flex justify-end items-center">
               <CategoryChart
                 categoryType={categoryType}
+                type="expense"
                 setCategoryType={setCategoryType}
                 categoryData={categoryData}
                 colors={colors}
@@ -117,6 +118,7 @@ export const ExpenseSectionCard: React.FC<{
               title={title}
               showDefaultTitle={showDefaultTitle}
               chartType={chartType}
+              type="expense"
               setChartType={setChartType}
               lineData={lineData}
             />

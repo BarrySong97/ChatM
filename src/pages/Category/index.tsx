@@ -41,7 +41,6 @@ const Category: FC<CategoryProps> = () => {
     return null; // Default case if type doesn't match any condition
   };
   const { sankeyData } = useAssetSankeyService(id!, type!);
-  console.log(sankeyData);
 
   return (
     <PageWrapper>

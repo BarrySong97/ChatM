@@ -10,12 +10,14 @@ interface CategoryChartProps {
   setCategoryType: (type: string) => void;
   categoryData?: CategoryListData[]; // Replace 'any' with the correct type
   colors: string[];
+  type: "asset" | "liability" | "expense" | "income";
 }
 
 export const CategoryChart: React.FC<CategoryChartProps> = ({
   categoryType,
   setCategoryType,
   categoryData,
+  type,
   colors,
 }) => (
   <div className="w-full ">
@@ -60,7 +62,7 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
           />
         </div>
       ) : (
-        <CategoryList items={categoryData ?? []} />
+        <CategoryList type={type} items={categoryData ?? []} />
       )}
     </div>
   </div>

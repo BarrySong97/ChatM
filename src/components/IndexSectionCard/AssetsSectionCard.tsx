@@ -19,7 +19,7 @@ export const AssetsSectionCard: React.FC<{
 }> = ({ showLeft = true, title }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const [categoryType, setCategoryType] = useState("rank");
   const [chartType, setChartType] = useState("line");
 
@@ -92,6 +92,7 @@ export const AssetsSectionCard: React.FC<{
               <CategoryChart
                 categoryType={categoryType}
                 setCategoryType={setCategoryType}
+                type="asset"
                 categoryData={categoryData}
                 colors={colors}
               />
@@ -102,6 +103,7 @@ export const AssetsSectionCard: React.FC<{
           <CardHeader className="!mb-0 flex justify-end items-start">
             <TrendChart
               chartType={chartType}
+              type="asset"
               setChartType={setChartType}
               title={title}
               lineData={lineData}

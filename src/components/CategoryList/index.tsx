@@ -9,9 +9,10 @@ interface CategoryItem {
 
 interface CategoryListProps {
   items: CategoryItem[];
+  type: "asset" | "liability" | "expense" | "income";
 }
 
-const CategoryList: React.FC<CategoryListProps> = ({ items }) => {
+const CategoryList: React.FC<CategoryListProps> = ({ items, type }) => {
   const totalAmount = items
     .filter((v) => !v.amount.includes("-"))
     .reduce(
@@ -39,7 +40,8 @@ const CategoryList: React.FC<CategoryListProps> = ({ items }) => {
               <div
                 className="h-full rounded "
                 style={{
-                  backgroundColor: "#BFDBFE",
+                  backgroundColor: `var(--chart-${type}-color-opacity)`,
+
                   width: `${item.amount.includes("-") ? 0 : percentage}%`,
                 }}
               >

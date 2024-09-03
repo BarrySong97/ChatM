@@ -12,6 +12,7 @@ interface TrendChartProps {
   lineData?: NormalChartData[]; // Replace 'any' with the correct type
   title?: React.ReactNode;
   showDefaultTitle?: boolean;
+  type: "asset" | "expense" | "income" | "liability";
 }
 
 export const TrendChart: React.FC<TrendChartProps> = ({
@@ -20,6 +21,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   lineData,
   title,
   showDefaultTitle = false,
+  type,
 }) => {
   const sum = lineData?.reduce((acc, cur) => acc + Number(cur.amount), 0);
   return (
@@ -58,7 +60,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       </div>
       <div className="h-[300px] w-full mt-2">
         {chartType === "line" ? (
-          <Trend data={lineData ?? []} />
+          <Trend data={lineData ?? []} type={type} />
         ) : (
           <Barchart chartData={lineData ?? []} />
         )}

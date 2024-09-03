@@ -41,7 +41,7 @@ export const CustomDatePopover: React.FC<CustomDatePopoverProps> = ({
           startContent={<MaterialSymbolsCalendarMonth className="text-base" />}
           variant={time ? "light" : "flat"}
           radius="sm"
-          color={time ? "default" : "primary"}
+          // color={time ? "default" : "primary"}
         >
           {value
             ? `${dayjs(value.start).format("YYYY-MM-DD")} - ${dayjs(

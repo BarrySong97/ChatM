@@ -91,6 +91,7 @@ export const LiabilitySectionCard: React.FC<{
             <CardHeader className="!mb-0 flex justify-end items-center">
               <CategoryChart
                 categoryType={categoryType}
+                type="liability"
                 setCategoryType={setCategoryType}
                 categoryData={categoryData}
                 colors={colors}
@@ -105,6 +106,7 @@ export const LiabilitySectionCard: React.FC<{
               chartType={chartType}
               setChartType={setChartType}
               lineData={lineData}
+              type="liability"
             />
           </CardHeader>
         </Card>

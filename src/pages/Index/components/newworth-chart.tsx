@@ -8,13 +8,17 @@ import {
 } from "@/components/ui/chart";
 
 const chartConfig = {
-  negative: {
-    label: "negative",
-    color: "hsl(var(--chart-1))",
+  assets: {
+    color: "hsl(var(--chart-asset))",
   },
-  positive: {
-    label: "positive",
-    color: "hsl(var(--chart-2))",
+  liability: {
+    color: "hsl(var(--chart-liability))",
+  },
+  income: {
+    color: "hsl(var(--chart-income))",
+  },
+  expense: {
+    color: "hsl(var(--chart-expense))",
   },
 } satisfies ChartConfig;
 
@@ -41,8 +45,6 @@ export default function NewworthChart({ data }: TrendProps) {
   };
 
   const off = gradientOffset();
-  const minValue = Math.min(...data.map((i) => i.data));
-  const maxValue = Math.max(...data.map((i) => i.data));
 
   return (
     <div className="flex-1 mt-2">
@@ -75,25 +77,25 @@ export default function NewworthChart({ data }: TrendProps) {
               content={<ChartTooltipContent indicator="line" />}
             />
             <defs>
-              <linearGradient id="splitColor" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
                 <stop
-                  offset={off}
-                  stopColor={chartConfig.positive.color}
-                  stopOpacity={1}
+                  offset="5%"
+                  stopColor={chartConfig.assets.color}
+                  stopOpacity={0.8}
                 />
                 <stop
-                  offset={off}
-                  stopColor={chartConfig.negative.color}
-                  stopOpacity={1}
+                  offset="95%"
+                  stopColor={chartConfig.assets.color}
+                  stopOpacity={0.1}
                 />
               </linearGradient>
             </defs>
             <Area
               dataKey="data"
               type="monotone"
-              fill="url(#splitColor)"
+              fill="url(#fillDesktop)"
+              stroke={chartConfig.assets.color}
               fillOpacity={0.4}
-              stroke="url(#splitColor)"
             />
           </AreaChart>
         </ChartContainer>

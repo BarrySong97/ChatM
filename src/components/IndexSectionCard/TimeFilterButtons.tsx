@@ -19,7 +19,7 @@ export const TimeFilterButtons: React.FC<TimeFilterButtonsProps> = ({
         size="sm"
         variant={selectedTime === item ? "flat" : "light"}
         radius="sm"
-        color={selectedTime === item ? "primary" : "default"}
+        // color={selectedTime === item ? "primary" : "default"}
         onClick={() => onTimeChange(item)}
       >
         {item}
