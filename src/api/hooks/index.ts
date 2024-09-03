@@ -16,13 +16,13 @@ export function useIndexData() {
       const liabilitiesData = await LiabilityService.getLiabilitySumAmount();
       const expenditureData = await ExpenseService.getExpenseSumAmount();
       const incomeData = await IncomeService.getIncomeSumAmount();
-      // const netWorthData = await AssetsService.getNetWorth();
+      const netWorthData = await AssetsService.getNetWorth();
       return {
         assetsData,
         liabilitiesData,
         expenditureData,
         incomeData,
-        // netWorthData,
+        netWorthData,
       };
     },
   });

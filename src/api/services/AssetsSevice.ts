@@ -97,6 +97,7 @@ export class AssetsService {
   // 计算networth
   public static async getNetWorth() {
     // Get the earliest transaction date
+
     const earliestTransactionQuery = await db
       .select({ minDate: min(transaction.transaction_date) })
       .from(transaction);
