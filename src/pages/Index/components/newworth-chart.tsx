@@ -67,7 +67,7 @@ export default function NewworthChart({ data }: TrendProps) {
             allowDataOverflow
             tickMargin={10}
             // minTickGap={32}
-            ticks={[data[data.length - 1].label]}
+            ticks={[data?.[data.length - 1]?.label ?? ""]}
             tickFormatter={(value) => {
               return dayjs(value).format("YYYY-MM-DD");
             }}

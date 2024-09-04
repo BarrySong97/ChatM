@@ -217,6 +217,7 @@ export class AssetsService {
       ([accountId, totalAmount]) => ({
         content: accountMap.get(accountId)?.name || "Unknown",
         amount: totalAmount.div(100).toNumber(),
+        icon: accountMap.get(accountId)?.icon ?? "",
         color: accountMap.get(accountId)?.color ?? "",
       })
     );
@@ -495,5 +496,11 @@ export class AssetsService {
       nodes: Array.from(nodes).map((name) => ({ name })),
       links,
     } as SankeyData;
+  }
+
+  // check  name is exist
+  public static async checkAssetName(name: string) {
+    const res = await db.select().from(assets).where(eq(assets.name, name));
+    return res.length > 0;
   }
 }

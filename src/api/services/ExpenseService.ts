@@ -9,6 +9,14 @@ import dayjs from "dayjs";
 export class ExpenseService {
   // 创建expense
   public static async createExpense(body: EditExpense) {
+    // Check if an expense with the same name already exists
+    const existingExpense = await db
+      .select()
+      .from(expense)
+      .where(eq(expense.name, body.name));
+    if (existingExpense.length > 0) {
+      throw new Error("Expense with the same name already exists");
+    }
     const res = await db
       .insert(expense)
       .values({
@@ -235,5 +243,11 @@ export class ExpenseService {
   public static async getExpenseById(id: string) {
     const res = await db.select().from(expense).where(eq(expense.id, id));
     return res[0];
+  }
+
+  // check  name is exist
+  public static async checkExpenseName(name: string) {
+    const res = await db.select().from(expense).where(eq(expense.name, name));
+    return res.length > 0;
   }
 }

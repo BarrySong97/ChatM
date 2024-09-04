@@ -22,6 +22,10 @@ import to from "await-to-js";
 import { FC, useEffect, useState } from "react";
 import Decimal from "decimal.js";
 import { AccountType } from "./constant";
+import { IncomeService } from "@/api/services/IncomeService";
+import { ExpenseService } from "@/api/services/ExpenseService";
+import { AssetsService } from "@/api/services/AssetsSevice";
+import { LiabilityService } from "@/api/services/LiabilityService";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
@@ -76,6 +80,7 @@ const AccountModal: FC<AccountModalProps> = ({
   const [emojiId, setEmojiId] = useState("stuck_out_tongue_winking_eye");
   const onCreate = async () => {
     const [err, value] = await to(form.validateFields());
+
     if (err) return;
     switch (type) {
       case "income":
@@ -172,7 +177,7 @@ const AccountModal: FC<AccountModalProps> = ({
   };
   useEffect(() => {
     if (data) {
-      setEmojiId(data.icon ?? "stuck_out_tongue_winking_eye");
+      setEmojiId(data.icon);
       form.setFieldsValue({
         ...data,
         initial_balance: data.initial_balance
@@ -204,55 +209,90 @@ const AccountModal: FC<AccountModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <Form form={form}>
-                <div className="">
-                  <Form.Item
-                    name="name"
-                    className="flex-1"
-                    rules={[
-                      {
-                        required: true,
-                        message: "请输入账户名称",
+                <Form.Item
+                  name="name"
+                  className="flex-1"
+                  rules={[
+                    {
+                      async validator(rule, value) {
+                        if (!value) {
+                          return Promise.resolve(); // 让 required 规则处理空值
+                        }
+
+                        let res = false;
+                        switch (type) {
+                          case "income":
+                            res = await IncomeService.checkIncomeName(value);
+                            break;
+                          case "expense":
+                            res = await ExpenseService.checkExpenseName(value);
+                            break;
+                          case "asset":
+                            res = await AssetsService.checkAssetName(value);
+                            break;
+                          case "liability":
+                            res = await LiabilityService.checkLiabilityName(
+                              value
+                            );
+                            break;
+                        }
+
+                        if (res) {
+                          return Promise.reject("账户名称已存在");
+                        }
+                        return Promise.resolve();
                       },
-                    ]}
-                  >
-                    <Input
-                      radius="sm"
-                      isRequired
-                      startContent={
-                        <Popover
-                          isOpen={emojiOpen}
-                          showArrow
-                          placement="right"
-                          onOpenChange={setEmojiOpen}
-                        >
-                          <PopoverTrigger>
-                            <Button
-                              onClick={() => setEmojiOpen(true)}
-                              size="sm"
-                              radius="sm"
-                              isIconOnly
-                              className="text-xs"
-                              variant="flat"
-                            >
-                              <em-emoji id={emojiId} size="1.5em"></em-emoji>
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0">
-                            <Picker
-                              data={emojiData}
-                              onEmojiSelect={(v: { id: string }) => {
-                                // form.setFieldValue("icon", v.id);
-                                setEmojiId(v.id);
-                                setEmojiOpen(false);
-                              }}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      }
-                      placeholder="请输入账户名称"
-                    />
-                  </Form.Item>
-                </div>
+                    },
+                    {
+                      required: true,
+                      message: "请输入账户名称",
+                    },
+                  ]}
+                >
+                  <Input
+                    radius="sm"
+                    isRequired
+                    startContent={
+                      <Popover
+                        isOpen={emojiOpen}
+                        showArrow
+                        placement="right"
+                        onOpenChange={setEmojiOpen}
+                      >
+                        <PopoverTrigger>
+                          <Button
+                            onClick={() => setEmojiOpen(true)}
+                            size="sm"
+                            radius="sm"
+                            isIconOnly
+                            className="text-xs"
+                            variant="flat"
+                          >
+                            <em-emoji
+                              id={
+                                emojiId
+                                  ? emojiId
+                                  : "stuck_out_tongue_winking_eye"
+                              }
+                              size="1.5em"
+                            ></em-emoji>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0">
+                          <Picker
+                            data={emojiData}
+                            onEmojiSelect={(v: { id: string }) => {
+                              // form.setFieldValue("icon", v.id);
+                              setEmojiId(v.id);
+                              setEmojiOpen(false);
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    }
+                    placeholder="请输入账户名称"
+                  />
+                </Form.Item>
 
                 {renderForm()}
               </Form>

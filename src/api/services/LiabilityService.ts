@@ -15,6 +15,14 @@ export class LiabilityService {
   }
   // 创建liability
   public static async createLiability(body: EditLiability) {
+    // Check if an  with the same name already exists
+    const existingLiability = await db
+      .select()
+      .from(liability)
+      .where(eq(liability.name, body.name));
+    if (existingLiability.length > 0) {
+      throw new Error("Liability with the same name already exists");
+    }
     const res = await db
       .insert(liability)
       .values({
@@ -249,6 +257,7 @@ export class LiabilityService {
       ([accountId, totalAmount]) => ({
         content: accountNameMap.get(accountId)?.name || "Unknown",
         amount: totalAmount.toNumber(),
+        icon: accountNameMap.get(accountId)?.icon ?? "",
         color: accountNameMap.get(accountId)?.color ?? "",
       })
     );
@@ -297,5 +306,14 @@ export class LiabilityService {
           )
         );
     });
+  }
+
+  // check  name is exist
+  public static async checkLiabilityName(name: string) {
+    const res = await db
+      .select()
+      .from(liability)
+      .where(eq(liability.name, name));
+    return res.length > 0;
   }
 }

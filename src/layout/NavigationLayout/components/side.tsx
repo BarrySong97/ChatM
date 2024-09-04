@@ -172,6 +172,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/liabilities/${item.id}`);
             },
+            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -213,6 +214,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/income/${item.id}`);
             },
+            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -257,6 +259,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/expense/${item.id}`);
             },
+            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>

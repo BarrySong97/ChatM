@@ -50,7 +50,7 @@ const CategoryList: React.FC<CategoryListProps> = ({ items, type }) => {
                   <span className="text-sm  truncate">
                     {item.icon ? (
                       <em-emoji id={item.icon} size="1em"></em-emoji>
-                    ) : null}
+                    ) : null}{" "}
                     {item.content}
                   </span>
                   <span className="text-sm  ">

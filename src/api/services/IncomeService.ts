@@ -15,11 +15,19 @@ export class IncomeService {
   }
   // 创建income
   public static async createIncome(body: EditIncome) {
+    // Check if an income with the same name already exists
+    const existingIncome = await db
+      .select()
+      .from(income)
+      .where(eq(income.name, body.name));
+    if (existingIncome.length > 0) {
+      throw new Error("Income with the same name already exists");
+    }
     const res = await db
       .insert(income)
       .values({
         id: uuidv4(),
-        name: body.name,
+        ...body,
       })
       .returning();
     return res[0];
@@ -86,10 +94,7 @@ export class IncomeService {
   }
   // edit income
   public static async editIncome(id: string, body: Partial<EditIncome>) {
-    const res = await db
-      .update(income)
-      .set({ name: body.name })
-      .where(eq(income.id, id));
+    const res = await db.update(income).set(body).where(eq(income.id, id));
     return res;
   }
 
@@ -149,7 +154,7 @@ export class IncomeService {
     return trendData;
   }
 
-  public static async getExpenseCategory(filter?: SideFilter) {
+  public static async getIncomeCategory(filter?: SideFilter) {
     // Fetch all income-related transactions within the date range
     const transactions = await db
       .select({
@@ -189,6 +194,7 @@ export class IncomeService {
       ([accountId, totalAmount]) => ({
         content: accountNameMap.get(accountId)?.name || "Unknown",
         amount: totalAmount.toNumber(),
+        icon: accountNameMap.get(accountId)?.icon || "",
         color: accountNameMap.get(accountId)?.color ?? "",
       })
     );
@@ -207,6 +213,7 @@ export class IncomeService {
         categoryData.push({
           content: account.name || "",
           amount: 0,
+          icon: account.icon || "",
           color: account.color ?? "",
         });
       }
@@ -240,5 +247,12 @@ export class IncomeService {
       return res;
     });
     return res;
+  }
+
+  // check  name is exist
+  public static async checkIncomeName(name: string) {
+    const res = await db.select().from(income).where(eq(income.name, name));
+
+    return res.length > 0;
   }
 }
