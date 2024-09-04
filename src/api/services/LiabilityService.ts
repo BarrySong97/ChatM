@@ -33,15 +33,13 @@ export class LiabilityService {
   public static async getLiabilitySumAmount(filter?: SideFilter) {
     // Calculate the sum of all liability amounts
     const liabilityResults = await db.select().from(liability);
-
+    const endDate = dayjs(filter?.endDate).add(1, "day").toDate().getTime();
     // Get all transactions
     const transactionResults = await db
       .select()
       .from(transaction)
       .where(
-        filter?.endDate
-          ? lte(transaction.transaction_date, filter.endDate)
-          : undefined
+        filter?.endDate ? lt(transaction.transaction_date, endDate) : undefined
       );
 
     let totalLiabilityAmount = new Decimal(0);

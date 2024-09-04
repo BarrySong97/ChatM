@@ -6,6 +6,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import dayjs from "dayjs";
 
 const chartConfig = {
   assets: {
@@ -47,59 +48,57 @@ export default function NewworthChart({ data }: TrendProps) {
   const off = gradientOffset();
 
   return (
-    <div className="flex-1 mt-2">
-      <ResponsiveContainer width="100%" height="100%">
-        <ChartContainer config={chartConfig}>
-          <AreaChart
-            accessibilityLayer
-            data={[
-              {
-                label: "",
-                data: 0,
-              },
-              ...data,
-            ]}
-            margin={{
-              left: 0,
-              right: 12,
+    <div className="flex-1 mt-2 ">
+      <ChartContainer config={chartConfig} className="h-[80px] w-full">
+        <AreaChart
+          accessibilityLayer
+          data={[
+            {
+              label: "",
+              data: 0,
+            },
+            ...data,
+          ]}
+        >
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={false}
+            allowDataOverflow
+            tickMargin={10}
+            // minTickGap={32}
+            ticks={[data[data.length - 1].label]}
+            tickFormatter={(value) => {
+              return dayjs(value).format("YYYY-MM-DD");
             }}
-          >
-            <XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              allowDataOverflow
-              interval={data.length - 1}
-              tickMargin={8}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor={chartConfig.assets.color}
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={chartConfig.assets.color}
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
-            <Area
-              dataKey="data"
-              type="monotone"
-              fill="url(#fillDesktop)"
-              stroke={chartConfig.assets.color}
-              fillOpacity={0.4}
-            />
-          </AreaChart>
-        </ChartContainer>
-      </ResponsiveContainer>
+          />
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent indicator="line" />}
+          />
+          <defs>
+            <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="5%"
+                stopColor={chartConfig.assets.color}
+                stopOpacity={0.8}
+              />
+              <stop
+                offset="95%"
+                stopColor={chartConfig.assets.color}
+                stopOpacity={0.1}
+              />
+            </linearGradient>
+          </defs>
+          <Area
+            dataKey="data"
+            type="monotone"
+            fill="url(#fillDesktop)"
+            stroke={chartConfig.assets.color}
+            fillOpacity={0.4}
+          />
+        </AreaChart>
+      </ChartContainer>
     </div>
   );
 }
