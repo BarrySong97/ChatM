@@ -16,7 +16,8 @@ const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 export const LiabilitySectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
-}> = ({ showLeft = true, title }) => {
+  showDefaultTitle?: boolean;
+}> = ({ showLeft = true, title, showDefaultTitle = true }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [categoryType, setCategoryType] = useState("rank");
@@ -111,6 +112,7 @@ export const LiabilitySectionCard: React.FC<{
               chartType={chartType}
               setChartType={setChartType}
               lineData={lineData}
+              showDefaultTitle={showDefaultTitle}
               type="liability"
             />
           </CardHeader>

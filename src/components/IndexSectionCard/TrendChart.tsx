@@ -5,6 +5,7 @@ import { Trend } from "../LineChart";
 import { CategoryBarChart } from "../PieChart";
 import { NormalChartData } from "@/api/models/Chart";
 import { Barchart } from "../BarChart";
+import dayjs from "dayjs";
 
 interface TrendChartProps {
   chartType: string;
@@ -24,12 +25,38 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   type,
 }) => {
   const sum = lineData?.reduce((acc, cur) => acc + Number(cur.amount), 0);
+  const renderDefaultTitle = () => {
+    switch (type) {
+      case "income":
+        return (
+          <div className="text-lg font-semibold">
+            该时间段 收入: {sum?.toFixed(2)}
+          </div>
+        );
+      case "expense":
+        return (
+          <div className="text-lg font-semibold">
+            该时间段 支出: {sum?.toFixed(2)}
+          </div>
+        );
+      case "asset":
+        return (
+          <div className="text-lg font-semibold">
+            目前资产: {lineData?.[lineData.length - 1]?.amount}
+          </div>
+        );
+      case "liability":
+        return (
+          <div className="text-lg font-semibold">
+            目前负债: {lineData?.[lineData.length - 1]?.amount}
+          </div>
+        );
+    }
+  };
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">
-        {showDefaultTitle ? (
-          <div className="text-lg font-semibold">金额: {sum?.toFixed(2)}</div>
-        ) : null}
+        {showDefaultTitle ? renderDefaultTitle() : null}
         {title ? <div>{title}</div> : null}
         <Tabs
           onSelectionChange={(key) => setChartType(key as string)}

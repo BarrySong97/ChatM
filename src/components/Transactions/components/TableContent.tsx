@@ -11,7 +11,7 @@ import {
   Transaction,
 } from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
-import { Select, SelectItem, SelectSection } from "@nextui-org/react";
+import { Chip, Select, SelectItem, SelectSection } from "@nextui-org/react";
 import dayjs from "dayjs";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";
@@ -23,6 +23,8 @@ import {
 import AccountSelect from "@/components/AccountSelect";
 import TagInput from "@/components/TagInput";
 import { useTagService } from "@/api/hooks/tag";
+import AccountIconRender from "@/components/AccountIconRender";
+import { parseToRgba } from "@glideapps/glide-data-grid";
 
 interface TableContentProps {
   transactions: Transaction[];
@@ -187,8 +189,10 @@ const TableContent: React.FC<TableContentProps> = ({
             variant="underlined"
             defaultOpen
             radius="none"
+            fullWidth={false}
             classNames={{
               trigger: "data-[open=true]:after:!hidden",
+              base: "w-[130px]",
             }}
             onBlur={() => {
               api.stopEditing();
@@ -201,7 +205,17 @@ const TableContent: React.FC<TableContentProps> = ({
             }}
           >
             {(item) => {
-              return <SelectItem key={item.value}>{item.label}</SelectItem>;
+              return (
+                <SelectItem key={item.value}>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: operationColors[item.value] }}
+                    ></div>
+                    <span>{item.label}</span>
+                  </div>
+                </SelectItem>
+              );
             }}
           </Select>
         );
@@ -210,49 +224,59 @@ const TableContent: React.FC<TableContentProps> = ({
         const color = operationColors[params.value as FinancialOperation];
         const text = operationTranslations[params.value as FinancialOperation];
         return (
-          <Tag
-            className="mr-0 hover:cursor-pointer"
-            color={color}
-            bordered={false}
+          <Chip
+            radius="sm"
+            size="sm"
+            variant="flat"
+            // color={}
           >
-            {text}
-          </Tag>
+            <div className="flex items-center gap-1 ">
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{
+                  backgroundColor: color,
+                }}
+              ></div>
+              <div>{text}</div>
+            </div>
+          </Chip>
         );
       },
     },
     {
       field: "source_account_id",
       headerName: "来源账户",
-      width: 100,
+      width: 130,
       editable: true,
       cellRenderer: (params: any) => {
-        let source = asssetsRef.current?.find(
+        let source: any = asssetsRef.current?.find(
           (asset) => asset.id === params.value
-        )?.name;
+        );
         if (!source) {
           source = liabilitiesRef.current?.find(
             (liability) => liability.id === params.value
-          )?.name;
+          );
         }
         if (!source) {
           source = incomesRef.current?.find(
             (income) => income.id === params.value
-          )?.name;
+          );
         }
         if (!source) {
           source = expensesRef.current?.find(
             (expense) => expense.id === params.value
-          )?.name;
+          );
         }
 
         return (
-          <Tag
-            className="mr-0 hover:cursor-pointer"
-            color="processing"
-            bordered={false}
-          >
-            {source}
-          </Tag>
+          <div className="flex items-center  h-full">
+            <Chip radius="sm" size="sm" variant="flat" color="default">
+              <div className="flex items-center gap-1">
+                <AccountIconRender icon={source.icon} />
+                <span>{source.name}</span>
+              </div>
+            </Chip>
+          </div>
         );
       },
       cellEditor: ({ value, onValueChange, data, api }) => {
@@ -278,36 +302,37 @@ const TableContent: React.FC<TableContentProps> = ({
     {
       field: "destination_account_id",
       headerName: "目标账户",
-      width: 100,
       editable: true,
+      width: 130,
       cellRenderer: (params: any) => {
-        let destination = expensesRef.current?.find(
+        let destination: any = expensesRef.current?.find(
           (expense) => expense.id === params.value
-        )?.name;
+        );
 
         if (!destination) {
           destination = incomesRef.current?.find(
             (income) => income.id === params.value
-          )?.name;
+          );
         }
         if (!destination) {
           destination = asssetsRef.current?.find(
             (asset) => asset.id === params.value
-          )?.name;
+          );
         }
         if (!destination) {
           destination = liabilitiesRef.current?.find(
             (liability) => liability.id === params.value
-          )?.name;
+          );
         }
         return (
-          <Tag
-            className="mr-0 hover:cursor-pointer"
-            color="processing"
-            bordered={false}
-          >
-            {destination}
-          </Tag>
+          <div className="flex items-center  h-full">
+            <Chip radius="sm" size="sm" variant="flat" color="default">
+              <div className="flex items-center gap-1">
+                <AccountIconRender icon={destination.icon} />
+                <span>{destination.name}</span>
+              </div>
+            </Chip>
+          </div>
         );
       },
       cellEditor: ({ value, onValueChange, data, api }) => {

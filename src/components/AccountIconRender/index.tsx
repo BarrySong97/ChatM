@@ -9,13 +9,24 @@ interface AccountIconRenderProps {
 const AccountIconRender: React.FC<AccountIconRenderProps> = ({
   icon,
   emojiSize = "1.1em",
+  bankSize = "1rem",
 }) => {
   const [iconType, iconId] = icon?.split(":") ?? [];
 
   if (iconType === "emoji") {
     return <em-emoji id={iconId} size={emojiSize}></em-emoji>;
   } else if (iconType === "bank") {
-    return <img className={`h-4 w-4 inline-block`} src={iconId} alt="" />;
+    return (
+      <img
+        className={` object-cover `}
+        style={{
+          height: bankSize,
+          width: bankSize,
+        }}
+        src={iconId}
+        alt=""
+      />
+    );
   }
 
   return null;

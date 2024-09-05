@@ -120,6 +120,16 @@ const Side: FC<SideProps> = () => {
       ),
       icon: <MaterialSymbolsAccountBalanceWallet />,
       children: [
+        {
+          key: "new_assets",
+          label: "新增资产",
+          hasMore: false,
+          onTitleClick: () => {
+            setShowAccountModal(true);
+            setModalType("asset");
+          },
+          icon: <MaterialSymbolsAddRounded />,
+        },
         ...(assets || []).map((item) => {
           return {
             key: item.id,
@@ -137,16 +147,6 @@ const Side: FC<SideProps> = () => {
             ),
           };
         }),
-        {
-          key: "new_assets",
-          label: "新增资产",
-          hasMore: false,
-          onTitleClick: () => {
-            setShowAccountModal(true);
-            setModalType("asset");
-          },
-          icon: <MaterialSymbolsAddRounded />,
-        },
       ],
     },
     {
@@ -164,6 +164,16 @@ const Side: FC<SideProps> = () => {
       ),
       icon: <SolarCardBoldDuotone />,
       children: [
+        {
+          key: "new_liability",
+          label: "新增负债",
+          hasMore: false,
+          icon: <MaterialSymbolsAddRounded />,
+          onTitleClick: () => {
+            setShowAccountModal(true);
+            setModalType("liability");
+          },
+        },
         ...(liabilities || []).map((item) => {
           const liabilityAmount = liabilitiesData?.liabilityAmounts?.get(
             item.id
@@ -189,16 +199,6 @@ const Side: FC<SideProps> = () => {
             ),
           };
         }),
-        {
-          key: "new_liability",
-          label: "新增负债",
-          hasMore: false,
-          icon: <MaterialSymbolsAddRounded />,
-          onTitleClick: () => {
-            setShowAccountModal(true);
-            setModalType("liability");
-          },
-        },
       ],
     },
   ];
@@ -216,6 +216,15 @@ const Side: FC<SideProps> = () => {
       ),
       icon: <MdiArrowDownCircle />,
       children: [
+        {
+          key: "new_income",
+          label: "新增收入",
+          icon: <MaterialSymbolsAddRounded />,
+          onTitleClick: () => {
+            setShowAccountModal(true);
+            setModalType("income");
+          },
+        },
         ...(incomes || []).map((item) => {
           return {
             key: item.id,
@@ -233,15 +242,6 @@ const Side: FC<SideProps> = () => {
             ),
           };
         }),
-        {
-          key: "new_income",
-          label: "新增收入",
-          icon: <MaterialSymbolsAddRounded />,
-          onTitleClick: () => {
-            setShowAccountModal(true);
-            setModalType("income");
-          },
-        },
       ],
     },
     {
@@ -249,7 +249,6 @@ const Side: FC<SideProps> = () => {
       onTitleClick: () => {
         navigate("/expense");
       },
-
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>支出</div>
@@ -260,6 +259,16 @@ const Side: FC<SideProps> = () => {
       ),
       icon: <MdiArrowUpCircle />,
       children: [
+        {
+          key: "new_expense",
+          label: "新增支出",
+          hasMore: false,
+          icon: <MaterialSymbolsAddRounded />,
+          onTitleClick: () => {
+            setShowAccountModal(true);
+            setModalType("expense");
+          },
+        },
         ...(expenses || []).map((item) => {
           const amount = expenditureData?.expenseAmounts?.get(item.id);
           const formattedAmount =
@@ -280,16 +289,6 @@ const Side: FC<SideProps> = () => {
             ),
           };
         }),
-        {
-          key: "new_expense",
-          label: "新增支出",
-          hasMore: false,
-          icon: <MaterialSymbolsAddRounded />,
-          onTitleClick: () => {
-            setShowAccountModal(true);
-            setModalType("expense");
-          },
-        },
       ],
     },
   ];

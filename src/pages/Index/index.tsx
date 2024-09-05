@@ -54,12 +54,12 @@ const Index: FC<IndexProps> = () => {
     {
       key: "3",
       label: "资产",
-      children: <AssetsSectionCard />,
+      children: <AssetsSectionCard showDefaultTitle />,
     },
     {
       key: "4",
       label: "负债",
-      children: <LiabilitySectionCard />,
+      children: <LiabilitySectionCard showDefaultTitle />,
     },
   ];
   const {

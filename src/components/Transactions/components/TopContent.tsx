@@ -7,8 +7,16 @@ import { operationColors, operationTranslations } from "../contant";
 import dayjs from "dayjs";
 import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
 import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
-import { MaterialSymbolsArrowForwardIosRounded } from "@/assets/icon";
+import {
+  MaterialSymbolsAccountBalanceWallet,
+  MaterialSymbolsAddRounded,
+  MaterialSymbolsArrowForwardIosRounded,
+  MdiArrowDownCircle,
+  MdiArrowUpCircle,
+  SolarCardBoldDuotone,
+} from "@/assets/icon";
 import AmountRangeFilter from "@/components/AmountRangeFilter";
+import AccountIconRender from "@/components/AccountIconRender";
 
 export interface TopContentProps {
   filterValue: string;
@@ -175,7 +183,13 @@ const TopContent: React.FC<TopContentProps> = ({
                 >
                   {Object.values(FinancialOperation).map((type) => (
                     <ListboxItem key={type}>
-                      {operationTranslations[type]}
+                      <div className="flex items-center gap-1">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: operationColors[type] }}
+                        ></div>
+                        {operationTranslations[type]}
+                      </div>
                     </ListboxItem>
                   ))}
                 </Listbox>
@@ -197,20 +211,32 @@ const TopContent: React.FC<TopContentProps> = ({
                     selectionMode="none"
                   >
                     {[
-                      { key: "assets", label: "资产", data: assets },
-                      { key: "liability", label: "负债", data: liabilities },
+                      {
+                        key: "assets",
+                        label: "资产",
+                        data: assets,
+                        icon: <MaterialSymbolsAccountBalanceWallet />,
+                      },
+                      {
+                        key: "liability",
+                        label: "负债",
+                        data: liabilities,
+                        icon: <SolarCardBoldDuotone />,
+                      },
                       {
                         key: "income",
                         label: operationTranslations[FinancialOperation.Income],
                         data: incomes,
+                        icon: <MdiArrowDownCircle />,
                       },
                       {
                         key: "expenditure",
+                        icon: <MdiArrowUpCircle />,
                         label:
                           operationTranslations[FinancialOperation.Expenditure],
                         data: expenses,
                       },
-                    ].map(({ key, label, data }) => (
+                    ].map(({ key, label, data, icon }) => (
                       <ListboxItem key={key}>
                         <AntdPopover
                           placement="rightTop"
@@ -230,13 +256,17 @@ const TopContent: React.FC<TopContentProps> = ({
                             >
                               {data?.map((item) => (
                                 <ListboxItem key={item.id}>
-                                  {item.name}
+                                  <div className="flex items-center gap-1">
+                                    <AccountIconRender icon={item.icon} />
+                                    {item.name}
+                                  </div>
                                 </ListboxItem>
                               )) ?? []}
                             </Listbox>
                           }
                         >
                           <div className="flex items-center justify-between">
+                            {icon}
                             <div>{label}</div>
                             <MaterialSymbolsArrowForwardIosRounded />
                           </div>

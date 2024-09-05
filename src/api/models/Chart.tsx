@@ -7,8 +7,17 @@ export type NormalChartData = {
   amount: string;
   label: string;
 };
-
+export type Link = {
+  source: string;
+  target: string;
+  value: number;
+  flow: "in" | "out";
+};
+export type SankeyNode = {
+  name: string;
+  type: string;
+};
 export type SankeyData = {
-  nodes: { name: string }[];
-  links: { source: string; target: string; value: number }[];
+  nodes: SankeyNode[];
+  links: Link[];
 };

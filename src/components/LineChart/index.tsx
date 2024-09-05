@@ -22,9 +22,15 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
+const zhMap = {
+  asset: "资产",
+  expense: "支出",
+  income: "收入",
+  liability: "负债",
+};
 export function Trend(props: TrendProps) {
   const type = props.type;
-
+  const title = zhMap[type];
   const dataMax = Math.max(...props.data.map((i: any) => i.data));
   const dataMin = Math.min(...props.data.map((i: any) => i.data));
   const gradientOffset = () => {
@@ -90,7 +96,26 @@ export function Trend(props: TrendProps) {
           />
           <ChartTooltip
             cursor={false}
-            content={<ChartTooltipContent indicator="line" />}
+            content={(props) => {
+              if (props.payload && props.payload.length > 0) {
+                const data = props.payload[0].payload;
+                return (
+                  <div className="bg-white p-2  rounded shadow">
+                    <div className="flex items-center gap-1">
+                      <div
+                        className="w-2 h-2 rounded-full"
+                        style={{
+                          backgroundColor: `hsl(var(--chart-${type}))`,
+                        }}
+                      ></div>
+                      <p>{`${title}: ${props.label}`}</p>
+                    </div>
+                    <p>{`金额: ${data.amount.toFixed(2)}`}</p>
+                  </div>
+                );
+              }
+              return null;
+            }}
           />
           <Area
             fill="url(#splitColor)"

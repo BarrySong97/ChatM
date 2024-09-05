@@ -12,6 +12,13 @@ import { EChart } from "@kbox-labs/react-echarts";
 import TransactionsTable from "@/components/Transactions";
 export interface CategoryProps {}
 const date = new Date();
+const typeColorMap = {
+  asset: "#AAD8D2",
+  liability: "#F6E7C3",
+  income: "#BFDCFD",
+  expense: "#F3A5B6",
+  assets: "#AAD8D2",
+};
 const Category: FC<CategoryProps> = () => {
   const { id, type } = useParams<{ id: string; type: string }>();
   const { assets } = useAssetsService();
@@ -54,7 +61,6 @@ const Category: FC<CategoryProps> = () => {
       </div>
       <Divider className="my-6" />
 
-      {/* <AssetsSectionCard /> */}
       <Card className="mb-6">
         <CardHeader>资产流向图</CardHeader>
         <CardBody>
@@ -64,15 +70,46 @@ const Category: FC<CategoryProps> = () => {
                 height: "300px",
                 width: "100%",
               }}
+              tooltip={{
+                trigger: "item",
+                triggerOn: "mousemove",
+              }}
               series={[
                 {
                   type: "sankey",
-                  data: sankeyData?.nodes ?? [],
-                  links: sankeyData?.links ?? [],
+                  nodeAlign: "left",
+
+                  emphasis: {
+                    focus: "adjacency",
+                  },
+                  data:
+                    sankeyData?.nodes?.map((v) => {
+                      return {
+                        ...v,
+                        itemStyle: {
+                          // color: "#E4E4E5",
+                          // borderColor: "#E4E4E5",
+                          borderColor:
+                            typeColorMap[v.type as keyof typeof typeColorMap],
+                          color:
+                            typeColorMap[v.type as keyof typeof typeColorMap],
+                        },
+                      };
+                    }) ?? [],
+                  links:
+                    sankeyData?.links?.map((v) => {
+                      return {
+                        ...v,
+                        lineStyle: {
+                          color: v.flow !== "in" ? "#F3A5B6" : "#BFDCFD",
+                        },
+                      };
+                    }) ?? [],
                   lineStyle: {
-                    color: "source",
+                    color: "#F3A5B6",
                     curveness: 0.5,
                   },
+
                   itemStyle: {
                     color: "#1f77b4",
                     borderColor: "#1f77b4",

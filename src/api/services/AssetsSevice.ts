@@ -23,7 +23,7 @@ import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
 import { LiabilityService } from "./LiabilityService";
 import dayjs from "dayjs";
-import { SankeyData } from "../models/Chart";
+import { Link, SankeyData } from "../models/Chart";
 import { alias } from "drizzle-orm/sqlite-core";
 import { ExpenseService } from "./ExpenseService";
 import { IncomeService } from "./IncomeService";
@@ -387,6 +387,13 @@ export class AssetsService {
         id: transaction.id,
         amount: transaction.amount,
         type: transaction.type,
+        destinationType: sql`CASE
+          WHEN ${assets.id} IS NOT NULL THEN 'asset'
+          WHEN ${expense.id} IS NOT NULL THEN 'expense'
+          WHEN ${income.id} IS NOT NULL THEN 'income'
+          WHEN ${liability.id} IS NOT NULL THEN 'liability'
+          ELSE 'unknown'
+        END`,
         destination_account_name: sql`COALESCE(${assets.name}, ${expense.name}, ${income.name}, ${liability.name})`,
         destination_account_id: transaction.destination_account_id,
       })
@@ -402,6 +409,13 @@ export class AssetsService {
         id: transaction.id,
         amount: transaction.amount,
         type: transaction.type,
+        sourcetype: sql`CASE
+          WHEN ${assets.id} IS NOT NULL THEN 'asset'
+          WHEN ${expense.id} IS NOT NULL THEN 'expense'
+          WHEN ${income.id} IS NOT NULL THEN 'income'
+          WHEN ${liability.id} IS NOT NULL THEN 'liability'
+          ELSE 'unknown'
+        END`,
         source_account_name: sql`COALESCE(${assets.name}, ${expense.name}, ${income.name}, ${liability.name})`,
         source_account_id: transaction.source_account_id,
       })
@@ -416,16 +430,27 @@ export class AssetsService {
 
     // 3. Convert to ECharts Sankey chart data format
     const nodes = new Set<string>();
-    const links: { source: string; target: string; value: number }[] = [];
+    const links: Link[] = [];
+    const accountNames: { name: string; type: string }[] = [
+      {
+        name: account?.name ?? "",
+        type: type,
+      },
+    ];
 
     // Process inflows
     sourceTransactions.forEach((t) => {
+      accountNames.push({
+        name: t.destination_account_name as string,
+        type: t.destinationType as string,
+      });
       if (type === "liabilities") {
         nodes.add(account?.name ?? "");
         nodes.add(`${t.destination_account_name}-借款`);
         links.push({
           source: account?.name ?? "",
           target: `${t.destination_account_name}-借款`,
+          flow: "in",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       } else if (type === "expense") {
@@ -434,6 +459,7 @@ export class AssetsService {
         links.push({
           source: account?.name ?? "",
           target: `${t.destination_account_name}-退款`,
+          flow: "in",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       } else if (type === "assets") {
@@ -442,6 +468,7 @@ export class AssetsService {
         links.push({
           source: account?.name ?? "",
           target: `${t.destination_account_name}-流出`,
+          flow: "out",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       } else {
@@ -451,49 +478,59 @@ export class AssetsService {
           source: `${account?.name}-流入`,
           target: `${t.destination_account_name}`,
           value: Number(t.amount) / 100, // Assuming amount is in cents
+          flow: "in",
         });
       }
     });
 
     // Process outflows
     destinationTransactions.forEach((t) => {
+      nodes.add(account?.name ?? "");
+      accountNames.push({
+        name: t.source_account_name as string,
+        type: t.sourcetype as string,
+      });
+
       if (type === "liabilities") {
-        nodes.add(account?.name ?? "");
         nodes.add(`${t.source_account_name}-还款`);
         links.push({
           source: `${t.source_account_name}-还款`,
           target: account?.name ?? "",
+          flow: "out",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
       } else if (type === "expense") {
-        nodes.add(account?.name ?? "");
         nodes.add(`${t.source_account_name}-支出`);
         links.push({
           source: `${t.source_account_name}-支出`,
           target: account?.name ?? "",
           value: Number(t.amount) / 100, // Assuming amount is in cents
+          flow: "out",
         });
       } else if (type === "assets") {
-        nodes.add(account?.name ?? "");
         nodes.add(`${t.source_account_name}-流入`);
         links.push({
           source: `${t.source_account_name}-流入`,
           target: account?.name ?? "",
           value: Number(t.amount) / 100, // Assuming amount is in cents
+          flow: "in",
         });
       } else {
-        nodes.add(account?.name ?? "");
         nodes.add(`${t.source_account_name}`);
         links.push({
           source: `${t.source_account_name}`,
           target: account?.name ?? "",
           value: Number(t.amount) / 100, // Assuming amount is in cents
+          flow: "in",
         });
       }
     });
 
     return {
-      nodes: Array.from(nodes).map((name) => ({ name })),
+      nodes: Array.from(nodes).map((name) => ({
+        name,
+        type: accountNames.find((account) => name.includes(account.name))?.type,
+      })),
       links,
     } as SankeyData;
   }
