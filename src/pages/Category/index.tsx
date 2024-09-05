@@ -26,6 +26,7 @@ import {
 import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
 import { IncomeSectionCard } from "@/components/IndexSectionCard/IncomeSectionCard";
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
+import { useSideData } from "@/api/hooks/side";
 export interface CategoryProps {}
 const date = new Date();
 const typeColorMap = {
@@ -35,6 +36,9 @@ const typeColorMap = {
   expense: "#F3A5B6",
   assets: "#AAD8D2",
 };
+const now = new Date();
+const start = new Date(now.getFullYear(), now.getMonth(), 1);
+const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 const Category: FC<CategoryProps> = () => {
   const { id, type } = useParams<{ id: string; type: string }>();
   const { assets } = useAssetsService();
@@ -129,17 +133,6 @@ const Category: FC<CategoryProps> = () => {
       </div>
     );
   };
-  const renderChartTitle = () => {
-    if (chartType === "line") {
-      return <div>折线图</div>;
-    }
-    if (chartType === "sanky") {
-      return <div>流向图</div>;
-    }
-    if (chartType === "bar") {
-      return <div>柱状图</div>;
-    }
-  };
   const sankyChart = useMemo(() => {
     return renderChart();
   }, [sankeyData]);
@@ -190,16 +183,34 @@ const Category: FC<CategoryProps> = () => {
         );
     }
   };
+  const { assetsData, liabilitiesData, expenditureData, incomeData } =
+    useSideData({
+      startDate: start.getTime(),
+      endDate: end.getTime(),
+    });
+  const renderPageTitle = () => {
+    let totalAmount = "";
+    if (type === "income") {
+      totalAmount = `(总金额: ${incomeData?.incomeAmounts.get(id!) ?? "0.00"})`;
+    }
+    if (type === "expense") {
+      totalAmount = `(总金额: ${
+        expenditureData?.expenseAmounts.get(id!) ?? "0.00"
+      })`;
+    }
+    return (
+      <div>
+        <h1 className="text-2xl font-bold">
+          {renderType()} - {item?.name}
+          {totalAmount}
+        </h1>
+      </div>
+    );
+  };
+
   return (
     <PageWrapper>
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {renderType()} - {item?.name}
-          </h1>
-          <div></div>
-        </div>
-      </div>
+      <div className="flex justify-between items-end">{renderPageTitle()}</div>
       <Divider className="my-6" />
 
       {renderChartCard()}
