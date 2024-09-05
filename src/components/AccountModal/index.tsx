@@ -115,7 +115,6 @@ const AccountModal: FC<AccountModalProps> = ({
         }
         break;
       case "asset":
-        console.log(333);
         if (data) {
           await editAsset({
             asset: {

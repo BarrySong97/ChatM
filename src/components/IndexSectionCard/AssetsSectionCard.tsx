@@ -5,10 +5,12 @@ import { CategoryChart } from "./CategoryChart";
 import { ChartTabPlaceHolder, TrendChart } from "./TrendChart";
 import {
   useAssetCategoryService,
+  useAssetSankeyService,
   useAssetTrendService,
 } from "@/api/hooks/assets";
 import dayjs from "dayjs";
 import { colors } from "./constant";
+import { CustomDatePopover } from "./CustomDatePopover";
 
 const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
@@ -18,18 +20,20 @@ export const AssetsSectionCard: React.FC<{
   showDefaultTitle?: boolean;
   accountId?: string;
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
+  showSankey?: boolean;
 }> = ({
   showLeft = true,
   title,
   showDefaultTitle = true,
   chartTabPlaceHolder,
+  showSankey = false,
   accountId,
 }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   // const [isOpen, setIsOpen] = useState(false);
   const [categoryType, setCategoryType] = useState("rank");
-  const [chartType, setChartType] = useState("line");
+  const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
 
   useEffect(() => {
     const now = dayjs();
@@ -83,6 +87,13 @@ export const AssetsSectionCard: React.FC<{
     endDate: value.end,
   });
 
+  const [isOpen, setIsOpen] = useState(false);
+  const { sankeyData } = useAssetSankeyService(
+    accountId!,
+    "asset",
+    value.start,
+    value.end
+  );
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
@@ -91,14 +102,14 @@ export const AssetsSectionCard: React.FC<{
           selectedTime={time}
           onTimeChange={setTime}
         />
-        {/* <CustomDatePopover
+        <CustomDatePopover
           time={time}
           value={value}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           onChange={setValue}
           onTimeReset={() => setTime("")}
-        /> */}
+        />
       </div>
       <div className="flex gap-8">
         {showLeft ? (
@@ -124,6 +135,8 @@ export const AssetsSectionCard: React.FC<{
               setChartType={setChartType}
               chartTabPlaceHolder={chartTabPlaceHolder}
               title={title}
+              sankeyData={sankeyData}
+              showSankey={showSankey}
               lineData={lineData}
             />
           </CardHeader>

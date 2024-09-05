@@ -10,6 +10,7 @@ import {
 } from "@/api/hooks/liability";
 import { colors } from "./constant";
 import dayjs from "dayjs";
+import { useAssetSankeyService } from "@/api/hooks/assets";
 
 const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
@@ -19,17 +20,19 @@ export const LiabilitySectionCard: React.FC<{
   accountId?: string;
   showDefaultTitle?: boolean;
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
+  showSankey?: boolean;
 }> = ({
   showLeft = true,
   title,
   showDefaultTitle = true,
   chartTabPlaceHolder,
   accountId,
+  showSankey = false,
 }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [categoryType, setCategoryType] = useState("rank");
-  const [chartType, setChartType] = useState("line");
+  const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
 
   useEffect(() => {
     const now = dayjs();
@@ -82,7 +85,13 @@ export const LiabilitySectionCard: React.FC<{
     startDate: value.start,
     endDate: value.end,
   });
-
+  const [isOpen, setIsOpen] = useState(false);
+  const { sankeyData } = useAssetSankeyService(
+    accountId!,
+    "liability",
+    value.start,
+    value.end
+  );
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
@@ -91,14 +100,14 @@ export const LiabilitySectionCard: React.FC<{
           selectedTime={time}
           onTimeChange={setTime}
         />
-        {/* <CustomDatePopover
+        <CustomDatePopover
           value={value}
           time={time}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           onChange={setValue}
           onTimeReset={() => setTime("")}
-        /> */}
+        />
       </div>
       <div className="flex gap-8">
         {showLeft ? (
@@ -120,9 +129,12 @@ export const LiabilitySectionCard: React.FC<{
               title={title}
               chartType={chartType}
               setChartType={setChartType}
+              accountId={accountId}
               lineData={lineData}
               showDefaultTitle={showDefaultTitle}
               chartTabPlaceHolder={chartTabPlaceHolder}
+              showSankey={showSankey}
+              sankeyData={sankeyData}
               type="liability"
             />
           </CardHeader>

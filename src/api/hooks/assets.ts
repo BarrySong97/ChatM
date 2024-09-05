@@ -26,6 +26,7 @@ export function useAssetsService(assetId?: string) {
   >({
     queryKey: ["assets", assetId],
     enabled: !!assetId,
+    keepPreviousData: true,
     queryFn: () => AssetsService.getAssetById(assetId!),
   });
 
@@ -152,7 +153,9 @@ export function useAssetCategoryService(filter: Filter) {
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => AssetsService.getCategory(filter));
+  >(queryKey, () => AssetsService.getCategory(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     categoryData,
@@ -164,19 +167,28 @@ export function useAssetTrendService(filter: Filter) {
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => AssetsService.getTrend(filter));
+  >(queryKey, () => AssetsService.getTrend(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     lineData: trendData,
     isLoadingTrend,
   };
 }
-export function useAssetSankeyService(accountId: string, type: string) {
-  const queryKey = ["sankey", accountId];
+export function useAssetSankeyService(
+  accountId: string,
+  type: string,
+  start?: number,
+  end?: number
+) {
+  const queryKey = ["sankey", accountId, start, end];
   const { data: sankeyData, isLoading: isLoadingSankey } = useQuery<
     SankeyData,
     Error
-  >(queryKey, () => AssetsService.getSankeyData(accountId, type));
+  >(queryKey, () => AssetsService.getSankeyData(accountId, type), {
+    keepPreviousData: true,
+  });
 
   return {
     sankeyData,

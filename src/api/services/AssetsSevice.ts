@@ -233,7 +233,6 @@ export class AssetsService {
   public static async getTrend(filter: SideFilter) {
     // Get the start and end dates from the filter
     const startDate = filter.startDate;
-    console.log(filter);
 
     const endDate = dayjs(dayjs(filter.endDate).format("YYYY-MM-DD"))
       .add(1, "day")
@@ -308,7 +307,6 @@ export class AssetsService {
         dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
       }
     });
-    console.log(dailyTotals);
 
     // Fill in the trend data
     let currentDate = dayjs(startDate);
@@ -379,10 +377,21 @@ export class AssetsService {
     return res;
   }
   // get sankey data
-  public static async getSankeyData(accountId: string, type: string) {
+  public static async getSankeyData(
+    accountId: string,
+    type: string,
+    startDate?: number,
+    endDate?: number
+  ) {
+    const filteredStart = startDate
+      ? dayjs(startDate).subtract(1, "day").toDate().getTime()
+      : undefined;
+    const filteredEnd = endDate
+      ? dayjs(endDate).add(1, "day").toDate().getTime()
+      : undefined;
     // 1. Query transactions with related account information
     let account: { name: string | null } | undefined;
-    if (type === "assets") {
+    if (type === "asset") {
       account = await this.getAssetById(accountId);
     } else if (type === "expense") {
       account = await ExpenseService.getExpenseById(accountId);
@@ -390,6 +399,13 @@ export class AssetsService {
       account = await IncomeService.getIncomeById(accountId);
     } else {
       account = await LiabilityService.getLiabilityById(accountId);
+    }
+    const conditions = [eq(transaction.source_account_id, accountId)];
+    if (filteredStart) {
+      conditions.push(gte(transaction.transaction_date, filteredStart));
+    }
+    if (filteredEnd) {
+      conditions.push(lte(transaction.transaction_date, filteredEnd));
     }
     const sourceTransactions = await db
       .select({
@@ -411,7 +427,7 @@ export class AssetsService {
       .leftJoin(expense, eq(transaction.destination_account_id, expense.id))
       .leftJoin(income, eq(transaction.destination_account_id, income.id))
       .leftJoin(liability, eq(transaction.destination_account_id, liability.id))
-      .where(eq(transaction.source_account_id, accountId));
+      .where(and(...conditions));
 
     const destinationTransactions = await db
       .select({
@@ -471,7 +487,7 @@ export class AssetsService {
           flow: "in",
           value: Number(t.amount) / 100, // Assuming amount is in cents
         });
-      } else if (type === "assets") {
+      } else if (type === "asset") {
         nodes.add(account?.name ?? "");
         nodes.add(`${t.destination_account_name}-流出`);
         links.push({
@@ -516,7 +532,7 @@ export class AssetsService {
           value: Number(t.amount) / 100, // Assuming amount is in cents
           flow: "out",
         });
-      } else if (type === "assets") {
+      } else if (type === "asset") {
         nodes.add(`${t.source_account_name}-流入`);
         links.push({
           source: `${t.source_account_name}-流入`,

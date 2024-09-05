@@ -1,9 +1,15 @@
 import React from "react";
 import { Tab, Tabs } from "@nextui-org/react";
-import { MaterialSymbolsShowChart, MaterialSymbolsBarChart } from "./icon";
+import {
+  MaterialSymbolsShowChart,
+  MaterialSymbolsBarChart,
+  CarbonSankeyDiagram,
+} from "./icon";
 import { Trend } from "../LineChart";
-import { NormalChartData } from "@/api/models/Chart";
+import { NormalChartData, SankeyData } from "@/api/models/Chart";
 import { Barchart } from "../BarChart";
+import { useAssetSankeyService } from "@/api/hooks/assets";
+import SankeyChart from "../SankyChart";
 export interface ChartTabPlaceHolder {
   name: string;
   icon: React.ReactNode;
@@ -17,7 +23,10 @@ interface TrendChartProps {
   showDefaultTitle?: boolean;
   type: "asset" | "expense" | "income" | "liability";
   accountId?: string;
+  showSankey?: boolean;
+
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
+  sankeyData?: SankeyData;
 }
 
 export const TrendChart: React.FC<TrendChartProps> = ({
@@ -28,9 +37,16 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   showDefaultTitle = false,
   type,
   chartTabPlaceHolder,
+  accountId,
+  showSankey = false,
+  sankeyData,
 }) => {
   const sum = lineData?.reduce((acc, cur) => acc + Number(cur.amount), 0);
+
   const renderDefaultTitle = () => {
+    if (chartType === "sankey") {
+      return <div></div>;
+    }
     switch (type) {
       case "income":
         return (
@@ -64,6 +80,8 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         return <Trend data={lineData ?? []} type={type} />;
       case "bar":
         return <Barchart type={type} chartData={lineData ?? []} />;
+      case "sankey":
+        return <SankeyChart sankeyData={sankeyData} />;
       default:
         const chart = chartTabPlaceHolder?.find(
           (item) => item.name === chartType
@@ -96,6 +114,17 @@ export const TrendChart: React.FC<TrendChartProps> = ({
               />
             );
           })}
+          {showSankey ? (
+            <Tab
+              key="sankey"
+              title={
+                <div className="flex items-center gap-1">
+                  <CarbonSankeyDiagram className="text-base" />
+                  <div>流向图</div>
+                </div>
+              }
+            />
+          ) : null}
           <Tab
             key="line"
             title={

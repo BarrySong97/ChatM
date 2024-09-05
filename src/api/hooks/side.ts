@@ -46,6 +46,7 @@ export function useSideData(filter: SideFilter) {
 
       return { assetsData, liabilitiesData, expenditureData, incomeData };
     },
+    keepPreviousData: true,
   });
 
   return {

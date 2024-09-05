@@ -24,7 +24,9 @@ export function useIncomeService() {
   const { data: incomes, isLoading: isLoadingIncomes } = useQuery<
     Array<Income>,
     Error
-  >(queryKey, () => IncomeService.listIncome());
+  >(queryKey, () => IncomeService.listIncome(), {
+    keepPreviousData: true,
+  });
 
   // Create income
   const { mutateAsync: createIncome } = useMutation(
@@ -147,7 +149,9 @@ export function useIncomeLineChartService(filter: Filter) {
   const { data: chartData, isLoading: isLoadingChart } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => IncomeService.getTrend(filter));
+  >(queryKey, () => IncomeService.getTrend(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     lineData: chartData,
@@ -161,7 +165,9 @@ export function useIncomeCategoryService(filter: Filter) {
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => IncomeService.getIncomeCategory(filter));
+  >(queryKey, () => IncomeService.getIncomeCategory(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     categoryData,

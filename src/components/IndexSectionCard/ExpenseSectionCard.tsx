@@ -10,6 +10,7 @@ import {
 } from "@/api/hooks/expense";
 import { colors } from "./constant";
 import dayjs from "dayjs";
+import { useAssetSankeyService } from "@/api/hooks/assets";
 
 const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
 
@@ -19,18 +20,21 @@ export const ExpenseSectionCard: React.FC<{
   showDefaultTitle?: boolean;
   accountId?: string;
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
+  showSankey?: boolean;
 }> = ({
   showLeft = true,
   title,
+
   showDefaultTitle = false,
   chartTabPlaceHolder,
   accountId,
+  showSankey = false,
 }) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [isOpen, setIsOpen] = useState(false);
   const [categoryType, setCategoryType] = useState("rank");
-  const [chartType, setChartType] = useState("line");
+  const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
 
   useEffect(() => {
     const now = dayjs();
@@ -89,6 +93,12 @@ export const ExpenseSectionCard: React.FC<{
     startDate: value.start,
     endDate: value.end,
   });
+  const { sankeyData } = useAssetSankeyService(
+    accountId!,
+    "expense",
+    value.start,
+    value.end
+  );
 
   return (
     <div>
@@ -129,8 +139,11 @@ export const ExpenseSectionCard: React.FC<{
               chartType={chartType}
               type="expense"
               chartTabPlaceHolder={chartTabPlaceHolder}
+              showSankey={showSankey}
               setChartType={setChartType}
+              accountId={accountId}
               lineData={lineData}
+              sankeyData={sankeyData}
             />
           </CardHeader>
         </Card>

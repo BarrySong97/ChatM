@@ -24,7 +24,9 @@ export function useLiabilityService() {
   const { data: liabilities, isLoading: isLoadingLiabilities } = useQuery<
     Array<Liability>,
     Error
-  >(queryKey, () => LiabilityService.listLiability());
+  >(queryKey, () => LiabilityService.listLiability(), {
+    keepPreviousData: true,
+  });
 
   // Create liability
   const { mutateAsync: createLiability } = useMutation(
@@ -147,7 +149,9 @@ export function useLiabilityCategoryService(filter: Filter) {
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => LiabilityService.getCategory(filter));
+  >(queryKey, () => LiabilityService.getCategory(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     categoryData,
@@ -160,7 +164,9 @@ export function useLiabilityTrendService(filter: Filter) {
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => LiabilityService.getTrend(filter));
+  >(queryKey, () => LiabilityService.getTrend(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     lineData: trendData,

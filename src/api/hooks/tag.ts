@@ -19,7 +19,10 @@ export function useTagService() {
   // Fetch tag list
   const { data: tags, isLoading: isLoadingTags } = useQuery<Array<Tag>, Error>(
     queryKey,
-    () => TagService.listTag()
+    () => TagService.listTag(),
+    {
+      keepPreviousData: true,
+    }
   );
 
   // Create tag

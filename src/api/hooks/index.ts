@@ -25,6 +25,7 @@ export function useIndexData() {
         netWorthData,
       };
     },
+    keepPreviousData: true,
   });
 
   return {

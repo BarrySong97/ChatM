@@ -27,7 +27,9 @@ export function useExpenseService() {
   const { data: expenses, isLoading: isLoadingExpenses } = useQuery<
     Array<Expense>,
     Error
-  >(queryKey, () => ExpenseService.listExpense());
+  >(queryKey, () => ExpenseService.listExpense(), {
+    keepPreviousData: true,
+  });
 
   // Create expense
   const { mutateAsync: createExpense } = useMutation(
@@ -150,7 +152,9 @@ export function useExpenseLineChartService(filter: Filter) {
   const { data: chartData, isLoading: isLoadingChart } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => ExpenseService.getTrend(filter));
+  >(queryKey, () => ExpenseService.getTrend(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     lineData: chartData,
@@ -164,7 +168,9 @@ export function useExpenseCategoryService(filter: Filter) {
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => ExpenseService.getExpenseCategory(filter));
+  >(queryKey, () => ExpenseService.getExpenseCategory(filter), {
+    keepPreviousData: true,
+  });
 
   return {
     categoryData,

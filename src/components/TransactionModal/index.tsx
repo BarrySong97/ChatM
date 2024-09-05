@@ -59,7 +59,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
       form.validateFields()
     );
     if (err) {
-      console.log(err);
       return;
     }
     const transaction = {
