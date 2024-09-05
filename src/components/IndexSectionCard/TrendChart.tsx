@@ -58,7 +58,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           />
         </Tabs>
       </div>
-      <div className="h-[300px] w-full mt-2">
+      <div className="h-[300px] 2xl:h-[350px] w-full mt-2">
         {chartType === "line" ? (
           <Trend data={lineData ?? []} type={type} />
         ) : (

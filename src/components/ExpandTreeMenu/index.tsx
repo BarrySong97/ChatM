@@ -118,6 +118,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
         <div className="ml-1 flex items-center gap-1 flex-1">
           {node.icon ? (
             <div
+              className="text-[18px]"
               style={{
                 paddingLeft: isLeaf ? "0.5rem" : "0",
               }}

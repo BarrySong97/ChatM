@@ -34,8 +34,11 @@ import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { ipcDevtoolMain } from "@/service/ipc";
 import {
+  GalaSettings,
   MaterialSymbolsEditDocumentOutlineRounded,
   MaterialSymbolsHelpOutline,
+  TablerSettings,
+  UimGraphBar,
 } from "./icon";
 import TransactionModal from "@/components/TransactionModal";
 import { useSideData } from "@/api/hooks/side";
@@ -55,7 +58,7 @@ const Side: FC<SideProps> = () => {
       key: "home",
       href: "/",
       title: "首页",
-      icon: <MaterialSymbolsHome />,
+      icon: <UimGraphBar />,
     },
     {
       key: "transactions",
@@ -73,7 +76,7 @@ const Side: FC<SideProps> = () => {
       key: "settings",
       href: "/settings",
       title: "设置",
-      icon: <SolarSettingsBold />,
+      icon: <TablerSettings />,
     },
   ];
   const location = useLocation();
@@ -115,7 +118,7 @@ const Side: FC<SideProps> = () => {
           </span>
         </div>
       ),
-      icon: <MaterialSymbolsAccountBalanceWallet className="!text-base" />,
+      icon: <MaterialSymbolsAccountBalanceWallet />,
       children: [
         ...(assets || []).map((item) => {
           return {
@@ -123,7 +126,9 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/assets/${item.id}`);
             },
-            icon: <AccountIconRender icon={item.icon ?? ""} />,
+            icon: (
+              <AccountIconRender emojiSize="0.80em" icon={item.icon ?? ""} />
+            ),
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -157,7 +162,7 @@ const Side: FC<SideProps> = () => {
           </span>
         </div>
       ),
-      icon: <SolarCardBoldDuotone className="!text-base" />,
+      icon: <SolarCardBoldDuotone />,
       children: [
         ...(liabilities || []).map((item) => {
           const liabilityAmount = liabilitiesData?.liabilityAmounts?.get(
@@ -173,7 +178,9 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/liabilities/${item.id}`);
             },
-            icon: <AccountIconRender icon={item.icon ?? ""} />,
+            icon: (
+              <AccountIconRender emojiSize="0.80em" icon={item.icon ?? ""} />
+            ),
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -207,7 +214,7 @@ const Side: FC<SideProps> = () => {
           <span className=" text-default-500">{incomeData?.totalAmount}</span>
         </div>
       ),
-      icon: <MdiArrowDownCircle className="!text-base" />,
+      icon: <MdiArrowDownCircle />,
       children: [
         ...(incomes || []).map((item) => {
           return {
@@ -215,7 +222,9 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/income/${item.id}`);
             },
-            icon: <AccountIconRender icon={item.icon ?? ""} />,
+            icon: (
+              <AccountIconRender emojiSize="0.80em" icon={item.icon ?? ""} />
+            ),
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -249,7 +258,7 @@ const Side: FC<SideProps> = () => {
           </span>
         </div>
       ),
-      icon: <MdiArrowUpCircle className="!text-base" />,
+      icon: <MdiArrowUpCircle />,
       children: [
         ...(expenses || []).map((item) => {
           const amount = expenditureData?.expenseAmounts?.get(item.id);
@@ -260,7 +269,9 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/expense/${item.id}`);
             },
-            icon: <AccountIconRender icon={item.icon ?? ""} />,
+            icon: (
+              <AccountIconRender emojiSize="0.80em" icon={item.icon ?? ""} />
+            ),
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>

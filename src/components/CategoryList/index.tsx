@@ -26,7 +26,7 @@ const CategoryList: React.FC<CategoryListProps> = ({ items, type }) => {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 max-h-[300px] 2xl:max-h-[350px] overflow-y-auto scrollbar">
       {items.map((item, index) => {
         let percentage = calculatePercentage(new Decimal(item.amount));
         percentage = Number.isNaN(percentage) ? 0 : percentage;

@@ -49,7 +49,7 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
     </Tabs>
     <div className="mt-2">
       {categoryType !== "rank" ? (
-        <div className="h-[300px]">
+        <div className="h-[300px] 2xl:h-[350px]">
           <CategoryBarChart
             data={
               (categoryData?.map((v, index) => ({
