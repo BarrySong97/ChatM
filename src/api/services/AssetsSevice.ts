@@ -233,6 +233,8 @@ export class AssetsService {
   public static async getTrend(filter: SideFilter) {
     // Get the start and end dates from the filter
     const startDate = filter.startDate;
+    console.log(filter);
+
     const endDate = dayjs(dayjs(filter.endDate).format("YYYY-MM-DD"))
       .add(1, "day")
       .toDate()
@@ -281,9 +283,15 @@ export class AssetsService {
       ? new Set([filter.accountId])
       : new Set(assets.map((asset) => asset.id));
     let assetsInitialBalance = 0;
-    assets.forEach((asset) => {
-      assetsInitialBalance += asset.initial_balance || 0;
-    });
+    if (filter.accountId) {
+      assetsInitialBalance =
+        assets.find((asset) => asset.id === filter.accountId)
+          ?.initial_balance || 0;
+    } else {
+      assets.forEach((asset) => {
+        assetsInitialBalance += asset.initial_balance || 0;
+      });
+    }
 
     transactions.forEach((t) => {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
@@ -300,6 +308,7 @@ export class AssetsService {
         dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
       }
     });
+    console.log(dailyTotals);
 
     // Fill in the trend data
     let currentDate = dayjs(startDate);

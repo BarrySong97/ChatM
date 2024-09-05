@@ -1,4 +1,4 @@
-import { eq, gte, lte, and, sql, or, gt, lt } from "drizzle-orm";
+import { eq, gte, lte, and, sql, or, gt, lt, SQL } from "drizzle-orm";
 import { income, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -115,18 +115,23 @@ export class IncomeService {
     const daysDifference = dayjs(endDate).diff(startDate, "day");
 
     const trendData = [];
+    const conditions = [
+      gt(transaction.transaction_date, filterStartDate),
+      lt(transaction.transaction_date, filterEndDate),
+      eq(transaction.type, FinancialOperation.Income),
+    ];
 
+    if (filter?.accountId) {
+      const q = eq(transaction.source_account_id, filter.accountId);
+      const q2 = eq(transaction.destination_account_id, filter.accountId);
+      const orQ = or(q, q2);
+      conditions.push(orQ as SQL<unknown>);
+    }
     // First, fetch all transactions within the date range
     const transactions = await db
       .select()
       .from(transaction)
-      .where(
-        and(
-          gt(transaction.transaction_date, filterStartDate),
-          lt(transaction.transaction_date, filterEndDate),
-          eq(transaction.type, FinancialOperation.Income)
-        )
-      );
+      .where(and(...conditions));
 
     // Create a map to store daily income totals
     const dailyIncomes = new Map<string, Decimal>();

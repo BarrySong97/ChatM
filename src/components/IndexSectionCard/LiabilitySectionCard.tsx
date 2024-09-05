@@ -3,7 +3,7 @@ import { Card, CardHeader } from "@nextui-org/react";
 import { TimeFilterButtons } from "./TimeFilterButtons";
 import { CustomDatePopover } from "./CustomDatePopover";
 import { CategoryChart } from "./CategoryChart";
-import { TrendChart } from "./TrendChart";
+import { ChartTabPlaceHolder, TrendChart } from "./TrendChart";
 import {
   useLiabilityCategoryService,
   useLiabilityTrendService,
@@ -16,8 +16,16 @@ const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 export const LiabilitySectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
+  accountId?: string;
   showDefaultTitle?: boolean;
-}> = ({ showLeft = true, title, showDefaultTitle = true }) => {
+  chartTabPlaceHolder?: ChartTabPlaceHolder[];
+}> = ({
+  showLeft = true,
+  title,
+  showDefaultTitle = true,
+  chartTabPlaceHolder,
+  accountId,
+}) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [categoryType, setCategoryType] = useState("rank");
@@ -67,6 +75,7 @@ export const LiabilitySectionCard: React.FC<{
   const { lineData } = useLiabilityTrendService({
     startDate: value.start,
     endDate: value.end,
+    accountId,
   });
 
   const { categoryData } = useLiabilityCategoryService({
@@ -113,6 +122,7 @@ export const LiabilitySectionCard: React.FC<{
               setChartType={setChartType}
               lineData={lineData}
               showDefaultTitle={showDefaultTitle}
+              chartTabPlaceHolder={chartTabPlaceHolder}
               type="liability"
             />
           </CardHeader>

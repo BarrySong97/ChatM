@@ -3,7 +3,7 @@ import { Card, CardHeader, CardBody } from "@nextui-org/react";
 import { TimeFilterButtons } from "./TimeFilterButtons";
 import { CustomDatePopover } from "./CustomDatePopover";
 import { CategoryChart } from "./CategoryChart";
-import { TrendChart } from "./TrendChart";
+import { ChartTabPlaceHolder, TrendChart } from "./TrendChart";
 import {
   useIncomeCategoryService,
   useIncomeLineChartService,
@@ -16,7 +16,15 @@ export const IncomeSectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
   showDefaultTitle?: boolean;
-}> = ({ showLeft = true, title, showDefaultTitle = false }) => {
+  chartTabPlaceHolder?: ChartTabPlaceHolder[];
+  accountId?: string;
+}> = ({
+  showLeft = true,
+  title,
+  showDefaultTitle = false,
+  chartTabPlaceHolder,
+  accountId,
+}) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   const [isOpen, setIsOpen] = useState(false);
@@ -73,6 +81,7 @@ export const IncomeSectionCard: React.FC<{
   const { lineData } = useIncomeLineChartService({
     startDate: value.start,
     endDate: value.end,
+    accountId,
   });
 
   const { categoryData } = useIncomeCategoryService({
@@ -118,6 +127,7 @@ export const IncomeSectionCard: React.FC<{
               showDefaultTitle={showDefaultTitle}
               chartType={chartType}
               setChartType={setChartType}
+              chartTabPlaceHolder={chartTabPlaceHolder}
               type="income"
               lineData={lineData}
             />

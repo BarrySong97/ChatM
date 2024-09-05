@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardHeader } from "@nextui-org/react";
 import { TimeFilterButtons } from "./TimeFilterButtons";
 import { CategoryChart } from "./CategoryChart";
-import { TrendChart } from "./TrendChart";
+import { ChartTabPlaceHolder, TrendChart } from "./TrendChart";
 import {
   useAssetCategoryService,
   useAssetTrendService,
@@ -16,7 +16,15 @@ export const AssetsSectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
   showDefaultTitle?: boolean;
-}> = ({ showLeft = true, title, showDefaultTitle = true }) => {
+  accountId?: string;
+  chartTabPlaceHolder?: ChartTabPlaceHolder[];
+}> = ({
+  showLeft = true,
+  title,
+  showDefaultTitle = true,
+  chartTabPlaceHolder,
+  accountId,
+}) => {
   const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({ start: 0, end: 0 });
   // const [isOpen, setIsOpen] = useState(false);
@@ -67,6 +75,7 @@ export const AssetsSectionCard: React.FC<{
   const { lineData } = useAssetTrendService({
     startDate: value.start,
     endDate: value.end,
+    accountId,
   });
 
   const { categoryData } = useAssetCategoryService({
@@ -108,10 +117,12 @@ export const AssetsSectionCard: React.FC<{
         <Card className="block gap-8 flex-[3] mb-8" shadow="sm" radius="sm">
           <CardHeader className="!mb-0 flex justify-end items-start">
             <TrendChart
+              accountId={accountId}
               chartType={chartType}
               type="asset"
               showDefaultTitle={showDefaultTitle}
               setChartType={setChartType}
+              chartTabPlaceHolder={chartTabPlaceHolder}
               title={title}
               lineData={lineData}
             />

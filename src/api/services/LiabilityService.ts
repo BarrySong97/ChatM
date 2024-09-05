@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, lt, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, lt, lte, or, SQL, sql } from "drizzle-orm";
 import { request as __request } from "../core/request";
 import { liability, transaction } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
@@ -113,6 +113,20 @@ export class LiabilityService {
       .add(1, "day")
       .toDate()
       .getTime();
+    const conditions = [
+      lt(transaction.transaction_date, filterEndDate),
+      or(
+        eq(transaction.type, FinancialOperation.Borrow),
+        eq(transaction.type, FinancialOperation.LoanExpenditure),
+        eq(transaction.type, FinancialOperation.RepayLoan)
+      ),
+    ];
+    if (filter?.accountId) {
+      const q = eq(transaction.source_account_id, filter.accountId);
+      const q2 = eq(transaction.destination_account_id, filter.accountId);
+      const orQ = or(q, q2);
+      conditions.push(orQ as SQL<unknown>);
+    }
     const transactions = await db
       .select({
         amount: transaction.amount,
@@ -122,18 +136,7 @@ export class LiabilityService {
         type: transaction.type,
       })
       .from(transaction)
-      .where(
-        and(
-          filter?.endDate
-            ? lt(transaction.transaction_date, filterEndDate)
-            : undefined,
-          or(
-            eq(transaction.type, FinancialOperation.Borrow),
-            eq(transaction.type, FinancialOperation.LoanExpenditure),
-            eq(transaction.type, FinancialOperation.RepayLoan)
-          )
-        )
-      )
+      .where(and(...conditions))
       .orderBy(asc(transaction.transaction_date));
 
     // Initialize the result array
@@ -200,6 +203,7 @@ export class LiabilityService {
 
   public static async getCategory(filter?: SideFilter) {
     // Fetch all liability-related transactions within the date range
+
     const transactions = await db
       .select({
         amount: transaction.amount,
@@ -276,6 +280,7 @@ export class LiabilityService {
         categoryData.push({
           content: account.name || "",
           amount: 0,
+          icon: account.icon ?? "",
           color: account.color ?? "",
         });
       }

@@ -2,11 +2,13 @@ import React from "react";
 import { Tab, Tabs } from "@nextui-org/react";
 import { MaterialSymbolsShowChart, MaterialSymbolsBarChart } from "./icon";
 import { Trend } from "../LineChart";
-import { CategoryBarChart } from "../PieChart";
 import { NormalChartData } from "@/api/models/Chart";
 import { Barchart } from "../BarChart";
-import dayjs from "dayjs";
-
+export interface ChartTabPlaceHolder {
+  name: string;
+  icon: React.ReactNode;
+  content: React.ReactNode;
+}
 interface TrendChartProps {
   chartType: string;
   setChartType: (type: string) => void;
@@ -14,6 +16,8 @@ interface TrendChartProps {
   title?: React.ReactNode;
   showDefaultTitle?: boolean;
   type: "asset" | "expense" | "income" | "liability";
+  accountId?: string;
+  chartTabPlaceHolder?: ChartTabPlaceHolder[];
 }
 
 export const TrendChart: React.FC<TrendChartProps> = ({
@@ -23,6 +27,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   title,
   showDefaultTitle = false,
   type,
+  chartTabPlaceHolder,
 }) => {
   const sum = lineData?.reduce((acc, cur) => acc + Number(cur.amount), 0);
   const renderDefaultTitle = () => {
@@ -53,6 +58,19 @@ export const TrendChart: React.FC<TrendChartProps> = ({
         );
     }
   };
+  const renderChart = () => {
+    switch (chartType) {
+      case "line":
+        return <Trend data={lineData ?? []} type={type} />;
+      case "bar":
+        return <Barchart type={type} chartData={lineData ?? []} />;
+      default:
+        const chart = chartTabPlaceHolder?.find(
+          (item) => item.name === chartType
+        );
+        return chart?.content;
+    }
+  };
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">
@@ -65,6 +83,19 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           size="sm"
           radius="sm"
         >
+          {chartTabPlaceHolder?.map((item) => {
+            return (
+              <Tab
+                key={item.name}
+                title={
+                  <div className="flex items-center gap-1">
+                    {item.icon}
+                    <div>{item.name}</div>
+                  </div>
+                }
+              />
+            );
+          })}
           <Tab
             key="line"
             title={
@@ -85,13 +116,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           />
         </Tabs>
       </div>
-      <div className="h-[300px] 2xl:h-[350px] w-full mt-2">
-        {chartType === "line" ? (
-          <Trend data={lineData ?? []} type={type} />
-        ) : (
-          <Barchart type={type} chartData={lineData ?? []} />
-        )}
-      </div>
+      <div className="h-[300px] 2xl:h-[350px] w-full mt-2">{renderChart()}</div>
     </div>
   );
 };
