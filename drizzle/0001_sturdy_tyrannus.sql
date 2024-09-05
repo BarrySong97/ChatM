@@ -1,0 +1,1 @@
+ALTER TABLE book ADD `is_default` integer;

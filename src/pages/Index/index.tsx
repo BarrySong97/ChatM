@@ -1,7 +1,7 @@
 import PaperParse from "papaparse";
 import { Divider } from "@nextui-org/react";
-import React, { FC, useRef, useState } from "react";
-import { atom } from "jotai";
+import React, { FC, useEffect, useRef, useState } from "react";
+import { atom, useAtom } from "jotai";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsProps } from "antd";
@@ -13,6 +13,9 @@ import { IncomeSectionCard } from "@/components/IndexSectionCard/IncomeSectionCa
 import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
 import FinancialItem from "./components/metic-card";
+import { seed } from "@/seed";
+import { BookAtom } from "@/globals";
+import { BookService } from "@/api/services/BookService";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -73,6 +76,15 @@ const Index: FC<IndexProps> = () => {
   const netWorth = new Decimal(assetsData?.totalAmount ?? 0).sub(
     liabilitiesData?.totalAmount ?? 0
   );
+  const [book, setBook] = useAtom(BookAtom);
+  useEffect(() => {
+    seed().then(async () => {
+      if (!book?.id) {
+        const book = await BookService.findDefault();
+        setBook(book);
+      }
+    });
+  }, []);
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">

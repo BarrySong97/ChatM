@@ -9,6 +9,11 @@ import Decimal from "decimal.js";
 export class TransactionService {
   // 创建 transaction
   public static async createTransaction(body: EditTransaction) {
+    if (body.destination_account_id === body.source_account_id) {
+      throw new Error(
+        "destination_account_id and source_account_id cannot be the same"
+      );
+    }
     const now = Date.now();
     const tags = body.tags;
     delete body.tags;

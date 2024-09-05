@@ -1,6 +1,12 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { InferSelectModel, relations } from "drizzle-orm";
-
+export const book = sqliteTable("book", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  isDefault: integer("is_default"),
+  created_at: integer("created_at"),
+  updated_at: integer("updated_at"),
+});
 export const transaction = sqliteTable("transactions", {
   id: text("id").primaryKey(),
   content: text("content"),
@@ -13,11 +19,17 @@ export const transaction = sqliteTable("transactions", {
   remark: text("remark"),
   destination_account_id: text("destination_account_id"),
   amount: integer("amount"),
+  book_id: text("book_id")
+    .notNull()
+    .references(() => book.id),
 });
 
 export const tags = sqliteTable("tags", {
   id: text("id").primaryKey(),
   name: text("name"),
+  book_id: text("book_id")
+    .notNull()
+    .references(() => book.id),
 });
 
 export const transactionTags = sqliteTable("transaction_tags", {
@@ -30,11 +42,19 @@ export const transactionTags = sqliteTable("transaction_tags", {
     .references(() => tags.id),
 });
 
-export const transactionRelations = relations(transaction, ({ many }) => ({
+export const transactionRelations = relations(transaction, ({ many, one }) => ({
   transactionTags: many(transactionTags),
+  book: one(book, {
+    fields: [transaction.book_id],
+    references: [book.id],
+  }),
 }));
-export const tagRelations = relations(tags, ({ many }) => ({
+export const tagRelations = relations(tags, ({ many, one }) => ({
   transactionTags: many(transactionTags),
+  book: one(book, {
+    fields: [tags.book_id],
+    references: [book.id],
+  }),
 }));
 export const transactionTagsRelations = relations(
   transactionTags,
@@ -57,6 +77,9 @@ export const assets = sqliteTable("assets", {
   type: integer("type"),
   initial_balance: integer("initial_balance"),
   icon: text("icon"),
+  book_id: text("book_id")
+    .notNull()
+    .references(() => book.id),
 });
 
 export const assetsRelations = relations(assets, ({ many }) => ({
@@ -72,6 +95,9 @@ export const liability = sqliteTable("liability", {
   name: text("name"),
   color: text("color"),
   icon: text("icon"),
+  book_id: text("book_id")
+    .notNull()
+    .references(() => book.id),
 });
 
 export const expense = sqliteTable("expense", {
@@ -80,6 +106,9 @@ export const expense = sqliteTable("expense", {
   name: text("name"),
   color: text("color"),
   icon: text("icon"),
+  book_id: text("book_id")
+    .notNull()
+    .references(() => book.id),
 });
 
 export const income = sqliteTable("income", {
@@ -88,6 +117,9 @@ export const income = sqliteTable("income", {
   name: text("name"),
   color: text("color"),
   icon: text("icon"),
+  book_id: text("book_id")
+    .notNull()
+    .references(() => book.id),
 });
 
 export type Asset = InferSelectModel<typeof assets>;
@@ -102,3 +134,5 @@ export type Transaction = InferSelectModel<typeof transaction>;
 export type Transactions = Transaction[];
 export type Tag = InferSelectModel<typeof tags>;
 export type Tags = Tag[];
+export type Book = InferSelectModel<typeof book>;
+export type Books = Book[];

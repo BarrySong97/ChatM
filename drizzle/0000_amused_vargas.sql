@@ -3,8 +3,18 @@ CREATE TABLE `assets` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
+	`type` integer,
 	`initial_balance` integer,
-	`icon` text
+	`icon` text,
+	`book_id` text NOT NULL,
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `book` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text,
+	`created_at` integer,
+	`updated_at` integer
 );
 --> statement-breakpoint
 CREATE TABLE `expense` (
@@ -12,7 +22,9 @@ CREATE TABLE `expense` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text
+	`icon` text,
+	`book_id` text NOT NULL,
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `income` (
@@ -20,7 +32,9 @@ CREATE TABLE `income` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text
+	`icon` text,
+	`book_id` text NOT NULL,
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `liability` (
@@ -28,12 +42,16 @@ CREATE TABLE `liability` (
 	`created_at` integer,
 	`name` text,
 	`color` text,
-	`icon` text
+	`icon` text,
+	`book_id` text NOT NULL,
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `tags` (
 	`id` text PRIMARY KEY NOT NULL,
-	`name` text
+	`name` text,
+	`book_id` text NOT NULL,
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `transactions` (
@@ -47,7 +65,9 @@ CREATE TABLE `transactions` (
 	`source_account_id` text,
 	`remark` text,
 	`destination_account_id` text,
-	`amount` integer
+	`amount` integer,
+	`book_id` text NOT NULL,
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `transaction_tags` (

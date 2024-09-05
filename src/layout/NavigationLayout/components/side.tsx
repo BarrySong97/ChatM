@@ -18,7 +18,6 @@ import { parseDate } from "@internationalized/date";
 import { ConfigProvider, Menu, type MenuProps } from "antd";
 import {
   Button,
-  Calendar,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -34,9 +33,9 @@ import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { ipcDevtoolMain } from "@/service/ipc";
 import {
-  GalaSettings,
   MaterialSymbolsEditDocumentOutlineRounded,
   MaterialSymbolsHelpOutline,
+  SelectorIcon,
   TablerSettings,
   UimGraphBar,
 } from "./icon";
@@ -49,6 +48,9 @@ import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon
 import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
+import BookList from "./book-list";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -319,7 +321,6 @@ const Side: FC<SideProps> = () => {
     )}/${String(end.getDate()).padStart(2, "0")}`;
   };
   const [showPopover, setShowPopover] = useState(false);
-  const [selectKeys, setSelectKeys] = useState<string>();
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const netWorth = new Decimal(assetsData?.totalAmount || 0).sub(
     new Decimal(liabilitiesData?.totalAmount || 0)
@@ -375,6 +376,7 @@ const Side: FC<SideProps> = () => {
       setSelectedKey(undefined);
     }
   }, [pathname]);
+  const book = useAtomValue(BookAtom);
   return (
     <ConfigProvider
       theme={{
@@ -392,8 +394,24 @@ const Side: FC<SideProps> = () => {
       <div className="dark:bg-default-100 bg-default/40 bg-[#ECECEC] h-screen no-drag  py-6  w-full  ">
         <div className="flex items-center justify-between px-4 ">
           <User
-            name="BarrySong97"
             description="BarrySong97@gmail.com"
+            classNames={{
+              wrapper: "flex-col-reverse",
+            }}
+            name={
+              <Popover radius="sm">
+                <PopoverTrigger>
+                  <div className="flex items-center gap-1 hover:bg-default/40   rounded-sm">
+                    <div className="mt-0.5">{book?.name}</div>
+                    <SelectorIcon />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent>
+                  <BookList />
+                </PopoverContent>
+              </Popover>
+            }
+            className="cursor-pointer"
             avatarProps={{
               radius: "sm",
               size: "sm",
