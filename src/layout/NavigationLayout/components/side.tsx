@@ -45,6 +45,7 @@ import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
 import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
 import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
+import AccountIconRender from "@/components/AccountIconRender";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -122,7 +123,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/assets/${item.id}`);
             },
-            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
+            icon: <AccountIconRender icon={item.icon ?? ""} />,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -172,7 +173,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/liabilities/${item.id}`);
             },
-            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
+            icon: <AccountIconRender icon={item.icon ?? ""} />,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -214,7 +215,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/income/${item.id}`);
             },
-            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
+            icon: <AccountIconRender icon={item.icon ?? ""} />,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>
@@ -259,7 +260,7 @@ const Side: FC<SideProps> = () => {
             onTitleClick: () => {
               navigate(`/category/expense/${item.id}`);
             },
-            icon: <em-emoji id={item.icon} size="1.1em"></em-emoji>,
+            icon: <AccountIconRender icon={item.icon ?? ""} />,
             label: (
               <div className="flex items-center justify-between">
                 <div>{item.name}</div>

@@ -7,7 +7,11 @@ import Picker from "@emoji-mart/react";
 import bankcode from "./output.json";
 import {
   Button,
+  Card,
   Input,
+  Listbox,
+  ListboxSection,
+  ListboxItem,
   Modal,
   ModalBody,
   ModalContent,
@@ -26,6 +30,10 @@ import { IncomeService } from "@/api/services/IncomeService";
 import { ExpenseService } from "@/api/services/ExpenseService";
 import { AssetsService } from "@/api/services/AssetsSevice";
 import { LiabilityService } from "@/api/services/LiabilityService";
+import { PhBankDuotone } from "./icon";
+import BankIconPicker from "../BankIconPicker";
+import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
+import AccountIconRender from "../AccountIconRender";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
@@ -77,8 +85,11 @@ const AccountModal: FC<AccountModalProps> = ({
         return data ? "编辑负债账户" : "添加负债账户";
     }
   };
-  const [emojiId, setEmojiId] = useState("stuck_out_tongue_winking_eye");
+  const [iconId, setIconId] = useState<string | undefined>(undefined);
+  const [iconType, setIconType] = useState<"emoji" | "bank">("emoji");
+  const [selectIconType, setSelectIconType] = useState<"emoji" | "bank">();
   const onCreate = async () => {
+    const icon = iconId;
     const [err, value] = await to(form.validateFields());
 
     if (err) return;
@@ -86,24 +97,25 @@ const AccountModal: FC<AccountModalProps> = ({
       case "income":
         if (data) {
           await editIncome({
-            income: { name: value.name, icon: emojiId },
+            income: { name: value.name, icon },
             incomeId: data.id,
           });
         } else {
-          await createIncome({ income: { name: value.name, icon: emojiId } });
+          await createIncome({ income: { name: value.name, icon } });
         }
         break;
       case "expense":
         if (data) {
           await editExpense({
-            expense: { name: value.name, icon: emojiId },
+            expense: { name: value.name, icon },
             expenseId: data.id,
           });
         } else {
-          await createExpense({ expense: { name: value.name, icon: emojiId } });
+          await createExpense({ expense: { name: value.name, icon } });
         }
         break;
       case "asset":
+        console.log(333);
         if (data) {
           await editAsset({
             asset: {
@@ -111,7 +123,7 @@ const AccountModal: FC<AccountModalProps> = ({
               initial_balance: value.initial_balance
                 ? new Decimal(value.initial_balance).mul(100).toNumber()
                 : 0,
-              icon: emojiId,
+              icon,
             },
             assetId: data.id,
           });
@@ -122,7 +134,7 @@ const AccountModal: FC<AccountModalProps> = ({
               initial_balance: value.initial_balance
                 ? new Decimal(value.initial_balance).mul(100).toNumber()
                 : 0,
-              icon: emojiId,
+              icon,
             },
           });
         }
@@ -132,7 +144,7 @@ const AccountModal: FC<AccountModalProps> = ({
           await editLiability({
             liability: {
               name: value.name,
-              icon: emojiId,
+              icon,
             },
             liabilityId: data.id,
           });
@@ -140,7 +152,7 @@ const AccountModal: FC<AccountModalProps> = ({
           await createLiability({
             liability: {
               name: value.name,
-              icon: emojiId,
+              icon,
             },
           });
         }
@@ -177,7 +189,15 @@ const AccountModal: FC<AccountModalProps> = ({
   };
   useEffect(() => {
     if (data) {
-      setEmojiId(data.icon);
+      if (data.icon && data.icon.includes(":")) {
+        const arr = data.icon.split(":");
+        setIconId(data.icon);
+        setIconType(arr[0] as "emoji" | "bank");
+        setSelectIconType(arr[0] as "emoji" | "bank");
+      } else {
+        setIconId(data.icon);
+        setIconType("emoji");
+      }
       form.setFieldsValue({
         ...data,
         initial_balance: data.initial_balance
@@ -186,19 +206,87 @@ const AccountModal: FC<AccountModalProps> = ({
       });
     }
   }, [data]);
-  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [iconOpen, setIconOpen] = useState(false);
   const [assetsType, setAssetsType] = useState<AccountType>(AccountType.Bank);
 
   const renderIconPicker = () => {
-    switch (assetsType) {
-      case AccountType.Bank:
-        return <div>bank</div>;
-      case AccountType.Cash:
-        return <div>Emoji</div>;
-      case AccountType.Other:
-        return <div>other</div>;
+    if (selectIconType === "bank") {
+      return (
+        <div>
+          <BankIconPicker
+            onChange={(v) => {
+              setIconId(`bank:${v}`);
+              setIconOpen(false);
+              setIconType("bank");
+            }}
+            title={
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="light"
+                  radius="sm"
+                  size="sm"
+                  isIconOnly
+                  onClick={() => setSelectIconType(undefined)}
+                >
+                  <MaterialSymbolsArrowBackIosNewRounded />
+                </Button>
+                <div>请选择一个银行</div>
+              </div>
+            }
+          />
+        </div>
+      );
     }
+    if (selectIconType === "emoji") {
+      return (
+        <div>
+          <div className="flex items-center gap-2 py-1">
+            <Button
+              variant="light"
+              radius="sm"
+              size="sm"
+              isIconOnly
+              onClick={() => setSelectIconType(undefined)}
+            >
+              <MaterialSymbolsArrowBackIosNewRounded />
+            </Button>
+            <div>请选择一个表情</div>
+          </div>
+          <Picker
+            data={emojiData}
+            onEmojiSelect={(v: { id: string }) => {
+              setIconId(`emoji:${v.id}`);
+              setIconType("emoji");
+              setIconOpen(false);
+            }}
+          />
+        </div>
+      );
+    }
+    return (
+      <Listbox title="选择图标" className="p-2">
+        <ListboxSection title="选择图标类型">
+          <ListboxItem
+            startContent={<PhBankDuotone className="text-lg" />}
+            key="bank"
+            onClick={() => setSelectIconType("bank")}
+          >
+            银行图标
+          </ListboxItem>
+          <ListboxItem
+            onClick={() => setSelectIconType("emoji")}
+            startContent={
+              <AccountIconRender icon={`emoji:stuck_out_tongue_winking_eye`} />
+            }
+            key="emoji"
+          >
+            表情图标
+          </ListboxItem>
+        </ListboxSection>
+      </Listbox>
+    );
   };
+
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
@@ -215,7 +303,7 @@ const AccountModal: FC<AccountModalProps> = ({
                   rules={[
                     {
                       async validator(rule, value) {
-                        if (!value) {
+                        if (!value || value === data?.name) {
                           return Promise.resolve(); // 让 required 规则处理空值
                         }
 
@@ -254,39 +342,40 @@ const AccountModal: FC<AccountModalProps> = ({
                     isRequired
                     startContent={
                       <Popover
-                        isOpen={emojiOpen}
+                        isOpen={iconOpen}
                         showArrow
                         placement="right"
-                        onOpenChange={setEmojiOpen}
+                        onOpenChange={setIconOpen}
                       >
                         <PopoverTrigger>
                           <Button
-                            onClick={() => setEmojiOpen(true)}
+                            onClick={() => setIconOpen(true)}
                             size="sm"
                             radius="sm"
                             isIconOnly
                             className="text-xs"
                             variant="flat"
                           >
-                            <em-emoji
-                              id={
-                                emojiId
-                                  ? emojiId
-                                  : "stuck_out_tongue_winking_eye"
+                            <AccountIconRender
+                              icon={
+                                iconId
+                                  ? iconId
+                                  : "emoji:stuck_out_tongue_winking_eye"
                               }
-                              size="1.5em"
-                            ></em-emoji>
+                            />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="p-0">
-                          <Picker
+                          {renderIconPicker()}
+
+                          {/* <Picker
                             data={emojiData}
                             onEmojiSelect={(v: { id: string }) => {
                               // form.setFieldValue("icon", v.id);
                               setEmojiId(v.id);
                               setEmojiOpen(false);
                             }}
-                          />
+                          /> */}
                         </PopoverContent>
                       </Popover>
                     }

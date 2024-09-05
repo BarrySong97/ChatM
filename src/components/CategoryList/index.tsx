@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import React from "react";
+import AccountIconRender from "../AccountIconRender";
 
 interface CategoryItem {
   color?: string;
@@ -47,11 +48,8 @@ const CategoryList: React.FC<CategoryListProps> = ({ items, type }) => {
                 }}
               >
                 <div className="flex justify-between absolute left-3 right-3 items-center h-full ">
-                  <span className="text-sm  truncate">
-                    {item.icon ? (
-                      <em-emoji id={item.icon} size="1em"></em-emoji>
-                    ) : null}{" "}
-                    {item.content}
+                  <span className="text-sm  truncate flex items-center gap-1 ">
+                    <AccountIconRender icon={item.icon ?? ""} /> {item.content}
                   </span>
                   <span className="text-sm  ">
                     {item.amount} (
