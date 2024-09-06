@@ -1,6 +1,6 @@
 import { useBookService } from "@/api/hooks/book";
 import emojiData from "@emoji-mart/data";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Input,
   Button,
@@ -19,69 +19,54 @@ import AccountIconRender from "../AccountIconRender";
 import Picker from "@emoji-mart/react";
 import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
 
-export interface BookModalProps {}
+export interface BookModalProps {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  book?: Book;
+}
 
-const BookModal: FC<BookModalProps> = () => {
+const BookModal: FC<BookModalProps> = ({ isOpen, onOpenChange, book }) => {
   const { createBook, editBook, isCreateLoading, isEditLoading } =
     useBookService();
   const [form] = Form.useForm();
-  const [isOpen, setIsOpen] = useState(false);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
   const name = Form.useWatch("name", form);
 
+  useEffect(() => {
+    form.setFieldsValue({
+      name: book?.name,
+      icon: book?.icon,
+    });
+  }, [book]);
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      if (editingBook) {
+      if (book) {
         await editBook({
-          bookId: editingBook.id,
+          bookId: book.id,
           book: {
             ...values,
             icon: iconId,
-            isCurrent: false,
-            isDeleted: false,
           },
         });
       } else {
         await createBook({ book: values });
       }
-      setIsOpen(false);
+      onOpenChange(false);
       form.resetFields();
-      setEditingBook(null);
     } catch (error) {
       console.error("Failed to submit:", error);
     }
-  };
-
-  const openModal = (book?: Book) => {
-    if (book) {
-      setEditingBook(book);
-      form.setFieldsValue(book);
-    } else {
-      setEditingBook(null);
-      form.resetFields();
-    }
-    setIsOpen(true);
   };
 
   const [iconOpen, setIconOpen] = useState(false);
   const [iconId, setIconId] = useState<string | undefined>(undefined);
   return (
     <>
-      <Button
-        size="sm"
-        radius="sm"
-        variant="flat"
-        className="w-full"
-        onPress={() => openModal()}
-      >
-        创建账本
-      </Button>
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Modal isDismissable={false} isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>{editingBook ? "编辑账本" : "创建账本"}</ModalHeader>
+              <ModalHeader>{book ? "编辑账本" : "创建账本"}</ModalHeader>
               <ModalBody>
                 <Form form={form}>
                   <Form.Item
@@ -159,7 +144,7 @@ const BookModal: FC<BookModalProps> = () => {
                   onPress={handleSubmit}
                   isLoading={isCreateLoading || isEditLoading}
                 >
-                  {editingBook ? "保存" : "创建"}
+                  {book ? "保存" : "创建"}
                 </Button>
               </ModalFooter>
             </>

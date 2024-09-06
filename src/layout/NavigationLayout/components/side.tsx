@@ -395,7 +395,7 @@ const Side: FC<SideProps> = () => {
     >
       <div className="dark:bg-default-100 bg-default/40 bg-[#ECECEC] h-screen no-drag  py-6  w-full  ">
         <div className="flex items-center justify-between px-4 ">
-          <Popover radius="sm">
+          <Popover shouldCloseOnBlur={false} radius="sm">
             <PopoverTrigger>
               <User
                 description="BarrySong97@gmail.com"
