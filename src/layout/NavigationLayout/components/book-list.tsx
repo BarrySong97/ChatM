@@ -6,12 +6,32 @@ import { FC } from "react";
 import BookModal from "@/components/BookModal";
 import AccountIconRender from "@/components/AccountIconRender";
 import { BookService } from "@/api/services/BookService";
+import { useModal } from "@/components/GlobalConfirmModal";
+import { Book } from "@db/schema";
+import { message } from "antd";
 export interface BookListProps {}
 const BookList: FC<BookListProps> = () => {
   const { books, isLoadingBooks, editBook, deleteBook, createBook } =
     useBookService();
   const [SelectedBook, setSelectedBook] = useAtom(BookAtom);
-
+  const modal = useModal();
+  const onDelete = (book: Book) => {
+    modal.showModal({
+      title: "删除",
+      description:
+        "确定删除吗？删除之后无法恢复，所有账本之下的全部数据都会删除",
+      onCancel: () => {},
+      onConfirm: () => {
+        if (book?.isCurrent) {
+          const defaultBook = books?.find((book) => book.isDefault === 1);
+          if (defaultBook) {
+            setSelectedBook(defaultBook);
+          }
+        }
+        deleteBook(book.id);
+      },
+    });
+  };
   return (
     <div className="w-[280px] py-2">
       <User
@@ -73,7 +93,12 @@ const BookList: FC<BookListProps> = () => {
                   size="sm"
                   variant="light"
                   onClick={() => {
-                    BookService.deleteBook(book.id);
+                    if (book && !book.isDefault) {
+                      onDelete(book);
+                    }
+                    if (book.isDefault) {
+                      message.error("默认账本不能删除");
+                    }
                   }}
                 >
                   删除

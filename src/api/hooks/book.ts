@@ -3,6 +3,8 @@ import { Book } from "@db/schema";
 import { BookService } from "../services/BookService";
 import { useState } from "react";
 import { message } from "antd";
+import { BookAtom } from "@/globals";
+import { useSetAtom } from "jotai";
 
 export type EditBook = {
   name?: string;

@@ -7,7 +7,7 @@ CREATE TABLE `assets` (
 	`initial_balance` integer,
 	`icon` text,
 	`book_id` text NOT NULL,
-	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `book` (
@@ -27,7 +27,7 @@ CREATE TABLE `expense` (
 	`color` text,
 	`icon` text,
 	`book_id` text NOT NULL,
-	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `income` (
@@ -37,7 +37,7 @@ CREATE TABLE `income` (
 	`color` text,
 	`icon` text,
 	`book_id` text NOT NULL,
-	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `liability` (
@@ -47,14 +47,14 @@ CREATE TABLE `liability` (
 	`color` text,
 	`icon` text,
 	`book_id` text NOT NULL,
-	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `tags` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text,
 	`book_id` text NOT NULL,
-	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `transactions` (
@@ -70,7 +70,7 @@ CREATE TABLE `transactions` (
 	`destination_account_id` text,
 	`amount` integer,
 	`book_id` text NOT NULL,
-	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`book_id`) REFERENCES `book`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `transaction_tags` (

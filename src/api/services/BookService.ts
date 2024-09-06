@@ -54,8 +54,19 @@ export class BookService {
     if (item?.[0]?.isDefault === 1) {
       throw new Error("默认账本不能删除");
     }
-    const res = await db.delete(book).where(eq(book.id, id));
-    return res;
+    await db.transaction(async (tx) => {
+      await tx.delete(book).where(eq(book.id, id));
+      if (item?.[0]?.isCurrent === 1) {
+        const defaultBook = await tx
+          .select()
+          .from(book)
+          .where(eq(book.isDefault, 1));
+        await tx
+          .update(book)
+          .set({ isCurrent: 1 })
+          .where(eq(book.id, defaultBook[0].id));
+      }
+    });
   }
 
   // Check if book name exists

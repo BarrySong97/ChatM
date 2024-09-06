@@ -23,7 +23,7 @@ export const transaction = sqliteTable("transactions", {
   amount: integer("amount"),
   book_id: text("book_id")
     .notNull()
-    .references(() => book.id),
+    .references(() => book.id, { onDelete: "cascade" }),
 });
 
 export const tags = sqliteTable("tags", {
@@ -31,7 +31,7 @@ export const tags = sqliteTable("tags", {
   name: text("name"),
   book_id: text("book_id")
     .notNull()
-    .references(() => book.id),
+    .references(() => book.id, { onDelete: "cascade" }),
 });
 
 export const transactionTags = sqliteTable("transaction_tags", {
@@ -81,7 +81,7 @@ export const assets = sqliteTable("assets", {
   icon: text("icon"),
   book_id: text("book_id")
     .notNull()
-    .references(() => book.id),
+    .references(() => book.id, { onDelete: "cascade" }),
 });
 
 export const assetsRelations = relations(assets, ({ many }) => ({
@@ -99,7 +99,7 @@ export const liability = sqliteTable("liability", {
   icon: text("icon"),
   book_id: text("book_id")
     .notNull()
-    .references(() => book.id),
+    .references(() => book.id, { onDelete: "cascade" }),
 });
 
 export const expense = sqliteTable("expense", {
@@ -110,7 +110,7 @@ export const expense = sqliteTable("expense", {
   icon: text("icon"),
   book_id: text("book_id")
     .notNull()
-    .references(() => book.id),
+    .references(() => book.id, { onDelete: "cascade" }),
 });
 
 export const income = sqliteTable("income", {
@@ -121,7 +121,7 @@ export const income = sqliteTable("income", {
   icon: text("icon"),
   book_id: text("book_id")
     .notNull()
-    .references(() => book.id),
+    .references(() => book.id, { onDelete: "cascade" }),
 });
 
 export type Asset = InferSelectModel<typeof assets>;
