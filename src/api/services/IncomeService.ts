@@ -34,12 +34,18 @@ export class IncomeService {
   }
 
   // list income
-  public static async listIncome() {
-    const res = await db.select().from(income);
+  public static async listIncome(book_id?: string) {
+    const res = await db
+      .select()
+      .from(income)
+      .where(eq(income.book_id, book_id ?? ""));
     return res;
   }
 
-  public static async getIncomeSumAmount(filter?: SideFilter) {
+  public static async getIncomeSumAmount(
+    filter?: SideFilter,
+    book_id?: string
+  ) {
     // Calculate the sum of all income amounts
     const incomeResults = await db.select().from(income);
     const startDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
@@ -51,21 +57,20 @@ export class IncomeService {
       .toDate()
       .getTime();
     // Get all transactions
+    const conditions = [];
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id ?? ""));
+    }
+    if (filter?.endDate) {
+      conditions.push(lt(transaction.transaction_date, endDate));
+    }
+    if (filter?.startDate) {
+      conditions.push(gte(transaction.transaction_date, startDate));
+    }
     const transactionResults = await db
       .select()
       .from(transaction)
-      .where(
-        filter
-          ? and(
-              ...(filter.startDate
-                ? [gt(transaction.transaction_date, startDate)]
-                : []),
-              ...(filter.endDate
-                ? [lt(transaction.transaction_date, endDate)]
-                : [])
-            )
-          : undefined
-      );
+      .where(and(...conditions));
 
     let totalIncomeAmount = new Decimal(0);
 
@@ -98,7 +103,7 @@ export class IncomeService {
     return res;
   }
 
-  public static async getTrend(filter?: SideFilter) {
+  public static async getTrend(book_id: string, filter?: SideFilter) {
     // Get the start and end dates from the filter
     const filterStartDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
       .subtract(1, "day")
@@ -119,6 +124,7 @@ export class IncomeService {
       gt(transaction.transaction_date, filterStartDate),
       lt(transaction.transaction_date, filterEndDate),
       eq(transaction.type, FinancialOperation.Income),
+      eq(transaction.book_id, book_id),
     ];
 
     if (filter?.accountId) {
@@ -159,25 +165,25 @@ export class IncomeService {
     return trendData;
   }
 
-  public static async getIncomeCategory(filter?: SideFilter) {
+  public static async getIncomeCategory(book_id: string, filter?: SideFilter) {
     // Fetch all income-related transactions within the date range
+    const conditions = [
+      eq(transaction.book_id, book_id),
+      eq(transaction.type, FinancialOperation.Income),
+    ];
+    if (filter?.startDate) {
+      conditions.push(gte(transaction.transaction_date, filter.startDate));
+    }
+    if (filter?.endDate) {
+      conditions.push(lte(transaction.transaction_date, filter.endDate));
+    }
     const transactions = await db
       .select({
         amount: transaction.amount,
         source_account_id: transaction.source_account_id,
       })
       .from(transaction)
-      .where(
-        and(
-          filter?.startDate
-            ? gte(transaction.transaction_date, filter.startDate)
-            : undefined,
-          filter?.endDate
-            ? lte(transaction.transaction_date, filter.endDate)
-            : undefined,
-          eq(transaction.type, FinancialOperation.Income)
-        )
-      );
+      .where(and(...conditions));
 
     // Fetch all income accounts
     const incomeAccounts = await db.select().from(income);
@@ -255,8 +261,11 @@ export class IncomeService {
   }
 
   // check  name is exist
-  public static async checkIncomeName(name: string) {
-    const res = await db.select().from(income).where(eq(income.name, name));
+  public static async checkIncomeName(name: string, book_id: string) {
+    const res = await db
+      .select()
+      .from(income)
+      .where(and(eq(income.name, name), eq(income.book_id, book_id)));
 
     return res.length > 0;
   }

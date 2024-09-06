@@ -1,21 +1,8 @@
 import { useBookService } from "@/api/hooks/book";
 import { BookAtom } from "@/globals";
-import {
-  Button,
-  Chip,
-  cn,
-  Divider,
-  Listbox,
-  ListboxItem,
-  User,
-} from "@nextui-org/react";
-import dayjs from "dayjs";
+import { Button, Chip, cn, Divider, User } from "@nextui-org/react";
 import { useAtom } from "jotai";
-import React, { FC } from "react";
-import {
-  MaterialSymbolsEditDocumentOutlineRounded,
-  TablerSettings,
-} from "./icon";
+import { FC } from "react";
 import BookModal from "@/components/BookModal";
 import AccountIconRender from "@/components/AccountIconRender";
 import { BookService } from "@/api/services/BookService";
@@ -80,6 +67,17 @@ const BookList: FC<BookListProps> = () => {
                   icon={book.id ?? `emoji:stuck_out_tongue_winking_eye`}
                 />
                 <div> {book.name}</div>
+              </div>
+              <div className="absolute right-2">
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={() => {
+                    BookService.deleteBook(book.id);
+                  }}
+                >
+                  删除
+                </Button>
               </div>
             </Button>
           );

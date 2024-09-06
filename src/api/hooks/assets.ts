@@ -5,15 +5,19 @@ import { useState } from "react";
 import { message } from "antd";
 import { Filter } from "./expense";
 import { CategoryListData, NormalChartData, SankeyData } from "../models/Chart";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 export type EditAsset = {
   name: string;
   initial_balance: number;
   icon?: string;
+  book_id?: string;
 };
 export function useAssetsService(assetId?: string) {
   const queryClient = useQueryClient();
 
-  const queryKey = ["assets"];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["assets", book?.id];
 
   const [isEditLoading, setisEditLoading] = useState(false);
   const [isDeleteLoading, setisDeleteLoading] = useState(false);
@@ -25,7 +29,7 @@ export function useAssetsService(assetId?: string) {
     Error
   >({
     queryKey: ["assets", assetId],
-    enabled: !!assetId,
+    enabled: !!assetId && !!book,
     keepPreviousData: true,
     queryFn: () => AssetsService.getAssetById(assetId!),
   });
@@ -34,11 +38,17 @@ export function useAssetsService(assetId?: string) {
   const { data: assets, isLoading: isLoadingAssets } = useQuery<
     Array<Asset>,
     Error
-  >(queryKey, () => AssetsService.listAssets());
+  >(queryKey, () => AssetsService.listAssets(book?.id), {
+    enabled: !!book,
+  });
 
   // create asset
   const { mutateAsync: createAsset } = useMutation(
-    (params: { asset: EditAsset }) => AssetsService.createAsset(params.asset),
+    (params: { asset: EditAsset }) =>
+      AssetsService.createAsset({
+        ...params.asset,
+        book_id: book?.id,
+      }),
     {
       onMutate: async (params: { asset: EditAsset }) => {
         setisCreateLoading(true);
@@ -148,13 +158,15 @@ export function useAssetsService(assetId?: string) {
 }
 
 export function useAssetCategoryService(filter: Filter) {
-  const queryKey = ["assets", "category", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["assets", "category", filter, book?.id];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => AssetsService.getCategory(filter), {
+  >(queryKey, () => AssetsService.getCategory(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {
@@ -163,12 +175,14 @@ export function useAssetCategoryService(filter: Filter) {
   };
 }
 export function useAssetTrendService(filter: Filter) {
-  const queryKey = ["assets", "trend", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["assets", "trend", filter, book?.id];
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => AssetsService.getTrend(filter), {
+  >(queryKey, () => AssetsService.getTrend(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {

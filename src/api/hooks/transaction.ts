@@ -5,6 +5,8 @@ import { useState } from "react";
 import { message } from "antd";
 import { Page } from "../models/Page";
 import Decimal from "decimal.js";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 
 export type EditTransaction = {
   content: string;
@@ -34,9 +36,10 @@ export function useTransactionService(
   transactionListParams?: TransactionListParams
 ) {
   const queryClient = useQueryClient();
-
+  const book = useAtomValue(BookAtom);
   const queryKey = [
     "transactions",
+    book?.id,
     transactionListParams?.page ?? 1,
     transactionListParams?.pageSize ?? 10,
     transactionListParams?.search ?? "",
@@ -58,17 +61,22 @@ export function useTransactionService(
     Error
   >(
     queryKey,
-    () => TransactionService.listTransactions(transactionListParams),
+    () =>
+      TransactionService.listTransactions(
+        book?.id ?? "",
+        transactionListParams
+      ),
     {
       keepPreviousData: true,
       refetchOnWindowFocus: false,
+      enabled: !!book?.id,
     }
   );
 
   // Create transaction
   const { mutateAsync: createTransaction } = useMutation(
     (params: { transaction: EditTransaction }) =>
-      TransactionService.createTransaction(params.transaction),
+      TransactionService.createTransaction(book?.id ?? "", params.transaction),
     {
       onMutate: async (params: { transaction: EditTransaction }) => {
         setIsCreateLoading(true);

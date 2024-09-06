@@ -50,21 +50,26 @@ export class AssetsService {
 
     return res[0];
   }
-  public static async getAssetsSumAmount(filter?: SideFilter) {
+  public static async getAssetsSumAmount(
+    filter?: SideFilter,
+    book_id?: string
+  ) {
     // Calculate the sum of all asset amounts
     const assetResults = await db.select().from(assets);
     const date = dayjs(filter?.endDate).add(1, "day").toDate().getTime();
     // Get all transactions
+    const conditions = [];
+
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id ?? ""));
+    }
+    if (filter?.endDate) {
+      conditions.push(lt(transaction.transaction_date, date));
+    }
     const transactionResults = await db
       .select()
       .from(transaction)
-      .where(
-        filter
-          ? filter.endDate
-            ? and(lt(transaction.transaction_date, date))
-            : undefined
-          : undefined
-      );
+      .where(and(...conditions));
 
     let totalAssetAmount = new Decimal(0);
 
@@ -109,12 +114,13 @@ export class AssetsService {
     };
   }
   // 计算networth
-  public static async getNetWorth() {
+  public static async getNetWorth(book_id?: string) {
     // Get the earliest transaction date
 
     const earliestTransactionQuery = await db
       .select({ minDate: min(transaction.transaction_date) })
-      .from(transaction);
+      .from(transaction)
+      .where(book_id ? eq(transaction.book_id, book_id) : undefined);
 
     const earliestDate = earliestTransactionQuery[0]?.minDate;
 
@@ -139,10 +145,13 @@ export class AssetsService {
         endDate: currentDate.getTime(),
       };
 
-      const { totalAmount } = await this.getAssetsSumAmount(customFilter);
+      const { totalAmount } = await this.getAssetsSumAmount(
+        customFilter,
+        book_id
+      );
 
       const { totalAmount: liabilityAmount } =
-        await LiabilityService.getLiabilitySumAmount(customFilter);
+        await LiabilityService.getLiabilitySumAmount(customFilter, book_id);
 
       const netWorth = new Decimal(totalAmount).sub(
         new Decimal(liabilityAmount)
@@ -157,12 +166,19 @@ export class AssetsService {
     return netWorthData;
   }
 
-  public static async getCategory(filter?: SideFilter) {
+  public static async getCategory(book_id: string, filter?: SideFilter) {
     // Fetch all asset-related transactions within the date range
     const endDate = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"))
       .add(1, "day")
       .toDate()
       .getTime();
+    const conditions = [];
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id));
+    }
+    if (filter?.endDate) {
+      conditions.push(lt(transaction.transaction_date, endDate));
+    }
     const transactions = await db
       .select({
         amount: transaction.amount,
@@ -171,9 +187,7 @@ export class AssetsService {
         type: transaction.type,
       })
       .from(transaction)
-      .where(
-        filter?.endDate ? lt(transaction.transaction_date, endDate) : undefined
-      );
+      .where(and(...conditions));
 
     // Fetch all asset accounts
     const assetAccounts = await db.select().from(assets);
@@ -230,7 +244,7 @@ export class AssetsService {
       amount: item.amount.toFixed(2),
     }));
   }
-  public static async getTrend(filter: SideFilter) {
+  public static async getTrend(book_id: string, filter: SideFilter) {
     // Get the start and end dates from the filter
     const startDate = filter.startDate;
 
@@ -251,6 +265,9 @@ export class AssetsService {
         eq(transaction.type, FinancialOperation.Refund)
       ),
     ];
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id));
+    }
     if (filter.accountId) {
       conditions.push(
         or(
@@ -331,8 +348,11 @@ export class AssetsService {
     return trendData;
   }
   // list assets
-  public static async listAssets() {
-    const res = await db.select().from(assets);
+  public static async listAssets(book_id?: string) {
+    const res = await db
+      .select()
+      .from(assets)
+      .where(book_id ? eq(assets.book_id, book_id) : undefined);
     return res;
   }
 
@@ -561,8 +581,15 @@ export class AssetsService {
   }
 
   // check  name is exist
-  public static async checkAssetName(name: string) {
-    const res = await db.select().from(assets).where(eq(assets.name, name));
+  public static async checkAssetName(name: string, book_id: string) {
+    const conditions = [eq(assets.name, name)];
+    if (book_id) {
+      conditions.push(eq(assets.book_id, book_id));
+    }
+    const res = await db
+      .select()
+      .from(assets)
+      .where(and(...conditions));
     return res.length > 0;
   }
 }

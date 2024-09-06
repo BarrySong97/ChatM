@@ -18,7 +18,8 @@ export const db = drizzle(
       return { rows: result };
     } catch (e: any) {
       console.error("Error from sqlite proxy server: ", e.response);
-      return { rows: [] };
+      throw e;
+      // return { rows: [] };
     }
   },
   {

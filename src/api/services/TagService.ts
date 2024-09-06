@@ -6,11 +6,12 @@ import { EditTag } from "../hooks/tag";
 
 export class TagService {
   // 创建tag
-  public static async createTag(body: EditTag) {
+  public static async createTag(book_id: string, body: EditTag) {
     const res = await db
       .insert(tags)
       .values({
         id: uuidv4(),
+        book_id,
         name: body.name,
       })
       .returning();
@@ -18,8 +19,8 @@ export class TagService {
   }
 
   // list tag
-  public static async listTag() {
-    const res = await db.select().from(tags);
+  public static async listTag(book_id: string) {
+    const res = await db.select().from(tags).where(eq(tags.book_id, book_id));
     return res;
   }
 

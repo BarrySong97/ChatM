@@ -14,12 +14,14 @@ export class LiabilityService {
     return res[0];
   }
   // 创建liability
-  public static async createLiability(body: EditLiability) {
+  public static async createLiability(book_id: string, body: EditLiability) {
     // Check if an  with the same name already exists
     const existingLiability = await db
       .select()
       .from(liability)
-      .where(eq(liability.name, body.name));
+      .where(
+        and(eq(liability.name, body.name), eq(liability.book_id, book_id))
+      );
     if (existingLiability.length > 0) {
       throw new Error("Liability with the same name already exists");
     }
@@ -34,21 +36,32 @@ export class LiabilityService {
   }
 
   // list liability
-  public static async listLiability() {
-    const res = await db.select().from(liability);
+  public static async listLiability(book_id?: string) {
+    const res = await db
+      .select()
+      .from(liability)
+      .where(eq(liability.book_id, book_id ?? ""));
     return res;
   }
-  public static async getLiabilitySumAmount(filter?: SideFilter) {
+  public static async getLiabilitySumAmount(
+    filter?: SideFilter,
+    book_id?: string
+  ) {
     // Calculate the sum of all liability amounts
     const liabilityResults = await db.select().from(liability);
     const endDate = dayjs(filter?.endDate).add(1, "day").toDate().getTime();
     // Get all transactions
+    const conditions = [];
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id ?? ""));
+    }
+    if (filter?.endDate) {
+      conditions.push(lt(transaction.transaction_date, endDate));
+    }
     const transactionResults = await db
       .select()
       .from(transaction)
-      .where(
-        filter?.endDate ? lt(transaction.transaction_date, endDate) : undefined
-      );
+      .where(and(...conditions));
 
     let totalLiabilityAmount = new Decimal(0);
 
@@ -104,7 +117,7 @@ export class LiabilityService {
     return res;
   }
 
-  public static async getTrend(filter?: SideFilter) {
+  public static async getTrend(book_id: string, filter?: SideFilter) {
     const filterStartDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
       .subtract(1, "day")
       .toDate()
@@ -114,6 +127,7 @@ export class LiabilityService {
       .toDate()
       .getTime();
     const conditions = [
+      eq(transaction.book_id, book_id),
       lt(transaction.transaction_date, filterEndDate),
       or(
         eq(transaction.type, FinancialOperation.Borrow),
@@ -201,9 +215,20 @@ export class LiabilityService {
     return trendData;
   }
 
-  public static async getCategory(filter?: SideFilter) {
+  public static async getCategory(book_id: string, filter?: SideFilter) {
     // Fetch all liability-related transactions within the date range
 
+    const conditions = [
+      eq(transaction.book_id, book_id),
+      or(
+        eq(transaction.type, FinancialOperation.Borrow),
+        eq(transaction.type, FinancialOperation.LoanExpenditure),
+        eq(transaction.type, FinancialOperation.RepayLoan)
+      ),
+    ];
+    if (filter?.endDate) {
+      conditions.push(lte(transaction.transaction_date, filter.endDate));
+    }
     const transactions = await db
       .select({
         amount: transaction.amount,
@@ -212,18 +237,7 @@ export class LiabilityService {
         type: transaction.type,
       })
       .from(transaction)
-      .where(
-        and(
-          filter?.endDate
-            ? lte(transaction.transaction_date, filter.endDate)
-            : undefined,
-          or(
-            eq(transaction.type, FinancialOperation.Borrow),
-            eq(transaction.type, FinancialOperation.LoanExpenditure),
-            eq(transaction.type, FinancialOperation.RepayLoan)
-          )
-        )
-      );
+      .where(and(...conditions));
 
     // Fetch all liability accounts
     const liabilityAccounts = await db.select().from(liability);
@@ -314,11 +328,11 @@ export class LiabilityService {
   }
 
   // check  name is exist
-  public static async checkLiabilityName(name: string) {
+  public static async checkLiabilityName(name: string, book_id: string) {
     const res = await db
       .select()
       .from(liability)
-      .where(eq(liability.name, name));
+      .where(and(eq(liability.name, name), eq(liability.book_id, book_id)));
     return res.length > 0;
   }
 }

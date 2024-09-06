@@ -5,33 +5,39 @@ import { useState } from "react";
 import { message } from "antd";
 import { Filter } from "./expense";
 import { CategoryListData, NormalChartData } from "../models/Chart";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 
 export type EditIncome = {
   name: string;
   icon?: string;
+  book_id?: string;
 };
 
 export function useIncomeService() {
   const queryClient = useQueryClient();
-
-  const queryKey = ["incomes"];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["incomes", book?.id];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
-
   // Fetch income list
   const { data: incomes, isLoading: isLoadingIncomes } = useQuery<
     Array<Income>,
     Error
-  >(queryKey, () => IncomeService.listIncome(), {
+  >(queryKey, () => IncomeService.listIncome(book?.id), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   // Create income
   const { mutateAsync: createIncome } = useMutation(
     (params: { income: EditIncome }) =>
-      IncomeService.createIncome(params.income),
+      IncomeService.createIncome({
+        ...params.income,
+        book_id: book?.id,
+      }),
     {
       onMutate: async (params: { income: EditIncome }) => {
         setIsCreateLoading(true);
@@ -144,13 +150,15 @@ export function useIncomeService() {
 }
 
 export function useIncomeLineChartService(filter: Filter) {
-  const queryKey = ["incomes", "chart", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["incomes", "chart", filter, book?.id];
 
   const { data: chartData, isLoading: isLoadingChart } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => IncomeService.getTrend(filter), {
+  >(queryKey, () => IncomeService.getTrend(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {
@@ -160,13 +168,15 @@ export function useIncomeLineChartService(filter: Filter) {
 }
 
 export function useIncomeCategoryService(filter: Filter) {
-  const queryKey = ["incomes", "category", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["incomes", "category", filter, book?.id];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => IncomeService.getIncomeCategory(filter), {
+  >(queryKey, () => IncomeService.getIncomeCategory(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {

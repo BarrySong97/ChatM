@@ -8,7 +8,10 @@ import Decimal from "decimal.js";
 
 export class TransactionService {
   // 创建 transaction
-  public static async createTransaction(body: EditTransaction) {
+  public static async createTransaction(
+    book_id: string,
+    body: EditTransaction
+  ) {
     if (body.destination_account_id === body.source_account_id) {
       throw new Error(
         "destination_account_id and source_account_id cannot be the same"
@@ -22,6 +25,7 @@ export class TransactionService {
       .values({
         id: uuidv4(),
         ...body,
+        book_id,
         created_at: now,
         updated_at: now,
       })
@@ -58,12 +62,16 @@ export class TransactionService {
 
   // 列出所有 transactions
   public static async listTransactions(
+    book_id: string,
     transactionListParams?: TransactionListParams
   ) {
     const page = transactionListParams?.page ?? 1;
     const pageSize = transactionListParams?.pageSize ?? 10;
     const offset = (page - 1) * pageSize;
     const condition = [];
+    if (book_id) {
+      condition.push(eq(transaction.book_id, book_id));
+    }
     if (transactionListParams?.accountId) {
       condition.push(
         ...transactionListParams?.accountId.map((id) =>

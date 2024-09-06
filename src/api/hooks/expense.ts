@@ -4,10 +4,13 @@ import { ExpenseService } from "../services/ExpenseService";
 import { useState } from "react";
 import { message } from "antd";
 import { CategoryListData, NormalChartData } from "../models/Chart";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 
 export type EditExpense = {
   name: string;
   icon?: string;
+  book_id?: string;
 };
 export type Filter = {
   startDate: number;
@@ -17,24 +20,28 @@ export type Filter = {
 export function useExpenseService() {
   const queryClient = useQueryClient();
 
-  const queryKey = ["expenses"];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["expenses", book?.id];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
-
   // Fetch expense list
   const { data: expenses, isLoading: isLoadingExpenses } = useQuery<
     Array<Expense>,
     Error
-  >(queryKey, () => ExpenseService.listExpense(), {
+  >(queryKey, () => ExpenseService.listExpense(book?.id), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   // Create expense
   const { mutateAsync: createExpense } = useMutation(
     (params: { expense: EditExpense }) =>
-      ExpenseService.createExpense(params.expense),
+      ExpenseService.createExpense({
+        ...params.expense,
+        book_id: book?.id,
+      }),
     {
       onMutate: async (params: { expense: EditExpense }) => {
         setIsCreateLoading(true);
@@ -147,13 +154,15 @@ export function useExpenseService() {
 }
 
 export function useExpenseLineChartService(filter: Filter) {
-  const queryKey = ["expenses", "chart", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["expenses", "chart", filter, book?.id];
 
   const { data: chartData, isLoading: isLoadingChart } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => ExpenseService.getTrend(filter), {
+  >(queryKey, () => ExpenseService.getTrend(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {
@@ -163,12 +172,14 @@ export function useExpenseLineChartService(filter: Filter) {
 }
 
 export function useExpenseCategoryService(filter: Filter) {
-  const queryKey = ["expenses", "category", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["expenses", "category", filter, book?.id];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => ExpenseService.getExpenseCategory(filter), {
+  >(queryKey, () => ExpenseService.getExpenseCategory(book?.id ?? "", filter), {
+    enabled: !!book,
     keepPreviousData: true,
   });
 

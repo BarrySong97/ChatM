@@ -3,6 +3,8 @@ import { AssetsService } from "../services/AssetsSevice";
 import { LiabilityService } from "../services/LiabilityService";
 import { ExpenseService } from "../services/ExpenseService";
 import { IncomeService } from "../services/IncomeService";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 export type AssetsData = {
   totalAmount: string;
   assetAmounts: Map<string, string>;
@@ -28,7 +30,8 @@ export type SideFilter = {
 };
 
 export function useSideData(filter: SideFilter) {
-  const queryKey = ["side", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["side", filter, book?.id];
 
   const { data: sideData } = useQuery<{
     assetsData: AssetsData;
@@ -37,16 +40,26 @@ export function useSideData(filter: SideFilter) {
     incomeData: IncomeData;
   }>(queryKey, {
     queryFn: async () => {
-      const assetsData = await AssetsService.getAssetsSumAmount(filter);
-      const liabilitiesData = await LiabilityService.getLiabilitySumAmount(
-        filter
+      const assetsData = await AssetsService.getAssetsSumAmount(
+        filter,
+        book?.id ?? ""
       );
-      const expenditureData = await ExpenseService.getExpenseSumAmount(filter);
-      const incomeData = await IncomeService.getIncomeSumAmount(filter);
-
+      const liabilitiesData = await LiabilityService.getLiabilitySumAmount(
+        filter,
+        book?.id ?? ""
+      );
+      const expenditureData = await ExpenseService.getExpenseSumAmount(
+        filter,
+        book?.id ?? ""
+      );
+      const incomeData = await IncomeService.getIncomeSumAmount(
+        filter,
+        book?.id ?? ""
+      );
       return { assetsData, liabilitiesData, expenditureData, incomeData };
     },
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {

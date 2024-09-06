@@ -5,6 +5,8 @@ import { useState } from "react";
 import { message } from "antd";
 import { Filter } from "./expense";
 import { CategoryListData, NormalChartData } from "../models/Chart";
+import { useAtomValue } from "jotai";
+import { BookAtom } from "@/globals";
 
 export type EditLiability = {
   name: string;
@@ -14,24 +16,25 @@ export type EditLiability = {
 export function useLiabilityService() {
   const queryClient = useQueryClient();
 
-  const queryKey = ["liabilities"];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["liabilities", book?.id];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
-
   // Fetch liability list
   const { data: liabilities, isLoading: isLoadingLiabilities } = useQuery<
     Array<Liability>,
     Error
-  >(queryKey, () => LiabilityService.listLiability(), {
+  >(queryKey, () => LiabilityService.listLiability(book?.id), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   // Create liability
   const { mutateAsync: createLiability } = useMutation(
     (params: { liability: EditLiability }) =>
-      LiabilityService.createLiability(params.liability),
+      LiabilityService.createLiability(book?.id ?? "", params.liability),
     {
       onMutate: async (params: { liability: EditLiability }) => {
         setIsCreateLoading(true);
@@ -144,13 +147,15 @@ export function useLiabilityService() {
 }
 
 export function useLiabilityCategoryService(filter: Filter) {
-  const queryKey = ["liabilities", "category", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["liabilities", "category", filter, book?.id];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],
     Error
-  >(queryKey, () => LiabilityService.getCategory(filter), {
+  >(queryKey, () => LiabilityService.getCategory(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {
@@ -159,13 +164,15 @@ export function useLiabilityCategoryService(filter: Filter) {
   };
 }
 export function useLiabilityTrendService(filter: Filter) {
-  const queryKey = ["liabilities", "trend", filter];
+  const book = useAtomValue(BookAtom);
+  const queryKey = ["liabilities", "trend", filter, book?.id];
 
   const { data: trendData, isLoading: isLoadingTrend } = useQuery<
     NormalChartData[],
     Error
-  >(queryKey, () => LiabilityService.getTrend(filter), {
+  >(queryKey, () => LiabilityService.getTrend(book?.id ?? "", filter), {
     keepPreviousData: true,
+    enabled: !!book,
   });
 
   return {

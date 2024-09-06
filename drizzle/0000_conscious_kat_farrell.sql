@@ -13,6 +13,9 @@ CREATE TABLE `assets` (
 CREATE TABLE `book` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text,
+	`icon` text,
+	`is_current` integer,
+	`is_default` integer,
 	`created_at` integer,
 	`updated_at` integer
 );

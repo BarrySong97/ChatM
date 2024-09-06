@@ -27,11 +27,17 @@ export class ExpenseService {
     return res[0];
   }
   // list expense
-  public static async listExpense() {
-    const res = await db.select().from(expense);
+  public static async listExpense(book_id?: string) {
+    const res = await db
+      .select()
+      .from(expense)
+      .where(eq(expense.book_id, book_id ?? ""));
     return res;
   }
-  public static async getExpenseSumAmount(filter?: SideFilter) {
+  public static async getExpenseSumAmount(
+    filter?: SideFilter,
+    book_id?: string
+  ) {
     // Calculate the sum of all expense amounts
     const expenseResults = await db.select().from(expense);
     const startDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
@@ -42,19 +48,21 @@ export class ExpenseService {
       .add(1, "day")
       .toDate()
       .getTime();
-
+    const conditions = [];
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id ?? ""));
+    }
+    if (filter?.endDate) {
+      conditions.push(lt(transaction.transaction_date, endDate));
+    }
+    if (filter?.startDate) {
+      conditions.push(gte(transaction.transaction_date, startDate));
+    }
     // Get all transactions
     const transactionResults = await db
       .select()
       .from(transaction)
-      .where(
-        filter && filter.startDate && filter.endDate
-          ? and(
-              gte(transaction.transaction_date, startDate),
-              lt(transaction.transaction_date, endDate)
-            )
-          : undefined
-      );
+      .where(and(...conditions));
 
     let totalExpenseAmount = new Decimal(0);
 
@@ -81,7 +89,7 @@ export class ExpenseService {
       expenseAmounts: expensesData,
     };
   }
-  public static async getTrend(filter: Partial<Filter>) {
+  public static async getTrend(book_id: string, filter: Partial<Filter>) {
     // Get the start and end dates from the filter
     const filterStartDate = dayjs(dayjs(filter.startDate).format("YYYY-MM-DD"))
       .subtract(1, "day")
@@ -98,6 +106,7 @@ export class ExpenseService {
     const daysDifference = dayjs(endDate).diff(startDate, "day");
     const trendData = [];
     const conditions = [
+      eq(transaction.book_id, book_id),
       gt(transaction.transaction_date, filterStartDate),
       lt(transaction.transaction_date, filterEndDate),
       eq(transaction.type, FinancialOperation.Expenditure),
@@ -142,26 +151,31 @@ export class ExpenseService {
 
     return trendData;
   }
-  public static async getExpenseCategory(filter: Omit<Filter, "category_id">) {
+  public static async getExpenseCategory(
+    book_id: string,
+    filter: Omit<Filter, "category_id">
+  ) {
     // Fetch all expense-related transactions within the date range
+    const conditions = [eq(transaction.type, FinancialOperation.Expenditure)];
+
     const startDate = dayjs(filter.startDate)
       .subtract(1, "day")
       .toDate()
       .getTime();
     const endDate = dayjs(filter.endDate).add(1, "day").toDate().getTime();
+    if (filter?.startDate) {
+      conditions.push(gte(transaction.transaction_date, startDate));
+    }
+    if (filter?.endDate) {
+      conditions.push(lt(transaction.transaction_date, endDate));
+    }
     const transactions = await db
       .select({
         amount: transaction.amount,
         destination_account_id: transaction.destination_account_id,
       })
       .from(transaction)
-      .where(
-        and(
-          gt(transaction.transaction_date, startDate),
-          lt(transaction.transaction_date, endDate),
-          eq(transaction.type, FinancialOperation.Expenditure)
-        )
-      );
+      .where(and(...conditions));
 
     // Fetch all expense accounts
     const expenseAccounts = await db.select().from(expense);
@@ -202,6 +216,7 @@ export class ExpenseService {
         categoryData.push({
           content: account.name || "",
           amount: 0,
+          icon: account.icon ?? "",
           color: account.color ?? "",
         });
       }
@@ -251,8 +266,11 @@ export class ExpenseService {
   }
 
   // check  name is exist
-  public static async checkExpenseName(name: string) {
-    const res = await db.select().from(expense).where(eq(expense.name, name));
+  public static async checkExpenseName(name: string, book_id: string) {
+    const res = await db
+      .select()
+      .from(expense)
+      .where(and(eq(expense.name, name), eq(expense.book_id, book_id)));
     return res.length > 0;
   }
 }

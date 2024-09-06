@@ -3,14 +3,17 @@ import { Tag } from "@db/schema";
 import { TagService } from "../services/TagService";
 import { useState } from "react";
 import { message } from "antd";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 
 export type EditTag = {
   name: string;
 };
 
 export function useTagService() {
+  const book = useAtomValue(BookAtom);
   const queryClient = useQueryClient();
-  const queryKey = ["tags"];
+  const queryKey = ["tags", book?.id];
 
   const [isEditLoading, setIsEditLoading] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
@@ -19,15 +22,18 @@ export function useTagService() {
   // Fetch tag list
   const { data: tags, isLoading: isLoadingTags } = useQuery<Array<Tag>, Error>(
     queryKey,
-    () => TagService.listTag(),
+    () => TagService.listTag(book?.id ?? ""),
+
     {
       keepPreviousData: true,
+      enabled: !!book,
     }
   );
 
   // Create tag
   const { mutateAsync: createTag } = useMutation(
-    (params: { tag: EditTag }) => TagService.createTag(params.tag),
+    (params: { tag: EditTag }) =>
+      TagService.createTag(book?.id ?? "", params.tag),
     {
       onMutate: async (params: { tag: EditTag }) => {
         setIsCreateLoading(true);

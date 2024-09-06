@@ -1,1 +1,0 @@
-ALTER TABLE book ADD `icon` text;
