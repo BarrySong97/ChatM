@@ -7,7 +7,7 @@ import { EditBook } from "../hooks/book";
 export class BookService {
   // find default
   public static async findDefault() {
-    const res = await db.select().from(book).where(eq(book.isDefault, 1));
+    const res = await db.select().from(book).where(eq(book.isCurrent, 1));
     return res[0];
   }
   // Create book
@@ -16,8 +16,7 @@ export class BookService {
       .insert(book)
       .values({
         id: uuidv4(),
-        name: body.name,
-        isDefault: body.isDefault ?? 0,
+        ...body,
         created_at: Date.now(),
         updated_at: Date.now(),
       })
@@ -33,10 +32,19 @@ export class BookService {
 
   // Edit book
   public static async editBook(id: string, body: EditBook) {
-    const res = await db
-      .update(book)
-      .set({ name: body.name, updated_at: Date.now() })
-      .where(eq(book.id, id));
+    const res = await db.transaction(async (tx) => {
+      if (body.isCurrent) {
+        await tx
+          .update(book)
+          .set({ isCurrent: 0 })
+          .where(eq(book.isCurrent, 1));
+      }
+      const res = await tx
+        .update(book)
+        .set({ ...body, updated_at: Date.now() })
+        .where(eq(book.id, id));
+      return res;
+    });
     return res;
   }
 

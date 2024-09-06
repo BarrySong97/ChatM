@@ -5,8 +5,9 @@ import { useState } from "react";
 import { message } from "antd";
 
 export type EditBook = {
-  name: string;
+  name?: string;
   isDefault?: number;
+  isCurrent?: number;
 };
 
 export function useBookService() {

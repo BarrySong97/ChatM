@@ -4,10 +4,8 @@ import { useIncomeService } from "@/api/hooks/income";
 import { useLiabilityService } from "@/api/hooks/liability";
 import emojiData from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import bankcode from "./output.json";
 import {
   Button,
-  Card,
   Input,
   Listbox,
   ListboxSection,

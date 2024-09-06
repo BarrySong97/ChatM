@@ -2,7 +2,7 @@ import React, { FC, ReactNode } from "react";
 import { Divider } from "@nextui-org/react";
 
 interface SettingWrapperProps {
-  title: string;
+  title: string | ReactNode;
   children: ReactNode;
 }
 

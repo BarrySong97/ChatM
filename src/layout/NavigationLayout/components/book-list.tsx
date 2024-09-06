@@ -3,6 +3,7 @@ import { BookAtom } from "@/globals";
 import {
   Button,
   Chip,
+  cn,
   Divider,
   Listbox,
   ListboxItem,
@@ -16,12 +17,13 @@ import {
   TablerSettings,
 } from "./icon";
 import BookModal from "@/components/BookModal";
+import AccountIconRender from "@/components/AccountIconRender";
+import { BookService } from "@/api/services/BookService";
 export interface BookListProps {}
 const BookList: FC<BookListProps> = () => {
   const { books, isLoadingBooks, editBook, deleteBook, createBook } =
     useBookService();
-  const [book, setBook] = useAtom(BookAtom);
-  const selectedBookKeys = book ? [book.id] : [];
+  const [SelectedBook, setSelectedBook] = useAtom(BookAtom);
 
   return (
     <div className="w-[280px] py-2">
@@ -49,42 +51,42 @@ const BookList: FC<BookListProps> = () => {
         }}
       />
       <Divider className="my-2" />
-      <Listbox
-        selectedKeys={new Set(selectedBookKeys)}
-        selectionMode="single"
-        classNames={{
-          base: "p-0",
-        }}
-        variant="flat"
-        onSelectionChange={(v) => {
-          const id = Array.from(v)[0] as string;
-          const book = books?.find((book) => book.id === id);
-          if (book) {
-            setBook(book);
-          }
-        }}
-      >
-        {books?.map((book) => (
-          <ListboxItem hideSelectedIcon key={book.id} className="-ml-1">
-            <div
-              className="flex-row justify-between items-center flex group"
-              style={{}}
+      <div className="flex flex-col gap-2 px-2">
+        {books?.map((book) => {
+          const isActive = SelectedBook?.id === book.id;
+          return (
+            <Button
+              size="sm"
+              className={cn("justify-between p-2 -ml-2", {
+                "font-semibold": isActive,
+              })}
+              onClick={async () => {
+                await BookService.editBook(book.id, {
+                  isCurrent: 1,
+                });
+                setSelectedBook(book);
+              }}
+              variant={isActive ? "flat" : "light"}
+              endContent={
+                isActive ? (
+                  <div className="w-2 h-2 rounded-full bg-[#007AFF]"></div>
+                ) : null
+              }
+              radius="sm"
+              key={book.id}
             >
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-sm bg-red-500"></div>
-                <div className="text-sm">{book.name}</div>
+                <AccountIconRender
+                  icon={book.id ?? `emoji:stuck_out_tongue_winking_eye`}
+                />
+                <div> {book.name}</div>
               </div>
-              <div className="hidden group-hover:block group-hover:animate-slide-in-right ">
-                <BookModal />
-              </div>
-            </div>
-          </ListboxItem>
-        )) ?? []}
-      </Listbox>
+            </Button>
+          );
+        }) ?? []}
+      </div>
       <Divider className="my-2" />
-      <Button size="sm" className="w-full mt-1" radius="sm" variant="flat">
-        创建账本
-      </Button>
+      <BookModal />
     </div>
   );
 };

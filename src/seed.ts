@@ -6,6 +6,7 @@ export async function seed() {
     await BookService.createBook({
       name: "默认账本",
       isDefault: 1,
+      isCurrent: 1,
     });
   }
 }

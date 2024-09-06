@@ -27,8 +27,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
   const [selectMenuBook, setselectMemnuBook] = useState<Book>();
   const { books, isLoadingBooks, editBook, deleteBook, createBook } =
     useBookService();
-  const [book, setBook] = useAtom(BookAtom);
-  const selectedBookKeys = book ? [book.id] : [];
+  const [useBook, setUseBook] = useAtom(BookAtom);
   const renderComponent = () => {
     switch (activeKey) {
       case "pricing":
@@ -87,10 +86,11 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
                   <div className="text-sm text-[#575859]">账本</div>
                   {books?.map((book) => {
                     const isActive = selectMenuBook?.id === book.id;
+                    const isSelectBook = useBook?.id === book.id;
                     return (
                       <Button
                         size="sm"
-                        className={cn("justify-start p-2 -ml-2", {
+                        className={cn("justify-between p-2 -ml-2", {
                           "font-semibold": isActive,
                         })}
                         onClick={() => {
@@ -98,15 +98,20 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
                           setActiveKey("book");
                         }}
                         variant={isActive ? "flat" : "light"}
-                        startContent={
-                          <AccountIconRender
-                            icon={`emoji:stuck_out_tongue_winking_eye`}
-                          />
+                        endContent={
+                          isSelectBook ? (
+                            <div className="w-2 h-2 rounded-full bg-[#007AFF]"></div>
+                          ) : null
                         }
                         radius="sm"
                         key={book.id}
                       >
-                        {book.name}
+                        <div className="flex items-center gap-2">
+                          <AccountIconRender
+                            icon={`emoji:stuck_out_tongue_winking_eye`}
+                          />
+                          <div> {book.name}</div>
+                        </div>
                       </Button>
                     );
                   }) ?? []}

@@ -4,6 +4,7 @@ export const book = sqliteTable("book", {
   id: text("id").primaryKey(),
   name: text("name"),
   icon: text("icon"),
+  isCurrent: integer("is_current"),
   isDefault: integer("is_default"),
   created_at: integer("created_at"),
   updated_at: integer("updated_at"),
