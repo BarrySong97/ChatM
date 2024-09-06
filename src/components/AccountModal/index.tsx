@@ -206,7 +206,6 @@ const AccountModal: FC<AccountModalProps> = ({
     }
   }, [data]);
   const [iconOpen, setIconOpen] = useState(false);
-  const [assetsType, setAssetsType] = useState<AccountType>(AccountType.Bank);
 
   const renderIconPicker = () => {
     if (selectIconType === "bank") {

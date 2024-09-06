@@ -3,6 +3,7 @@ import { InferSelectModel, relations } from "drizzle-orm";
 export const book = sqliteTable("book", {
   id: text("id").primaryKey(),
   name: text("name"),
+  icon: text("icon"),
   isDefault: integer("is_default"),
   created_at: integer("created_at"),
   updated_at: integer("updated_at"),

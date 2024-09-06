@@ -42,6 +42,10 @@ export class BookService {
 
   // Delete book
   public static async deleteBook(id: string) {
+    const item = await db.select().from(book).where(eq(book.id, id));
+    if (item?.[0]?.isDefault === 1) {
+      throw new Error("默认账本不能删除");
+    }
     const res = await db.delete(book).where(eq(book.id, id));
     return res;
   }

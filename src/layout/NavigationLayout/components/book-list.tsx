@@ -1,10 +1,21 @@
 import { useBookService } from "@/api/hooks/book";
 import { BookAtom } from "@/globals";
-import { Button, Listbox, ListboxItem } from "@nextui-org/react";
+import {
+  Button,
+  Chip,
+  Divider,
+  Listbox,
+  ListboxItem,
+  User,
+} from "@nextui-org/react";
 import dayjs from "dayjs";
 import { useAtom } from "jotai";
 import React, { FC } from "react";
-import { MaterialSymbolsEditDocumentOutlineRounded } from "./icon";
+import {
+  MaterialSymbolsEditDocumentOutlineRounded,
+  TablerSettings,
+} from "./icon";
+import BookModal from "@/components/BookModal";
 export interface BookListProps {}
 const BookList: FC<BookListProps> = () => {
   const { books, isLoadingBooks, editBook, deleteBook, createBook } =
@@ -13,8 +24,31 @@ const BookList: FC<BookListProps> = () => {
   const selectedBookKeys = book ? [book.id] : [];
 
   return (
-    <div className="w-[200px]">
-      <div className="font-semibold text-default-600 mb-1">账本列表</div>
+    <div className="w-[280px] py-2">
+      <User
+        description="BarrySong97@gmail.com"
+        classNames={{
+          wrapper: "flex-col-reverse",
+        }}
+        name={
+          <Chip
+            size="sm"
+            color="primary"
+            radius="sm"
+            variant="flat"
+            className="mt-1"
+          >
+            免费
+          </Chip>
+        }
+        className="cursor-pointer"
+        avatarProps={{
+          radius: "sm",
+          size: "sm",
+          src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+        }}
+      />
+      <Divider className="my-2" />
       <Listbox
         selectedKeys={new Set(selectedBookKeys)}
         selectionMode="single"
@@ -31,27 +65,26 @@ const BookList: FC<BookListProps> = () => {
         }}
       >
         {books?.map((book) => (
-          <ListboxItem
-            key={book.id}
-            className="-ml-1"
-            startContent={
-              <div className="text-default-500">
-                <MaterialSymbolsEditDocumentOutlineRounded />
+          <ListboxItem hideSelectedIcon key={book.id} className="-ml-1">
+            <div
+              className="flex-row justify-between items-center flex group"
+              style={{}}
+            >
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-sm bg-red-500"></div>
+                <div className="text-sm">{book.name}</div>
               </div>
-            }
-          >
-            <div className="flex-row justify-between items-center flex">
-              <div>{book.name}</div>
-              <div className="text-xs text-default-500">
-                {dayjs(book.created_at).format("YYYY-MM-DD ")}
+              <div className="hidden group-hover:block group-hover:animate-slide-in-right ">
+                <BookModal />
               </div>
             </div>
           </ListboxItem>
         )) ?? []}
       </Listbox>
-      {/* <Button size="sm" className="w-full" radius="sm">
+      <Divider className="my-2" />
+      <Button size="sm" className="w-full mt-1" radius="sm" variant="flat">
         创建账本
-      </Button> */}
+      </Button>
     </div>
   );
 };

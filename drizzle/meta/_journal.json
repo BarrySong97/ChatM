@@ -15,6 +15,13 @@
       "when": 1725528219006,
       "tag": "0001_sturdy_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1725576799216,
+      "tag": "0002_fearless_electro",
+      "breakpoints": true
     }
   ]
 }

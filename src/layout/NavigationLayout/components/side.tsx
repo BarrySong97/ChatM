@@ -51,10 +51,12 @@ import AccountIconRender from "@/components/AccountIconRender";
 import BookList from "./book-list";
 import { BookAtom } from "@/globals";
 import { useAtomValue } from "jotai";
+import Setting from "@/pages/Setting";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
+  const [showSettingModal, setShowSettingModal] = useState(false);
   const menuList = [
     {
       key: "home",
@@ -393,31 +395,31 @@ const Side: FC<SideProps> = () => {
     >
       <div className="dark:bg-default-100 bg-default/40 bg-[#ECECEC] h-screen no-drag  py-6  w-full  ">
         <div className="flex items-center justify-between px-4 ">
-          <User
-            description="BarrySong97@gmail.com"
-            classNames={{
-              wrapper: "flex-col-reverse",
-            }}
-            name={
-              <Popover radius="sm">
-                <PopoverTrigger>
-                  <div className="flex items-center gap-1 hover:bg-default/40   rounded-sm">
+          <Popover radius="sm">
+            <PopoverTrigger>
+              <User
+                description="BarrySong97@gmail.com"
+                classNames={{
+                  wrapper: "flex-col-reverse",
+                }}
+                name={
+                  <div className="flex items-center gap-1 ">
                     <div className="mt-0.5">{book?.name}</div>
                     <SelectorIcon />
                   </div>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <BookList />
-                </PopoverContent>
-              </Popover>
-            }
-            className="cursor-pointer"
-            avatarProps={{
-              radius: "sm",
-              size: "sm",
-              src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-            }}
-          />
+                }
+                className="cursor-pointer"
+                avatarProps={{
+                  radius: "sm",
+                  size: "sm",
+                  src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+                }}
+              />
+            </PopoverTrigger>
+            <PopoverContent>
+              <BookList />
+            </PopoverContent>
+          </Popover>
           <div>
             <Button
               isIconOnly
@@ -442,7 +444,11 @@ const Side: FC<SideProps> = () => {
                   "font-semibold": isActive,
                 })}
                 onClick={() => {
-                  navigate(item.href);
+                  if (item.key === "settings") {
+                    setShowSettingModal(true);
+                  } else {
+                    navigate(item.href);
+                  }
                 }}
                 startContent={
                   <span className="text-lg text-[#575859]">{item.icon}</span>
@@ -616,6 +622,7 @@ const Side: FC<SideProps> = () => {
           onChange={(value) => setShowTransactionModal(value)}
         />
       </div>
+      <Setting isOpen={showSettingModal} setIsOpen={setShowSettingModal} />
     </ConfigProvider>
   );
 };
