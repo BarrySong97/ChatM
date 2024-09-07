@@ -19,7 +19,9 @@ export class IncomeService {
     const existingIncome = await db
       .select()
       .from(income)
-      .where(eq(income.name, body.name));
+      .where(
+        and(eq(income.name, body.name), eq(income.book_id, body.book_id || ""))
+      );
     if (existingIncome.length > 0) {
       throw new Error("Income with the same name already exists");
     }
@@ -28,6 +30,7 @@ export class IncomeService {
       .values({
         id: uuidv4(),
         ...body,
+        book_id: body.book_id ?? "",
       })
       .returning();
     return res[0];

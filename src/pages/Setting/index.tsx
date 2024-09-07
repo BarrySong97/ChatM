@@ -19,7 +19,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
     { key: "pricing", name: "定价", icon: <PhCreditCardLight /> },
     {
       key: "about",
-      name: "关于",
+      name: "关于流记",
       icon: <PhQuestion />,
     },
   ];
@@ -53,7 +53,9 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
             {/* <ModalHeader>设置</ModalHeader> */}
             <ModalBody className="p-0 flex flex-row ">
               <div className="w-[200px] rounded-l-large bg-[#F4F4F5]  p-4 ">
-                <div className="text-lg font-bold">设置</div>
+                <div className="text-lg font-bold flex items-end gap-2">
+                  <span> 设置</span>
+                </div>
                 <div className="flex flex-col gap-2 mt-4">
                   <div className="text-sm text-[#575859]">常规</div>
                   {menus.map((item) => {

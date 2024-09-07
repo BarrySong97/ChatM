@@ -3,17 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { request as __request } from "../core/request";
-import {
-  assets,
-  transaction,
-  expense,
-  income,
-  liability,
-  Liability,
-  Income,
-  Expense,
-  Asset,
-} from "@db/schema";
+import { assets, transaction, expense, income, liability } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
@@ -34,7 +24,9 @@ export class AssetsService {
     const existingAsset = await db
       .select()
       .from(assets)
-      .where(eq(assets.name, body.name))
+      .where(
+        and(eq(assets.name, body.name), eq(assets.book_id, body.book_id || ""))
+      )
       .limit(1);
 
     if (existingAsset.length > 0) {
@@ -590,6 +582,7 @@ export class AssetsService {
       .select()
       .from(assets)
       .where(and(...conditions));
+
     return res.length > 0;
   }
 }

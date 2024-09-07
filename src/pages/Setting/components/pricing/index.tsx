@@ -34,7 +34,7 @@ const PricingItem: FC<PricingItemProps> = ({
         <span className="text-sm font-normal text-gray-500">/永久</span>
       </p>
       <Button color="primary" className="mb-4" isDisabled={isFree}>
-        {isFree ? "开始使用" : "立即购买"}
+        {isFree ? "开始使用" : "在测试期间免费使用"}
       </Button>
 
       <div className="space-y-3 text-sm">

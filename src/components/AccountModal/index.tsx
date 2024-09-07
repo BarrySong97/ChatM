@@ -32,6 +32,8 @@ import { PhBankDuotone } from "./icon";
 import BankIconPicker from "../BankIconPicker";
 import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
 import AccountIconRender from "../AccountIconRender";
+import { useAtomValue } from "jotai";
+import { BookAtom } from "@/globals";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
@@ -282,7 +284,12 @@ const AccountModal: FC<AccountModalProps> = ({
       </Listbox>
     );
   };
-
+  const book = useAtomValue(BookAtom);
+  useEffect(() => {
+    if (!isOpen) {
+      form.resetFields();
+    }
+  }, [isOpen]);
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
@@ -294,6 +301,7 @@ const AccountModal: FC<AccountModalProps> = ({
             <ModalBody>
               <Form form={form}>
                 <Form.Item
+                  validateTrigger={["onBlur"]}
                   name="name"
                   className="flex-1"
                   rules={[
@@ -302,21 +310,32 @@ const AccountModal: FC<AccountModalProps> = ({
                         if (!value || value === data?.name) {
                           return Promise.resolve(); // 让 required 规则处理空值
                         }
-
                         let res = false;
+
                         switch (type) {
                           case "income":
-                            res = await IncomeService.checkIncomeName(value);
+                            res = await IncomeService.checkIncomeName(
+                              value,
+                              book?.id || ""
+                            );
                             break;
                           case "expense":
-                            res = await ExpenseService.checkExpenseName(value);
+                            res = await ExpenseService.checkExpenseName(
+                              value,
+                              book?.id || ""
+                            );
                             break;
                           case "asset":
-                            res = await AssetsService.checkAssetName(value);
+                            res = await AssetsService.checkAssetName(
+                              value,
+                              book?.id || ""
+                            );
+
                             break;
                           case "liability":
                             res = await LiabilityService.checkLiabilityName(
-                              value
+                              value,
+                              book?.id || ""
                             );
                             break;
                         }

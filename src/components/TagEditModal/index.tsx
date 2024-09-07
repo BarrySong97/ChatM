@@ -12,6 +12,8 @@ import {
 import { Form } from "antd";
 import { Tag } from "@db/schema";
 import { TagService } from "@/api/services/TagService";
+import { useAtomValue } from "jotai";
+import { BookAtom } from "@/globals";
 export interface TagEditModalProps {}
 const TagEditModal: FC<TagEditModalProps> = () => {
   const { createTag, editTag, isCreateLoading, isEditLoading } =
@@ -47,7 +49,7 @@ const TagEditModal: FC<TagEditModalProps> = () => {
     }
     setIsOpen(true);
   };
-
+  const book = useAtomValue(BookAtom);
   return (
     <>
       <Button size="sm" radius="sm" color="primary" onPress={() => openModal()}>
@@ -63,16 +65,19 @@ const TagEditModal: FC<TagEditModalProps> = () => {
                   <Form.Item
                     name="name"
                     label="标签名称"
+                    validateTrigger="onBlur"
                     rules={[
                       {
                         required: true,
                         message: "请输入标签名称",
                       },
                       {
-                        validateTrigger: "onBlur",
                         async validator(rule, value) {
                           if (value) {
-                            const res = await TagService.checkTagName(value);
+                            const res = await TagService.checkTagName(
+                              value,
+                              book?.id || ""
+                            );
 
                             if (res) {
                               return Promise.reject(

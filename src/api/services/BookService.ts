@@ -12,6 +12,14 @@ export class BookService {
   }
   // Create book
   public static async createBook(body: EditBook) {
+    // const existingBook = await db
+    //   .select()
+    //   .from(book)
+    //   .where(eq(book.name, body.name || ""));
+
+    // if (existingBook.length > 0) {
+    //   throw new Error("账本名称已存在");
+    // }
     const res = await db
       .insert(book)
       .values({

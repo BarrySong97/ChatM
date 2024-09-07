@@ -52,6 +52,8 @@ import BookList from "./book-list";
 import { BookAtom } from "@/globals";
 import { useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
+import { Book } from "@db/schema";
+import BookModal from "@/components/BookModal";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -379,6 +381,9 @@ const Side: FC<SideProps> = () => {
     }
   }, [pathname]);
   const book = useAtomValue(BookAtom);
+  const [showBookPopover, setShowBookPopover] = useState(false);
+  const [editBook, setEditBook] = useState<Book>();
+  const [isShowBookModal, setIsShowBookModal] = useState(false);
   return (
     <ConfigProvider
       theme={{
@@ -395,7 +400,12 @@ const Side: FC<SideProps> = () => {
     >
       <div className="dark:bg-default-100 bg-default/40 bg-[#ECECEC] h-screen no-drag  py-6  w-full  ">
         <div className="flex items-center justify-between px-4 ">
-          <Popover shouldCloseOnBlur={false} radius="sm">
+          <Popover
+            radius="sm"
+            isOpen={showBookPopover}
+            shouldCloseOnBlur={false}
+            onOpenChange={setShowBookPopover}
+          >
             <PopoverTrigger>
               <User
                 description="BarrySong97@gmail.com"
@@ -404,7 +414,14 @@ const Side: FC<SideProps> = () => {
                 }}
                 name={
                   <div className="flex items-center gap-1 ">
+                    <AccountIconRender
+                      emojiSize="0.80em"
+                      icon={book?.icon ?? "emoji:stuck_out_tongue_winking_eye"}
+                    />
                     <div className="mt-0.5">{book?.name}</div>
+                    <div className="text-xs text-gray-500">
+                      {book?.currency}
+                    </div>
                     <SelectorIcon />
                   </div>
                 }
@@ -412,12 +429,20 @@ const Side: FC<SideProps> = () => {
                 avatarProps={{
                   radius: "sm",
                   size: "sm",
+                  isBordered: true,
+                  name: "B",
                   src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
                 }}
               />
             </PopoverTrigger>
             <PopoverContent>
-              <BookList />
+              <BookList
+                onClose={() => setShowBookPopover(false)}
+                onShowBookModal={(book) => {
+                  setIsShowBookModal(true);
+                  setEditBook(book);
+                }}
+              />
             </PopoverContent>
           </Popover>
           <div>
@@ -623,6 +648,11 @@ const Side: FC<SideProps> = () => {
         />
       </div>
       <Setting isOpen={showSettingModal} setIsOpen={setShowSettingModal} />
+      <BookModal
+        book={editBook}
+        isOpen={isShowBookModal}
+        onOpenChange={setIsShowBookModal}
+      />
     </ConfigProvider>
   );
 };

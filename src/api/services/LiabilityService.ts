@@ -30,6 +30,7 @@ export class LiabilityService {
       .values({
         id: uuidv4(),
         ...body,
+        book_id,
       })
       .returning();
     return res[0];

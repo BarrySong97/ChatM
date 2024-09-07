@@ -13,7 +13,12 @@ export class ExpenseService {
     const existingExpense = await db
       .select()
       .from(expense)
-      .where(eq(expense.name, body.name));
+      .where(
+        and(
+          eq(expense.name, body.name),
+          eq(expense.book_id, body.book_id || "")
+        )
+      );
     if (existingExpense.length > 0) {
       throw new Error("Expense with the same name already exists");
     }
@@ -22,6 +27,7 @@ export class ExpenseService {
       .values({
         id: uuidv4(),
         ...body,
+        book_id: body.book_id ?? "",
       })
       .returning();
     return res[0];

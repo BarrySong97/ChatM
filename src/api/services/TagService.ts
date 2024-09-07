@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { tags, transactionTags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -50,8 +50,11 @@ export class TagService {
   }
 
   // check tag name is exist
-  public static async checkTagName(name: string) {
-    const res = await db.select().from(tags).where(eq(tags.name, name));
+  public static async checkTagName(name: string, book_id: string) {
+    const res = await db
+      .select()
+      .from(tags)
+      .where(and(eq(tags.name, name), eq(tags.book_id, book_id)));
     return res.length > 0;
   }
 }

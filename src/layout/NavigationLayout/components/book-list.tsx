@@ -21,12 +21,16 @@ import { Book } from "@db/schema";
 import { message } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
 import { IonMdMore } from "@/components/ExpandTreeMenu/icon";
-export interface BookListProps {}
-const BookList: FC<BookListProps> = () => {
+import BookItem from "./BookItem"; // Add this import
+
+export interface BookListProps {
+  onClose: () => void;
+  onShowBookModal: (book?: Book) => void;
+}
+const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
   const { books, deleteBook } = useBookService();
   const [SelectedBook, setSelectedBook] = useAtom(BookAtom);
   const modal = useModal();
-  const [isShowBookModal, setIsShowBookModal] = useState(false);
   const onDelete = (book: Book) => {
     modal.showModal({
       title: "删除",
@@ -44,8 +48,6 @@ const BookList: FC<BookListProps> = () => {
       },
     });
   };
-  const [editBook, setEditBook] = useState<Book>();
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <>
@@ -75,95 +77,24 @@ const BookList: FC<BookListProps> = () => {
         />
         <Divider className="my-2" />
         <div className="flex flex-col gap-2 px-2">
-          {books?.map((book) => {
-            const isActive = SelectedBook?.id === book.id;
-            return (
-              <Button
-                size="sm"
-                className={cn("justify-between p-2 -ml-2", {
-                  "font-semibold": isActive,
-                })}
-                onClick={async () => {
-                  await BookService.editBook(book.id, {
-                    isCurrent: 1,
-                  });
-                  setSelectedBook(book);
-                }}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                variant={isActive ? "flat" : "light"}
-                endContent={
-                  isActive ? (
-                    <div className="w-2 h-2 rounded-full bg-[#007AFF]"></div>
-                  ) : null
-                }
-                radius="sm"
-                key={book.id}
-              >
-                <div className="flex items-center gap-2">
-                  <AccountIconRender
-                    icon={
-                      book.icon
-                        ? book?.icon
-                        : `emoji:stuck_out_tongue_winking_eye`
-                    }
-                  />
-                  <div> {book.name}</div>
-                </div>
-                <AnimatePresence>
-                  {isHovered ? (
-                    <>
-                      <motion.div
-                        className="absolute text-lg right-[0px] ml-auto w-4.5 h-4.5 flex items-center justify-center rounded-md hover:bg-default/100 transition-colors duration-200 "
-                        style={{
-                          right: !isActive ? "0px" : "16px",
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
-                        <Dropdown>
-                          <DropdownTrigger>
-                            <div>
-                              <IonMdMore />
-                            </div>
-                          </DropdownTrigger>
-                          <DropdownMenu>
-                            <DropdownItem
-                              onClick={() => {
-                                setEditBook(book);
-                                setIsShowBookModal(true);
-                              }}
-                              key="edit"
-                            >
-                              编辑
-                            </DropdownItem>
-                            <DropdownItem
-                              className="text-danger"
-                              color="danger"
-                              onClick={() => {
-                                if (book.isDefault) {
-                                  message.error("默认账本无法删除");
-                                  return;
-                                }
-                                onDelete(book);
-                              }}
-                              key="delete"
-                            >
-                              删除
-                            </DropdownItem>
-                          </DropdownMenu>
-                        </Dropdown>
-                      </motion.div>
-                    </>
-                  ) : null}
-                </AnimatePresence>
-              </Button>
-            );
-          }) ?? []}
+          {books?.map((book) => (
+            <BookItem
+              key={book.id}
+              book={book}
+              isActive={SelectedBook?.id === book.id}
+              onSelect={async () => {
+                await BookService.editBook(book.id, {
+                  isCurrent: 1,
+                });
+                setSelectedBook(book);
+                onClose();
+              }}
+              onEdit={() => {
+                onShowBookModal(book);
+              }}
+              onDelete={() => onDelete(book)}
+            />
+          ))}
         </div>
         <Divider className="my-2" />
         <Button
@@ -172,18 +103,12 @@ const BookList: FC<BookListProps> = () => {
           size="sm"
           radius="sm"
           onClick={() => {
-            setEditBook(undefined);
-            setIsShowBookModal(true);
+            onShowBookModal(undefined);
           }}
         >
           创建账本
         </Button>
       </div>
-      <BookModal
-        book={editBook}
-        isOpen={isShowBookModal}
-        onOpenChange={setIsShowBookModal}
-      />
     </>
   );
 };
