@@ -71,6 +71,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
   useClickAway(() => {
     onBlur?.();
   }, ref);
+
   return (
     <Select
       variant={table ? "underlined" : "flat"}
@@ -98,7 +99,16 @@ const AccountSelect: FC<AccountSelectProps> = ({
           content: table ? "w-[180px]" : "",
         },
       }}
-      selectionMode="single"
+      renderValue={() => {
+        const items = data?.find((account) => account.id === value);
+        console.log(items);
+        return (
+          <div className="flex items-center gap-2">
+            <AccountIconRender icon={items?.icon ?? ""} />
+            <span>{items?.name}</span>
+          </div>
+        );
+      }}
       classNames={{
         base: table ? "h-[40px] justify-center" : "",
         trigger: table ? "data-[open=true]:after:!hidden h-[38px]" : "",
