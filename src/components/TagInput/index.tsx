@@ -48,6 +48,9 @@ const TagInput: React.FC<TagInputProps> = ({
     if (filteredLength === 0 && inputValue) {
       temp?.push(<SelectItem key="new">{`创建标签 ${inputValue}`}</SelectItem>);
     }
+    if (temp?.length === 0) {
+      temp?.push(<SelectItem key="new">{`创建标签 ${inputValue}`}</SelectItem>);
+    }
     return temp;
   }, [tags, inputValue]);
 

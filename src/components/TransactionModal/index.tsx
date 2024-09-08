@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  parseZonedDateTime,
-  parseAbsoluteToLocal,
-  ZonedDateTime,
-} from "@internationalized/date";
+import { parseAbsoluteToLocal, ZonedDateTime } from "@internationalized/date";
 
 import {
   Modal,
@@ -12,12 +8,11 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  useDisclosure,
   Input,
   Select,
   SelectItem,
   DatePicker,
-  SelectSection,
+  Checkbox,
 } from "@nextui-org/react";
 import { Form } from "antd";
 import TagInput from "../TagInput";
@@ -54,7 +49,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   const [form] = Form.useForm();
   const { createTransaction, isCreateLoading } = useTransactionService();
   const [date, setDate] = useState(new Date());
-  const onCreate = async (onClose: () => void) => {
+  const [createMore, setCreateMore] = useState(false);
+  const onCreate = async (onClose?: () => void) => {
     const [err, values] = await to<TransactionModalForm, Error>(
       form.validateFields()
     );
@@ -75,7 +71,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     await createTransaction({
       transaction,
     });
-    onClose();
+    onClose?.();
   };
   const { assets } = useAssetsService();
   const { liabilities } = useLiabilityService();
@@ -246,15 +242,22 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                 </Form.Item>
               </Form>
             </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                取消
-              </Button>
+            <ModalFooter className="justify-between">
+              <Checkbox
+                checked={createMore}
+                onChange={(e) => setCreateMore(e.target.checked)}
+              >
+                创建更多
+              </Checkbox>
               <Button
                 color="primary"
                 isLoading={isCreateLoading}
                 onPress={async () => {
-                  await onCreate(onClose);
+                  if (createMore) {
+                    await onCreate();
+                  } else {
+                    await onCreate(onClose);
+                  }
                 }}
               >
                 创建
