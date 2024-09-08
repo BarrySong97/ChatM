@@ -189,7 +189,10 @@ export class IncomeService {
       .where(and(...conditions));
 
     // Fetch all income accounts
-    const incomeAccounts = await db.select().from(income);
+    const incomeAccounts = await db
+      .select()
+      .from(income)
+      .where(eq(income.book_id, book_id));
 
     // Create a map of income account IDs to names
     const accountNameMap = new Map(incomeAccounts.map((acc) => [acc.id, acc]));

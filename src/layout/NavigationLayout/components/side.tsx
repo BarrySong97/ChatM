@@ -638,7 +638,10 @@ const Side: FC<SideProps> = () => {
         />
         <AccountModal
           isOpen={showAccountModal}
-          onOpenChange={() => setShowAccountModal(false)}
+          onOpenChange={() => {
+            setEditData(undefined);
+            setShowAccountModal(false);
+          }}
           data={editData}
           type={modalType ?? "income"}
         />

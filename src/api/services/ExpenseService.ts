@@ -187,7 +187,10 @@ export class ExpenseService {
       .where(and(...conditions));
 
     // Fetch all expense accounts
-    const expenseAccounts = await db.select().from(expense);
+    const expenseAccounts = await db
+      .select()
+      .from(expense)
+      .where(eq(expense.book_id, book_id));
 
     // Create a map of expense account IDs to names
     const accountNameMap = new Map(expenseAccounts.map((acc) => [acc.id, acc]));

@@ -241,7 +241,10 @@ export class LiabilityService {
       .where(and(...conditions));
 
     // Fetch all liability accounts
-    const liabilityAccounts = await db.select().from(liability);
+    const liabilityAccounts = await db
+      .select()
+      .from(liability)
+      .where(eq(liability.book_id, book_id));
 
     // Create a map of liability account IDs to names
     const accountNameMap = new Map(

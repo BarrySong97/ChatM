@@ -18,17 +18,17 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Divider,
 } from "@nextui-org/react";
-import { Form } from "antd";
+import { Form, PlusOutlined, MinusCircleOutlined } from "antd";
 import to from "await-to-js";
 import { FC, useEffect, useState } from "react";
 import Decimal from "decimal.js";
-import { AccountType } from "./constant";
 import { IncomeService } from "@/api/services/IncomeService";
 import { ExpenseService } from "@/api/services/ExpenseService";
 import { AssetsService } from "@/api/services/AssetsSevice";
 import { LiabilityService } from "@/api/services/LiabilityService";
-import { PhBankDuotone } from "./icon";
+import { MaterialSymbolsDelete, PhBankDuotone } from "./icon";
 import BankIconPicker from "../BankIconPicker";
 import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
 import AccountIconRender from "../AccountIconRender";
@@ -89,101 +89,76 @@ const AccountModal: FC<AccountModalProps> = ({
   const [iconType, setIconType] = useState<"emoji" | "bank">("emoji");
   const [selectIconType, setSelectIconType] = useState<"emoji" | "bank">();
   const onCreate = async () => {
-    const icon = iconId;
-    const [err, value] = await to(form.validateFields());
-
+    const [err, values] = await to(form.validateFields());
     if (err) return;
-    switch (type) {
-      case "income":
-        if (data) {
-          await editIncome({
-            income: { name: value.name, icon },
-            incomeId: data.id,
-          });
-        } else {
-          await createIncome({ income: { name: value.name, icon } });
-        }
-        break;
-      case "expense":
-        if (data) {
-          await editExpense({
-            expense: { name: value.name, icon },
-            expenseId: data.id,
-          });
-        } else {
-          await createExpense({ expense: { name: value.name, icon } });
-        }
-        break;
-      case "asset":
-        if (data) {
-          await editAsset({
-            asset: {
-              name: value.name,
-              initial_balance: value.initial_balance
-                ? new Decimal(value.initial_balance).mul(100).toNumber()
-                : 0,
-              icon,
-            },
-            assetId: data.id,
-          });
-        } else {
-          await createAsset({
-            asset: {
-              name: value.name,
-              initial_balance: value.initial_balance
-                ? new Decimal(value.initial_balance).mul(100).toNumber()
-                : 0,
-              icon,
-            },
-          });
-        }
-        break;
-      case "liability":
-        if (data) {
-          await editLiability({
-            liability: {
-              name: value.name,
-              icon,
-            },
-            liabilityId: data.id,
-          });
-        } else {
-          await createLiability({
-            liability: {
-              name: value.name,
-              icon,
-            },
-          });
-        }
-        break;
-    }
-  };
-  const renderAssetsForm = () => {
-    return (
-      <Form.Item name="initial_balance">
-        <Input radius="sm" type="number" placeholder="请输入账户初始金额" />
-      </Form.Item>
-    );
-  };
-  const renderIncomeForm = () => {
-    return <div></div>;
-  };
-  const renderExpenseForm = () => {
-    return <div></div>;
-  };
-  const renderLiabilityForm = () => {
-    return <div></div>;
-  };
-  const renderForm = () => {
-    switch (type) {
-      case "income":
-        return renderIncomeForm();
-      case "expense":
-        return renderExpenseForm();
-      case "asset":
-        return renderAssetsForm();
-      case "liability":
-        return renderLiabilityForm();
+
+    const accounts = values.accounts;
+    for (const account of accounts) {
+      const icon = account.icon || iconId; // 假设每个账户可以有自己的图标，否则使用全局的
+      switch (type) {
+        case "income":
+          if (data) {
+            await editIncome({
+              income: { name: account.name, icon },
+              incomeId: data.id,
+            });
+          } else {
+            await createIncome({ income: { name: account.name, icon } });
+          }
+          break;
+        case "expense":
+          if (data) {
+            await editExpense({
+              expense: { name: account.name, icon },
+              expenseId: data.id,
+            });
+          } else {
+            await createExpense({ expense: { name: account.name, icon } });
+          }
+          break;
+        case "asset":
+          if (data) {
+            await editAsset({
+              asset: {
+                name: account.name,
+                initial_balance: account.initial_balance
+                  ? new Decimal(account.initial_balance).mul(100).toNumber()
+                  : 0,
+                icon,
+              },
+              assetId: data.id,
+            });
+          } else {
+            await createAsset({
+              asset: {
+                name: account.name,
+                initial_balance: account.initial_balance
+                  ? new Decimal(account.initial_balance).mul(100).toNumber()
+                  : 0,
+                icon,
+              },
+            });
+          }
+          break;
+        case "liability":
+          if (data) {
+            await editLiability({
+              liability: {
+                name: account.name,
+                icon,
+              },
+              liabilityId: data.id,
+            });
+          } else {
+            await createLiability({
+              liability: {
+                name: account.name,
+                icon,
+              },
+            });
+          }
+          break;
+      }
     }
   };
   useEffect(() => {
@@ -198,10 +173,14 @@ const AccountModal: FC<AccountModalProps> = ({
         setIconType("emoji");
       }
       form.setFieldsValue({
-        ...data,
-        initial_balance: data.initial_balance
-          ? new Decimal(data.initial_balance).div(100).toNumber()
-          : 0,
+        accounts: [
+          {
+            ...data,
+            initial_balance: data.initial_balance
+              ? new Decimal(data.initial_balance).div(100).toNumber()
+              : 0,
+          },
+        ],
       });
     }
   }, [data]);
@@ -290,6 +269,127 @@ const AccountModal: FC<AccountModalProps> = ({
       form.resetFields();
     }
   }, [isOpen]);
+
+  const renderAccountForm = (
+    field: any,
+    index: number,
+    fields: any[],
+    remove: (name: number | number[]) => void
+  ) => {
+    return (
+      <div key={field.key}>
+        <div className="flex items-start gap-2 ">
+          {fields.length > 1 && (
+            <Button
+              onClick={() => remove(field.name)}
+              className="mt-1"
+              isIconOnly
+              variant="light"
+              radius="sm"
+              size="sm"
+              color="danger"
+            >
+              <MaterialSymbolsDelete className="text-lg" />
+            </Button>
+          )}
+          <Form.Item
+            {...field}
+            validateTrigger={["onBlur"]}
+            name={[field.name, "name"]}
+            className="flex-1"
+            rules={[
+              {
+                async validator(rule, value) {
+                  if (!value || value === data?.name) {
+                    return Promise.resolve(); // 让 required 规则处理空值
+                  }
+                  let res = false;
+
+                  switch (type) {
+                    case "income":
+                      res = await IncomeService.checkIncomeName(
+                        value,
+                        book?.id || ""
+                      );
+                      break;
+                    case "expense":
+                      res = await ExpenseService.checkExpenseName(
+                        value,
+                        book?.id || ""
+                      );
+                      break;
+                    case "asset":
+                      res = await AssetsService.checkAssetName(
+                        value,
+                        book?.id || ""
+                      );
+
+                      break;
+                    case "liability":
+                      res = await LiabilityService.checkLiabilityName(
+                        value,
+                        book?.id || ""
+                      );
+                      break;
+                  }
+
+                  if (res) {
+                    return Promise.reject("账户名称已存在");
+                  }
+                  return Promise.resolve();
+                },
+              },
+              {
+                required: true,
+                message: "请输入账户名称",
+              },
+            ]}
+          >
+            <Input
+              radius="sm"
+              isRequired
+              startContent={
+                <Popover
+                  isOpen={iconOpen}
+                  showArrow
+                  placement="right"
+                  onOpenChange={setIconOpen}
+                >
+                  <PopoverTrigger>
+                    <Button
+                      onClick={() => setIconOpen(true)}
+                      size="sm"
+                      radius="sm"
+                      isIconOnly
+                      className="text-xs"
+                      variant="flat"
+                    >
+                      <AccountIconRender
+                        icon={
+                          iconId ? iconId : "emoji:stuck_out_tongue_winking_eye"
+                        }
+                      />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0">
+                    {renderIconPicker()}
+                  </PopoverContent>
+                </Popover>
+              }
+              placeholder="请输入账户名称"
+            />
+          </Form.Item>
+        </div>
+
+        {type === "asset" && (
+          <Form.Item {...field} name={[field.name, "initial_balance"]}>
+            <Input radius="sm" type="number" placeholder="请输入账户初始金额" />
+          </Form.Item>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
@@ -300,105 +400,31 @@ const AccountModal: FC<AccountModalProps> = ({
             </ModalHeader>
             <ModalBody>
               <Form form={form}>
-                <Form.Item
-                  validateTrigger={["onBlur"]}
-                  name="name"
-                  className="flex-1"
-                  rules={[
-                    {
-                      async validator(rule, value) {
-                        if (!value || value === data?.name) {
-                          return Promise.resolve(); // 让 required 规则处理空值
-                        }
-                        let res = false;
-
-                        switch (type) {
-                          case "income":
-                            res = await IncomeService.checkIncomeName(
-                              value,
-                              book?.id || ""
-                            );
-                            break;
-                          case "expense":
-                            res = await ExpenseService.checkExpenseName(
-                              value,
-                              book?.id || ""
-                            );
-                            break;
-                          case "asset":
-                            res = await AssetsService.checkAssetName(
-                              value,
-                              book?.id || ""
-                            );
-
-                            break;
-                          case "liability":
-                            res = await LiabilityService.checkLiabilityName(
-                              value,
-                              book?.id || ""
-                            );
-                            break;
-                        }
-
-                        if (res) {
-                          return Promise.reject("账户名称已存在");
-                        }
-                        return Promise.resolve();
-                      },
-                    },
-                    {
-                      required: true,
-                      message: "请输入账户名称",
-                    },
-                  ]}
-                >
-                  <Input
-                    radius="sm"
-                    isRequired
-                    startContent={
-                      <Popover
-                        isOpen={iconOpen}
-                        showArrow
-                        placement="right"
-                        onOpenChange={setIconOpen}
-                      >
-                        <PopoverTrigger>
+                <Form.List name="accounts" initialValue={[{}]}>
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map((field, index) =>
+                        renderAccountForm(field, index, fields, remove)
+                      )}
+                      {data ? (
+                        <></>
+                      ) : (
+                        <Form.Item>
                           <Button
-                            onClick={() => setIconOpen(true)}
+                            color="primary"
+                            variant="flat"
                             size="sm"
                             radius="sm"
-                            isIconOnly
-                            className="text-xs"
-                            variant="flat"
+                            className="w-full"
+                            onClick={() => add()}
                           >
-                            <AccountIconRender
-                              icon={
-                                iconId
-                                  ? iconId
-                                  : "emoji:stuck_out_tongue_winking_eye"
-                              }
-                            />
+                            继续添加
                           </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0">
-                          {renderIconPicker()}
-
-                          {/* <Picker
-                            data={emojiData}
-                            onEmojiSelect={(v: { id: string }) => {
-                              // form.setFieldValue("icon", v.id);
-                              setEmojiId(v.id);
-                              setEmojiOpen(false);
-                            }}
-                          /> */}
-                        </PopoverContent>
-                      </Popover>
-                    }
-                    placeholder="请输入账户名称"
-                  />
-                </Form.Item>
-
-                {renderForm()}
+                        </Form.Item>
+                      )}
+                    </>
+                  )}
+                </Form.List>
               </Form>
             </ModalBody>
             <ModalFooter>

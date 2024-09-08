@@ -182,7 +182,10 @@ export class AssetsService {
       .where(and(...conditions));
 
     // Fetch all asset accounts
-    const assetAccounts = await db.select().from(assets);
+    const assetAccounts = await db
+      .select()
+      .from(assets)
+      .where(eq(assets.book_id, book_id));
 
     // Create a map of asset account IDs to names and initial balances
     const accountMap = new Map(assetAccounts.map((acc) => [acc.id, acc]));
