@@ -198,11 +198,13 @@ export function useAssetSankeyService(
   end?: number
 ) {
   const queryKey = ["sankey", accountId, start, end];
+
   const { data: sankeyData, isLoading: isLoadingSankey } = useQuery<
     SankeyData,
     Error
-  >(queryKey, () => AssetsService.getSankeyData(accountId, type), {
+  >(queryKey, () => AssetsService.getSankeyData(accountId, type, start, end), {
     keepPreviousData: true,
+    enabled: !!accountId,
   });
 
   return {

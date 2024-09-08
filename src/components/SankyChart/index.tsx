@@ -38,7 +38,6 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
       </div>
     );
   }
-
   return (
     <EChart
       style={{
@@ -52,8 +51,6 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
       series={[
         {
           type: "sankey",
-          //   nodeAlign: "left",
-
           emphasis: {
             focus: "adjacency",
           },

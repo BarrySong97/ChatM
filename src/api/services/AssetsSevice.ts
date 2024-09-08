@@ -7,7 +7,7 @@ import { assets, transaction, expense, income, liability } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq, lte, gte, and, min, or, sql, lt } from "drizzle-orm";
+import { eq, lte, gte, and, min, or, sql, lt, gt } from "drizzle-orm";
 
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
@@ -401,6 +401,13 @@ export class AssetsService {
     const filteredEnd = endDate
       ? dayjs(endDate).add(1, "day").toDate().getTime()
       : undefined;
+    console.log(
+      dayjs(startDate).format("YYYY-MM-DD"),
+      dayjs(filteredStart).format("YYYY-MM-DD"),
+      dayjs(endDate).format("YYYY-MM-DD"),
+      dayjs(filteredEnd).format("YYYY-MM-DD")
+    );
+
     // 1. Query transactions with related account information
     let account: { name: string | null } | undefined;
     if (type === "asset") {
@@ -412,12 +419,12 @@ export class AssetsService {
     } else {
       account = await LiabilityService.getLiabilityById(accountId);
     }
-    const conditions = [eq(transaction.source_account_id, accountId)];
+    const conditions = [];
     if (filteredStart) {
-      conditions.push(gte(transaction.transaction_date, filteredStart));
+      conditions.push(gt(transaction.transaction_date, filteredStart));
     }
     if (filteredEnd) {
-      conditions.push(lte(transaction.transaction_date, filteredEnd));
+      conditions.push(lt(transaction.transaction_date, filteredEnd));
     }
     const sourceTransactions = await db
       .select({
@@ -439,7 +446,7 @@ export class AssetsService {
       .leftJoin(expense, eq(transaction.destination_account_id, expense.id))
       .leftJoin(income, eq(transaction.destination_account_id, income.id))
       .leftJoin(liability, eq(transaction.destination_account_id, liability.id))
-      .where(and(...conditions));
+      .where(and(eq(transaction.source_account_id, accountId), ...conditions));
 
     const destinationTransactions = await db
       .select({
@@ -461,7 +468,9 @@ export class AssetsService {
       .leftJoin(expense, eq(transaction.source_account_id, expense.id))
       .leftJoin(income, eq(transaction.source_account_id, income.id))
       .leftJoin(liability, eq(transaction.source_account_id, liability.id))
-      .where(eq(transaction.destination_account_id, accountId));
+      .where(
+        and(eq(transaction.destination_account_id, accountId), ...conditions)
+      );
 
     // 2. Separate transactions into inflows and outflows
 
