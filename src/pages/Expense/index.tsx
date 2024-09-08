@@ -7,6 +7,7 @@ import { useIndexData } from "@/api/hooks";
 import { PageWrapper } from "@/components/PageWrapper";
 import { CategoryBarChart } from "@/components/PieChart";
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
+import AccountModal from "@/components/AccountModal";
 
 export interface PageProps {}
 
@@ -39,6 +40,7 @@ const Page: FC<PageProps> = () => {
     startDate: value.start,
     endDate: value.end,
   });
+  const [showAccountModal, setShowAccountModal] = useState(false);
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
@@ -47,7 +49,11 @@ const Page: FC<PageProps> = () => {
             支出(总:{expenditureData?.totalAmount})
           </h1>
         </div>
-        <Button size="sm" color="primary">
+        <Button
+          size="sm"
+          color="primary"
+          onClick={() => setShowAccountModal(true)}
+        >
           添加
         </Button>
       </div>
@@ -77,6 +83,13 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
+      <AccountModal
+        isOpen={showAccountModal}
+        onOpenChange={(value) => {
+          setShowAccountModal(value);
+        }}
+        type="expense"
+      />
     </PageWrapper>
   );
 };

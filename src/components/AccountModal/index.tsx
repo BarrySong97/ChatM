@@ -18,9 +18,8 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Divider,
 } from "@nextui-org/react";
-import { Form, PlusOutlined, MinusCircleOutlined, message } from "antd";
+import { Form, message } from "antd";
 import to from "await-to-js";
 import { FC, useEffect, useState } from "react";
 import Decimal from "decimal.js";
@@ -38,10 +37,9 @@ import { useQueryClient } from "react-query";
 import { useLocation, useNavigate } from "react-router-dom";
 export interface AccountModalProps {
   isOpen: boolean;
-  onOpenChange: () => void;
+  onOpenChange: (value: boolean) => void;
   type: "income" | "expense" | "asset" | "liability";
-  onDataChange?: () => void;
-  data: any;
+  data?: any;
 }
 
 type BankCode = {
@@ -53,7 +51,6 @@ const AccountModal: FC<AccountModalProps> = ({
   onOpenChange,
   type,
   data,
-  onDataChange,
 }) => {
   const [form] = Form.useForm();
   const { createAsset, editAsset, isCreateLoading, isEditLoading } =
@@ -189,8 +186,8 @@ const AccountModal: FC<AccountModalProps> = ({
       form.setFieldsValue({
         accounts: [
           {
-            ...data,
-            initial_balance: data.initial_balance
+            ...(data || {}),
+            initial_balance: data?.initial_balance
               ? new Decimal(data.initial_balance).div(100).toNumber()
               : 0,
           },

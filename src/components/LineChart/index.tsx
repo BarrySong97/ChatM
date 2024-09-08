@@ -43,7 +43,6 @@ export function Trend(props: TrendProps) {
 
     return dataMax / (dataMax - dataMin);
   };
-  const off = gradientOffset();
   const data = props.data.map((v: any) => ({
     label: v.label,
     amount: Number(v.amount),

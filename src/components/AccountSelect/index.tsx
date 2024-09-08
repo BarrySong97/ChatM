@@ -101,7 +101,6 @@ const AccountSelect: FC<AccountSelectProps> = ({
       }}
       renderValue={() => {
         const items = data?.find((account) => account.id === value);
-        console.log(items);
         return (
           <div className="flex items-center gap-2">
             <AccountIconRender icon={items?.icon ?? ""} />

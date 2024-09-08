@@ -1,6 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
-import { FC } from "react";
-import { useNavigate } from "react-router-dom";
+import { FC, useState } from "react";
 import CategoryList from "@/components/CategoryList";
 import { useIndexData } from "@/api/hooks";
 import { useAssetCategoryService } from "@/api/hooks/assets";
@@ -8,6 +7,7 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { CategoryBarChart } from "@/components/PieChart";
 import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
 import { useLiabilityCategoryService } from "@/api/hooks/liability";
+import AccountModal from "@/components/AccountModal";
 
 export interface PageProps {}
 
@@ -18,13 +18,18 @@ const Page: FC<PageProps> = () => {
     endDate: now,
   });
   const { liabilitiesData } = useIndexData();
+  const [showAccountModal, setShowAccountModal] = useState(false);
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">负债</h1>
         </div>
-        <Button size="sm" color="primary">
+        <Button
+          size="sm"
+          color="primary"
+          onClick={() => setShowAccountModal(true)}
+        >
           添加
         </Button>
       </div>
@@ -61,6 +66,13 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
+      <AccountModal
+        isOpen={showAccountModal}
+        onOpenChange={(value) => {
+          setShowAccountModal(value);
+        }}
+        type="liability"
+      />
     </PageWrapper>
   );
 };

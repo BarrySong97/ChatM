@@ -27,6 +27,10 @@ import Decimal from "decimal.js";
 import AccountSelect from "../AccountSelect";
 import { liability } from "@db/schema";
 import { useQueryClient } from "react-query";
+import {
+  operationColors,
+  operationTranslations,
+} from "../Transactions/contant";
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -181,30 +185,115 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                   label="类型"
                   rules={[{ required: true, message: "请选择类型" }]}
                 >
-                  <Select size="sm" aria-label="type">
+                  <Select
+                    renderValue={(item) => {
+                      const value = Array.from(item)[0]
+                        .key as FinancialOperation;
+                      const color = operationColors[value];
+                      const text = operationTranslations[value];
+                      return (
+                        <div className="flex items-center gap-1 ">
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{
+                              backgroundColor: color,
+                            }}
+                          ></div>
+                          <div>{text}</div>
+                        </div>
+                      );
+                    }}
+                    size="sm"
+                    aria-label="type"
+                  >
                     <SelectItem key={FinancialOperation.Income} value="1">
-                      收入
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.Income],
+                          }}
+                        ></div>
+                        <div>收入</div>
+                      </div>
                     </SelectItem>
                     <SelectItem key={FinancialOperation.Expenditure} value="2">
-                      支出
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.Expenditure],
+                          }}
+                        ></div>
+                        <div>支出</div>
+                      </div>
                     </SelectItem>
                     <SelectItem key={FinancialOperation.Transfer} value="3">
-                      转账(个人账户之间流转)
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.Transfer],
+                          }}
+                        ></div>
+                        <div>转账(个人账户之间流转)</div>
+                      </div>
                     </SelectItem>
                     <SelectItem
                       key={FinancialOperation.LoanExpenditure}
                       value="4"
                     >
-                      贷款消费(白条，花呗，信用卡，房贷)
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[
+                                FinancialOperation.LoanExpenditure
+                              ],
+                          }}
+                        ></div>
+                        <div>贷款消费(白条，花呗，信用卡，房贷)</div>
+                      </div>
                     </SelectItem>
                     <SelectItem key={FinancialOperation.RepayLoan} value="5">
-                      还款
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.RepayLoan],
+                          }}
+                        ></div>
+                        <div>还款</div>
+                      </div>
                     </SelectItem>
                     <SelectItem key={FinancialOperation.Borrow} value="6">
-                      借款
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.Borrow],
+                          }}
+                        ></div>
+                        <div>借款</div>
+                      </div>
                     </SelectItem>
                     <SelectItem key={FinancialOperation.Refund} value="7">
-                      退款
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.Refund],
+                          }}
+                        ></div>
+                        <div>退款</div>
+                      </div>
                     </SelectItem>
                   </Select>
                 </Form.Item>

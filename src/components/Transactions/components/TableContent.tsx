@@ -25,6 +25,7 @@ import TagInput from "@/components/TagInput";
 import { useTagService } from "@/api/hooks/tag";
 import AccountIconRender from "@/components/AccountIconRender";
 import { parseToRgba } from "@glideapps/glide-data-grid";
+import { useQueryClient } from "react-query";
 
 interface TableContentProps {
   transactions: Transaction[];
@@ -101,6 +102,7 @@ const TableContent: React.FC<TableContentProps> = ({
   liabilitiesRef.current = liabilities;
 
   const { tags } = useTagService();
+  const queryClient = useQueryClient();
   const [colDefs, setColDefs] = useState<
     ColDef<
       Transaction & {
@@ -434,6 +436,8 @@ const TableContent: React.FC<TableContentProps> = ({
           editTransaction({
             transactionId: e.data.id,
             transaction: editBody,
+          }).then(() => {
+            queryClient.invalidateQueries({ refetchActive: true });
           });
         }}
         onSelectionChanged={(e) => {

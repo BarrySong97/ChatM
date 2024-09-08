@@ -643,19 +643,11 @@ const Side: FC<SideProps> = () => {
         />
         <AccountModal
           isOpen={showAccountModal}
-          onDataChange={() => {
-            queryClient.invalidateQueries({
-              queryKey: [
-                "side",
-                timeFilter.startDate,
-                timeFilter.endDate,
-                book?.id,
-              ],
-            });
-          }}
-          onOpenChange={() => {
-            setEditData(undefined);
-            setShowAccountModal(false);
+          onOpenChange={(value) => {
+            if (!value) {
+              setEditData(undefined);
+            }
+            setShowAccountModal(value);
           }}
           data={editData}
           type={modalType ?? "income"}

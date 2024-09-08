@@ -13,7 +13,7 @@ import SelectedRowsActions from "./components/SelectedRowsActions";
 export default function TransactionsTable({
   accountId,
 }: {
-  accountId: string;
+  accountId?: string;
 }) {
   const [selectedRows, setSelectedRows] = useState<Transaction[]>([]);
   const [filterValue, setFilterValue] = React.useState("");

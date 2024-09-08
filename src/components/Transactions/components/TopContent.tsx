@@ -17,6 +17,7 @@ import {
 } from "@/assets/icon";
 import AmountRangeFilter from "@/components/AmountRangeFilter";
 import AccountIconRender from "@/components/AccountIconRender";
+import TransactionModal from "@/components/TransactionModal";
 
 export interface TopContentProps {
   filterValue: string;
@@ -150,6 +151,7 @@ const TopContent: React.FC<TopContentProps> = ({
       "0"
     )}/${String(end.getDate()).padStart(2, "0")}`;
   };
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between gap-3 items-end">
@@ -356,6 +358,7 @@ const TopContent: React.FC<TopContentProps> = ({
         </div>
         <div className="flex gap-3">
           <Button
+            onClick={() => setShowTransactionModal(true)}
             className="bg-foreground text-background"
             endContent={<PlusIcon />}
             size="sm"
@@ -389,6 +392,10 @@ const TopContent: React.FC<TopContentProps> = ({
           </select>
         </label>
       </div>
+      <TransactionModal
+        isOpen={showTransactionModal}
+        onChange={(value) => setShowTransactionModal(value)}
+      />
     </div>
   );
 };

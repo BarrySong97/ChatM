@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAssetCategoryService } from "@/api/hooks/assets";
 import CategoryList from "@/components/CategoryList";
@@ -7,6 +7,7 @@ import { useIndexData } from "@/api/hooks";
 import { PageWrapper } from "@/components/PageWrapper";
 import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCard";
 import { CategoryBarChart } from "@/components/PieChart";
+import AccountModal from "@/components/AccountModal";
 export interface PageProps {}
 interface DataType {
   key: string;
@@ -23,13 +24,19 @@ const Page: FC<PageProps> = () => {
   });
 
   const { assetsData } = useIndexData();
+  const [showAccountModal, setShowAccountModal] = useState(false);
+
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">资产 </h1>
         </div>
-        <Button size="sm" color="primary">
+        <Button
+          size="sm"
+          color="primary"
+          onClick={() => setShowAccountModal(true)}
+        >
           添加
         </Button>
       </div>
@@ -66,6 +73,13 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
+      <AccountModal
+        isOpen={showAccountModal}
+        onOpenChange={(value) => {
+          setShowAccountModal(value);
+        }}
+        type="asset"
+      />
     </PageWrapper>
   );
 };

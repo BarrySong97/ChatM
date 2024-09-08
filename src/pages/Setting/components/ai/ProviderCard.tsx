@@ -33,8 +33,6 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
   }, [provider, form]);
 
   const handleSave = async (values: any) => {
-    console.log(values);
-
     await editProvider({
       providerId: provider.id,
       provider: {
@@ -45,7 +43,6 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
       },
     });
   };
-  console.log();
   return (
     <Card className="w-full" shadow="sm">
       <CardHeader className="flex justify-between items-center">
