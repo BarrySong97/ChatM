@@ -2,7 +2,6 @@ import { createHashRouter } from "react-router-dom";
 import AppLayout from "./layout/NavigationLayout";
 import Index from "./pages/Index";
 import Assets from "./pages/Assets";
-// import DataMapping from "./pages/DataMapping";
 import Category from "./pages/Category";
 import Transactions from "./pages/Transactions";
 import Lia from "./pages/Lia";
@@ -52,10 +51,6 @@ const router = createHashRouter([
         path: "/category/:type/:id",
         element: <Category />,
       },
-      // {
-      //   path: "/mapping",
-      //   element: <DataMapping />,
-      // },
     ],
   },
   // 登录页面路由

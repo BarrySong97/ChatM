@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { CategoryTypes } from "./category-adpter";
 import { Card, CardBody, CardHeader } from "@nextui-org/react";
+import { message } from "antd";
 export type ImportCategory = {
   name: string;
   key: string;
@@ -13,7 +14,13 @@ export type InputCategoryProps = {
 const InputCategory: FC<InputCategoryProps> = ({ data, onClick }) => {
   return (
     <Card
-      onClick={() => onClick(data.key)}
+      onClick={() => {
+        if (data.key === "china_bank") {
+          message.error("该功能正在开发中");
+          return;
+        }
+        onClick(data.key);
+      }}
       shadow="sm"
       radius="sm"
       isHoverable

@@ -418,6 +418,7 @@ export default function ImportDataTable({
           <Button
             onClick={() => batchAiProcess()}
             radius="sm"
+            isDisabled={!data?.length || processLoading}
             size="sm"
             isLoading={processLoading}
             color="primary"
@@ -448,17 +449,6 @@ export default function ImportDataTable({
         >
           <AgGridReact rowData={data} columnDefs={colDefs} />
         </div>
-        {/* <Table
-          pagination={false}
-          columns={columns}
-          title={renderTitle}
-          scroll={{
-            x: 1000,
-            y: 400,
-          }}
-          rowKey={"id"}
-          dataSource={data}
-        ></Table> */}
       </ConfigProvider>
     </div>
   );

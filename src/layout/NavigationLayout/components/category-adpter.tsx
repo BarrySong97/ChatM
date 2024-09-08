@@ -16,7 +16,7 @@ export const CategoryTypes: ImportCategory[] = [
     icon: <img src={Alipay} alt="" className="w-16 h-16" />,
   },
   {
-    name: "一般银行卡",
+    name: "银行卡（开发中）",
     key: "china_bank",
     icon: <img src={yinlian} alt="" className="h-16" />,
   },
@@ -59,12 +59,28 @@ function getWechatData(data: string[][]) {
   }
   return result;
 }
-function alipay(data: string[][], column: string[]) {}
+function getAlipayData(data: string[][]) {
+  const result = [];
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (item[0]) {
+      result.push({
+        id: uuidv4(),
+        transaction_date: item[0],
+        amount: item[6],
+        type: item[5],
+        content: `${item[1]} ${item[2]} ${item[4]}`,
+      });
+    }
+  }
+  return result;
+}
 function china_bank(data: string[][], column: string[]) {}
 
 const categoryAdapter = {
-  alipay,
+  getAlipayData,
+  getWechatData,
   china_bank,
 };
 
-export { getWechatData };
+export { getWechatData, getAlipayData, china_bank };
