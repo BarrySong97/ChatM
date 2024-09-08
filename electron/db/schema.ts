@@ -10,6 +10,7 @@ export const book = sqliteTable("book", {
   created_at: integer("created_at"),
   updated_at: integer("updated_at"),
 });
+
 export const transaction = sqliteTable("transactions", {
   id: text("id").primaryKey(),
   content: text("content"),
@@ -139,3 +140,35 @@ export type Tag = InferSelectModel<typeof tags>;
 export type Tags = Tag[];
 export type Book = InferSelectModel<typeof book>;
 export type Books = Book[];
+
+export const provider = sqliteTable("provider", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  apiKey: text("api_key"),
+  baseUrl: text("base_url"),
+  defaultModel: text("default_model"), // Add this line
+});
+
+export const model = sqliteTable("model", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  providerId: text("provider_id")
+    .notNull()
+    .references(() => provider.id, { onDelete: "cascade" }),
+});
+
+export const providerRelations = relations(provider, ({ many }) => ({
+  models: many(model),
+}));
+
+export const modelRelations = relations(model, ({ one }) => ({
+  provider: one(provider, {
+    fields: [model.providerId],
+    references: [provider.id],
+  }),
+}));
+
+export type Provider = InferSelectModel<typeof provider>;
+export type Providers = Provider[];
+export type Model = InferSelectModel<typeof model>;
+export type Models = Model[];

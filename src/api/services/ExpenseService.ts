@@ -175,6 +175,9 @@ export class ExpenseService {
     if (filter?.endDate) {
       conditions.push(lt(transaction.transaction_date, endDate));
     }
+    if (book_id) {
+      conditions.push(eq(transaction.book_id, book_id));
+    }
     const transactions = await db
       .select({
         amount: transaction.amount,

@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { Modal, ModalContent, ModalBody, Button } from "@nextui-org/react";
 import { cn } from "@/lib/utils";
-import { PhCreditCardLight, PhQuestion } from "./icon";
+import { MdiRobotOutline, PhCreditCardLight, PhQuestion } from "./icon";
 import { BookAtom } from "@/globals";
 import { useAtom } from "jotai";
 import { useBookService } from "@/api/hooks/book";
@@ -10,6 +10,7 @@ import Pricing from "./components/pricing";
 import About from "./components/about";
 import { Book } from "@db/schema";
 import BookSetting from "./components/book";
+import AISetting from "./components/ai";
 export interface SettingProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -17,6 +18,12 @@ export interface SettingProps {
 const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
   const menus = [
     { key: "pricing", name: "定价", icon: <PhCreditCardLight /> },
+    {
+      key: "ai",
+      name: "AI设置",
+      icon: <MdiRobotOutline />,
+    },
+
     {
       key: "about",
       name: "关于流记",
@@ -36,6 +43,8 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
         return <About />;
       case "book":
         return <BookSetting book={selectMenuBook} />;
+      case "ai":
+        return <AISetting />;
       default:
         return null;
     }
@@ -84,7 +93,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
                     );
                   })}
                 </div>
-                <div className="flex flex-col gap-2 mt-4">
+                {/* <div className="flex flex-col gap-2 mt-4">
                   <div className="text-sm text-[#575859]">账本</div>
                   {books?.map((book) => {
                     const isActive = selectMenuBook?.id === book.id;
@@ -117,7 +126,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
                       </Button>
                     );
                   }) ?? []}
-                </div>
+                </div> */}
               </div>
               <div className="flex-1 p-4  ">{renderComponent()}</div>
             </ModalBody>
