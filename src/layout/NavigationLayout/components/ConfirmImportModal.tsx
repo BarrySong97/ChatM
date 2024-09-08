@@ -14,12 +14,14 @@ import { EditTransaction } from "@/api/hooks/transaction";
 import { message } from "antd";
 import Decimal from "decimal.js";
 import dayjs from "dayjs";
+import { useAtomValue } from "jotai";
+import { BookAtom } from "@/globals";
+import { useQueryClient } from "react-query";
 
 interface ConfirmImportModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   fileData: Transaction[];
-  onConfirm: () => void;
   onClose: () => void;
 }
 
@@ -27,11 +29,12 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
   isOpen,
   onOpenChange,
   fileData,
-  onConfirm,
   onClose,
 }) => {
   const [importLoading, setImportLoading] = useState(false);
 
+  const book = useAtomValue(BookAtom);
+  const queryClient = useQueryClient();
   const handleConfirmImport = async () => {
     setImportLoading(true);
     const [err, res] = await to(
@@ -40,6 +43,7 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
           ...v,
           transaction_date: dayjs(v.transaction_date).toDate().getTime(),
           amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
+          book_id: book?.id,
         })) as unknown as EditTransaction[]
       )
     );
@@ -50,6 +54,7 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
       onClose();
       message.success("导入成功");
     }
+    queryClient.invalidateQueries({ refetchActive: true });
     setImportLoading(false);
   };
 

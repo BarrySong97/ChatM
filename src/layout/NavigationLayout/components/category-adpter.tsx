@@ -51,7 +51,7 @@ function getWechatData(data: string[][]) {
       result.push({
         id: uuidv4(),
         transaction_date: item[0],
-        amount: item[5].slice(1),
+        amount: Number(item[5].slice(1)),
         type: item[4],
         content: `${item[1]} ${item[2]} ${item[3]}`,
       });
@@ -67,7 +67,7 @@ function getAlipayData(data: string[][]) {
       result.push({
         id: uuidv4(),
         transaction_date: item[0],
-        amount: item[6],
+        amount: Number(item[6]),
         type: item[5],
         content: `${item[1]} ${item[2]} ${item[4]}`,
       });

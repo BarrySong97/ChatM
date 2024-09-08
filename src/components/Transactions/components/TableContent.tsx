@@ -11,7 +11,13 @@ import {
   Transaction,
 } from "@db/schema";
 import { DatePicker, InputNumber, Tag } from "antd";
-import { Chip, Select, SelectItem, SelectSection } from "@nextui-org/react";
+import {
+  Chip,
+  Select,
+  SelectItem,
+  SelectSection,
+  Spinner,
+} from "@nextui-org/react";
 import dayjs from "dayjs";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationColors, operationTranslations } from "../contant";
@@ -24,7 +30,6 @@ import AccountSelect from "@/components/AccountSelect";
 import TagInput from "@/components/TagInput";
 import { useTagService } from "@/api/hooks/tag";
 import AccountIconRender from "@/components/AccountIconRender";
-import { parseToRgba } from "@glideapps/glide-data-grid";
 import { useQueryClient } from "react-query";
 
 interface TableContentProps {
@@ -40,6 +45,7 @@ interface TableContentProps {
   onSelectionChanged: (rows: Transaction[]) => void;
   transactionListParams?: TransactionListParams;
   selectedTransactions: Transaction[];
+  importTable?: boolean;
 }
 
 const TableContent: React.FC<TableContentProps> = ({
@@ -51,6 +57,7 @@ const TableContent: React.FC<TableContentProps> = ({
   expenses,
   onSelectionChanged,
   selectedTransactions,
+  importTable = false,
 }) => {
   const renderSource = (type: FinancialOperation) => {
     switch (type) {
@@ -173,7 +180,7 @@ const TableContent: React.FC<TableContentProps> = ({
       },
       headerName: "金额",
       cellRenderer: (params: any) => {
-        return <div>{params.value.toFixed(2)}</div>;
+        return <div>{params.value?.toFixed(2)}</div>;
       },
     },
     {
@@ -223,9 +230,13 @@ const TableContent: React.FC<TableContentProps> = ({
         );
       },
       cellRenderer: (params: any) => {
-        const color = operationColors[params.value as FinancialOperation];
-        const text = operationTranslations[params.value as FinancialOperation];
-        return (
+        const color = operationColors[params?.value as FinancialOperation];
+        const text = operationTranslations[params?.value as FinancialOperation];
+        if (params?.data?.status) {
+          return <Spinner size="sm" />;
+        }
+
+        return text ? (
           <Chip
             radius="sm"
             size="sm"
@@ -242,6 +253,8 @@ const TableContent: React.FC<TableContentProps> = ({
               <div>{text}</div>
             </div>
           </Chip>
+        ) : (
+          ""
         );
       },
     },
@@ -251,34 +264,39 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 130,
       editable: true,
       cellRenderer: (params: any) => {
+        if (params?.data?.status) {
+          return <Spinner size="sm" />;
+        }
         let source: any = asssetsRef.current?.find(
-          (asset) => asset.id === params.value
+          (asset) => asset.id === params?.value
         );
         if (!source) {
           source = liabilitiesRef.current?.find(
-            (liability) => liability.id === params.value
+            (liability) => liability.id === params?.value
           );
         }
         if (!source) {
           source = incomesRef.current?.find(
-            (income) => income.id === params.value
+            (income) => income.id === params?.value
           );
         }
         if (!source) {
           source = expensesRef.current?.find(
-            (expense) => expense.id === params.value
+            (expense) => expense.id === params?.value
           );
         }
 
-        return (
+        return source ? (
           <div className="flex items-center  h-full">
             <Chip radius="sm" size="sm" variant="flat" color="default">
               <div className="flex items-center gap-1">
-                <AccountIconRender icon={source.icon} />
-                <span>{source.name}</span>
+                <AccountIconRender icon={source?.icon} />
+                <span>{source?.name}</span>
               </div>
             </Chip>
           </div>
+        ) : (
+          ""
         );
       },
       cellEditor: ({ value, onValueChange, data, api }) => {
@@ -307,34 +325,39 @@ const TableContent: React.FC<TableContentProps> = ({
       editable: true,
       width: 130,
       cellRenderer: (params: any) => {
+        if (params?.data?.status) {
+          return <Spinner size="sm" />;
+        }
         let destination: any = expensesRef.current?.find(
-          (expense) => expense.id === params.value
+          (expense) => expense.id === params?.value
         );
 
         if (!destination) {
           destination = incomesRef.current?.find(
-            (income) => income.id === params.value
+            (income) => income.id === params?.value
           );
         }
         if (!destination) {
           destination = asssetsRef.current?.find(
-            (asset) => asset.id === params.value
+            (asset) => asset.id === params?.value
           );
         }
         if (!destination) {
           destination = liabilitiesRef.current?.find(
-            (liability) => liability.id === params.value
+            (liability) => liability.id === params?.value
           );
         }
-        return (
+        return destination ? (
           <div className="flex items-center  h-full">
             <Chip radius="sm" size="sm" variant="flat" color="default">
               <div className="flex items-center gap-1">
-                <AccountIconRender icon={destination.icon} />
-                <span>{destination.name}</span>
+                <AccountIconRender icon={destination?.icon} />
+                <span>{destination?.name}</span>
               </div>
             </Chip>
           </div>
+        ) : (
+          ""
         );
       },
       cellEditor: ({ value, onValueChange, data, api }) => {
@@ -362,8 +385,8 @@ const TableContent: React.FC<TableContentProps> = ({
       headerName: "标签",
       editable: true,
       cellRenderer: (params: any) => {
-        return params.value
-          .map((tag: { tag: { name: string; id: string } }) => {
+        return params?.value
+          ?.map((tag: { tag: { name: string; id: string } }) => {
             if (tag.tag) {
               return `#${tag.tag.name}`;
             }
@@ -375,7 +398,7 @@ const TableContent: React.FC<TableContentProps> = ({
           .join(" ");
       },
       cellEditor: ({ value, onValueChange, api }) => {
-        const ids = value.map((v: { tag: { id: string } }) => {
+        const ids = value?.map((v: { tag: { id: string } }) => {
           if (v.tag) {
             return v.tag.id;
           }
@@ -419,6 +442,9 @@ const TableContent: React.FC<TableContentProps> = ({
         rowData={transactions}
         ref={gridRef}
         onCellValueChanged={(e) => {
+          if (importTable) {
+            return;
+          }
           const editBody = {
             [e.colDef.field as string]: e.newValue,
           };

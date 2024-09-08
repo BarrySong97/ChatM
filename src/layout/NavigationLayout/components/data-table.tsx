@@ -14,6 +14,7 @@ import { FinancialOperation } from "@/api/db/manager";
 import { AIService } from "@/api/services/AIService";
 import dayjs from "dayjs";
 import to from "await-to-js";
+import TableContent from "@/components/Transactions/components/TableContent";
 
 const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.Income]: "#4CAF50", // Green
@@ -78,9 +79,9 @@ export default function ImportDataTable({
     // Sort data to prioritize incomplete entries
     data.sort((a, b) => {
       const aIncomplete =
-        !a.type || !a.source_account_id || !a.destination_account_id;
+        !a.type || !a.source_account_id || !a.destination_account_id || !a.type;
       const bIncomplete =
-        !b.type || !b.source_account_id || !b.destination_account_id;
+        !b.type || !b.source_account_id || !b.destination_account_id || !b.type;
 
       if (aIncomplete && !bIncomplete) return -1;
       if (!aIncomplete && bIncomplete) return 1;
@@ -443,12 +444,20 @@ export default function ImportDataTable({
         }}
       >
         {renderTitle()}
-        <div
-          className="ag-theme-quartz mt-4" // applying the Data Grid theme
-          style={{ height: 500 }} // the Data Grid will fill the size of the parent container
-        >
-          <AgGridReact rowData={data} columnDefs={colDefs} />
-        </div>
+        <TableContent
+          transactions={data ?? []}
+          assets={assets ?? []}
+          liabilities={liabilities ?? []}
+          incomes={incomes ?? []}
+          expenses={expenses ?? []}
+          pageSize={10}
+          onPageSizeChange={() => {}}
+          totalPages={0}
+          totalCount={0}
+          importTable
+          selectedTransactions={[]}
+          onSelectionChanged={() => {}}
+        />
       </ConfigProvider>
     </div>
   );

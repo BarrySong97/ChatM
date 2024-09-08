@@ -88,19 +88,19 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   const renderSource = () => {
     switch (type) {
       case FinancialOperation.RepayLoan:
-        return ["assets", assets];
+        return ["asset", assets];
       case FinancialOperation.Income:
-        return ["incomes", incomes];
+        return ["income", incomes];
       case FinancialOperation.Expenditure:
-        return ["assets", assets];
+        return ["asset", assets];
       case FinancialOperation.Transfer:
-        return ["assets", assets];
+        return ["asset", assets];
       case FinancialOperation.Borrow:
-        return ["liabilities", liabilities];
+        return ["liability", liabilities];
       case FinancialOperation.LoanExpenditure:
-        return ["liabilities", liabilities];
+        return ["liability", liabilities];
       case FinancialOperation.Refund:
-        return ["expenses", expenses];
+        return ["expense", expenses];
       default:
         return ["", null];
     }
@@ -108,19 +108,19 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   const renderDestination = () => {
     switch (type) {
       case FinancialOperation.Income:
-        return ["assets", assets];
+        return ["asset", assets];
       case FinancialOperation.Expenditure:
-        return ["expenses", expenses];
+        return ["expense", expenses];
       case FinancialOperation.Transfer:
-        return ["assets", assets];
+        return ["asset", assets];
       case FinancialOperation.RepayLoan:
-        return ["liabilities", liabilities];
+        return ["liability", liabilities];
       case FinancialOperation.Borrow:
-        return ["assets", assets];
+        return ["asset", assets];
       case FinancialOperation.LoanExpenditure:
-        return ["expenses", expenses];
+        return ["expense", expenses];
       case FinancialOperation.Refund:
-        return ["assets", assets];
+        return ["asset", assets];
       default:
         return ["", null];
     }

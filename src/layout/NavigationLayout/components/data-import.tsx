@@ -20,6 +20,9 @@ import dayjs from "dayjs";
 import Decimal from "decimal.js";
 import { EditTransaction } from "@/api/hooks/transaction";
 import { UploadChangeParam, UploadFile } from "antd/es/upload";
+import { useAtomValue } from "jotai";
+import { BookAtom } from "@/globals";
+import { useQueryClient } from "react-query";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -77,30 +80,33 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
     setFileSource(key);
     setSteps(1);
   };
+  // const handleConfirmImport = async () => {
+  //   setImportLoading(true);
 
-  const handleConfirmImport = async () => {
-    setImportLoading(true);
-    const [err, res] = await to(
-      TransactionService.createTransactions(
-        fileData?.map((v) => {
-          return {
-            ...v,
-            transaction_date: dayjs(v.transaction_date).toDate().getTime(),
-            amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
-          };
-        }) as unknown as EditTransaction[]
-      )
-    );
-    if (err) {
-      console.error(err);
-      return;
-    } else {
-      onClose();
-      onOpenChange(false);
-      message.success("导入成功");
-    }
-    setImportLoading(false);
-  };
+  //   console.log(fileData);
+  //   // const [err, res] = await to(
+  //   //   TransactionService.createTransactions(
+  //   //     fileData?.map((v) => {
+  //   //       return {
+  //   //         ...v,
+  //   //         transaction_date: dayjs(v.transaction_date).toDate().getTime(),
+  //   //         amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
+  //   //         book_id: book?.id,
+  //   //       };
+  //   //     }) as unknown as EditTransaction[]
+  //   //   )
+  //   // );
+  //   // if (err) {
+  //   //   console.error(err);
+  //   //   return;
+  //   // } else {
+  //   //   queryClient.invalidateQueries({ refetchActive: true });
+  //   //   onClose();
+  //   //   onOpenChange(false);
+  //   //   message.success("导入成功");
+  //   // }
+  //   setImportLoading(false);
+  // };
 
   const onClose = () => {
     setIsComfirmModalOpen(false);
@@ -136,7 +142,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
     }
   }, [isOpen]);
 
-  const isAllDataComplete = fileData.every(
+  const isAllDataComplete = fileData?.every(
     (item) => item.type && item.destination_account_id && item.source_account_id
   );
 
@@ -145,6 +151,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       <Modal
         size={steps === 2 ? "5xl" : "xl"} // Changed from 3 to 2
         scrollBehavior="inside"
+        isDismissable={false}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
       >
@@ -193,7 +200,6 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                 isOpen={isComfirmModalOpen}
                 onOpenChange={setIsComfirmModalOpen}
                 fileData={fileData}
-                onConfirm={handleConfirmImport}
                 onClose={onClose}
               />
             </>

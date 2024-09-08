@@ -11,7 +11,7 @@ export interface AccountSelectProps {
   value?: string;
   onChange?: (value: string) => void;
   data?: Assets | Liabilities | Expenses | Incomes;
-  type: "assets" | "liabilities" | "expense" | "income";
+  type: "asset" | "liability" | "expense" | "income";
   placeholder?: string;
   table?: boolean;
   radius?: "sm" | "md" | "lg" | "none";
@@ -119,14 +119,16 @@ const AccountSelect: FC<AccountSelectProps> = ({
           if (e.has("new") && inputValue) {
             // Create new account
             const newAccount = { name: inputValue };
+            console.log(type);
+
             let res;
             switch (type) {
-              case "assets":
+              case "asset":
                 res = await createAsset({
                   asset: { ...newAccount, initial_balance: 0 },
                 });
                 break;
-              case "liabilities":
+              case "liability":
                 res = await createLiability({
                   liability: newAccount,
                 });

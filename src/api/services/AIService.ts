@@ -6,7 +6,6 @@ const client = new OpenAI({
   dangerouslyAllowBrowser: true,
   baseURL: "https://api.deepseek.com",
 });
-const groq_key = "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";
 const propmts = (
   expense: Expense[],
   income: Income[],
@@ -21,7 +20,7 @@ const propmts = (
     "收入（Income）：收入（收入账户） -> 资产（资产账户）：所有收入首先进入资产（如工资、投资收益等）\n" +
     "支出（Expenditure）：资产 -> 支出（支出账户）：从资产中支付日常消费\n" +
     "负债消费（LoanExpenditure）：负债(负债账户) -> 支出（支出账户）：通过负债进行消费\n" +
-    "支出 -> 资产：退款 \n" +
+    "支出 -> 资产(Refund)：退款 \n" +
     "负债借入（Borrow）：负债 -> 资产  借入\n" +
     "还债（RepayLoan）：资产 -> 负债：用资产偿还债务\n" +
     "转账（Transfer）：资产 -> 资产：资产间的转移（如不同银行账户间转账）\n" +
@@ -60,7 +59,6 @@ export class AIService {
     const dataString = data.map((item) => item.join(", ")).join("\n");
     const prompt = propmts(expense, income, liabilities, assets, importSource);
     const controller = new AbortController();
-    let signal = controller.signal;
     const response = await client.chat.completions.create({
       model: "deepseek-chat",
       messages: [

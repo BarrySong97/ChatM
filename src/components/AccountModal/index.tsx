@@ -67,12 +67,7 @@ const AccountModal: FC<AccountModalProps> = ({
     isCreateLoading: isCreateExpenseLoading,
     isEditLoading: isEditExpenseLoading,
   } = useExpenseService();
-  const {
-    createLiability,
-    editLiability,
-    isCreateLoading: isCreateLiabilityLoading,
-    isEditLoading: isEditLiabilityLoading,
-  } = useLiabilityService();
+  const { createLiability, editLiability } = useLiabilityService();
 
   const getModalTitle = (type: string) => {
     switch (type) {
@@ -88,6 +83,7 @@ const AccountModal: FC<AccountModalProps> = ({
   };
   const [iconId, setIconId] = useState<string | undefined>(undefined);
   const [iconType, setIconType] = useState<"emoji" | "bank">("emoji");
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const [selectIconType, setSelectIconType] = useState<"emoji" | "bank">();
   const book = useAtomValue(BookAtom);
@@ -97,6 +93,7 @@ const AccountModal: FC<AccountModalProps> = ({
     if (err) return;
 
     const accounts = values.accounts;
+    setSubmitLoading(true);
     for (const account of accounts) {
       const icon = account.icon || iconId; // 假设每个账户可以有自己的图标，否则使用全局的
       switch (type) {
@@ -165,6 +162,7 @@ const AccountModal: FC<AccountModalProps> = ({
       }
       message.destroy();
     }
+    setSubmitLoading(false);
     if (data) {
       message.success("编辑成功");
     } else {
@@ -421,7 +419,6 @@ const AccountModal: FC<AccountModalProps> = ({
                       ) : (
                         <Form.Item>
                           <Button
-                            color="primary"
                             variant="flat"
                             size="sm"
                             radius="sm"
@@ -443,16 +440,7 @@ const AccountModal: FC<AccountModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                isLoading={
-                  isCreateLoading ||
-                  isEditLoading ||
-                  isCreateIncomeLoading ||
-                  isEditIncomeLoading ||
-                  isCreateExpenseLoading ||
-                  isEditExpenseLoading ||
-                  isCreateLiabilityLoading ||
-                  isEditLiabilityLoading
-                }
+                isLoading={submitLoading}
                 onPress={async () => {
                   await onCreate();
                   form.resetFields();

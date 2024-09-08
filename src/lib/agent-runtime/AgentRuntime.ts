@@ -10,8 +10,6 @@ import { LobeOpenAI } from "./openai";
 import {
   ChatCompetitionOptions,
   ChatStreamPayload,
-  EmbeddingsOptions,
-  EmbeddingsPayload,
   ModelProvider,
 } from "./types";
 import { LobeZhipuAI } from "./zhipu";
