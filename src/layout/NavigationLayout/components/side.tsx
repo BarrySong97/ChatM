@@ -24,7 +24,7 @@ import {
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AccountModal from "@/components/AccountModal";
 import { useAssetsService } from "@/api/hooks/assets";
@@ -54,6 +54,7 @@ import { useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import { Book } from "@db/schema";
 import BookModal from "@/components/BookModal";
+import { useQueryClient } from "react-query";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -104,11 +105,14 @@ const Side: FC<SideProps> = () => {
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     return [start, end];
   });
-  const { assetsData, liabilitiesData, expenditureData, incomeData } =
-    useSideData({
+  const timeFilter = useMemo(() => {
+    return {
       startDate: month[0].getTime(),
       endDate: month[1].getTime(),
-    });
+    };
+  }, [month]);
+  const { assetsData, liabilitiesData, expenditureData, incomeData } =
+    useSideData(timeFilter);
 
   const items1: TreeNode[] = [
     {
@@ -383,6 +387,7 @@ const Side: FC<SideProps> = () => {
   const book = useAtomValue(BookAtom);
   const [showBookPopover, setShowBookPopover] = useState(false);
   const [editBook, setEditBook] = useState<Book>();
+  const queryClient = useQueryClient();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
   return (
     <ConfigProvider
@@ -638,6 +643,16 @@ const Side: FC<SideProps> = () => {
         />
         <AccountModal
           isOpen={showAccountModal}
+          onDataChange={() => {
+            queryClient.invalidateQueries({
+              queryKey: [
+                "side",
+                timeFilter.startDate,
+                timeFilter.endDate,
+                book?.id,
+              ],
+            });
+          }}
           onOpenChange={() => {
             setEditData(undefined);
             setShowAccountModal(false);

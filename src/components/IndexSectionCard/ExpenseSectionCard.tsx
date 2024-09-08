@@ -14,6 +14,7 @@ import { useAssetSankeyService } from "@/api/hooks/assets";
 
 const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
 
+const now = dayjs();
 export const ExpenseSectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
@@ -30,14 +31,16 @@ export const ExpenseSectionCard: React.FC<{
   accountId,
   showSankey = false,
 }) => {
-  const [time, setTime] = useState(timeFilter[0]);
-  const [value, setValue] = useState({ start: 0, end: 0 });
+  const [time, setTime] = useState("");
+  const [value, setValue] = useState({
+    start: now.startOf("month").valueOf(),
+    end: now.endOf("month").valueOf(),
+  });
   const [isOpen, setIsOpen] = useState(false);
   const [categoryType, setCategoryType] = useState("rank");
   const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
 
   useEffect(() => {
-    const now = dayjs();
     switch (time) {
       case "当前月":
         setValue({
@@ -105,7 +108,7 @@ export const ExpenseSectionCard: React.FC<{
       <div className="flex items-center gap-2 mb-4">
         <TimeFilterButtons
           timeFilter={timeFilter}
-          selectedTime={time}
+          selectedTime={time || timeFilter[0]}
           onTimeChange={setTime}
         />
         <CustomDatePopover

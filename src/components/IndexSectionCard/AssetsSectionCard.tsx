@@ -14,6 +14,7 @@ import { CustomDatePopover } from "./CustomDatePopover";
 
 const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
+const now = dayjs();
 export const AssetsSectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
@@ -29,14 +30,16 @@ export const AssetsSectionCard: React.FC<{
   showSankey = false,
   accountId,
 }) => {
-  const [time, setTime] = useState(timeFilter[0]);
-  const [value, setValue] = useState({ start: 0, end: 0 });
+  const [time, setTime] = useState("");
+  const [value, setValue] = useState({
+    start: now.subtract(3, "months").valueOf(),
+    end: now.valueOf(),
+  });
   // const [isOpen, setIsOpen] = useState(false);
   const [categoryType, setCategoryType] = useState("rank");
   const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
 
   useEffect(() => {
-    const now = dayjs();
     switch (time) {
       case "近3月":
         setValue({
@@ -99,7 +102,7 @@ export const AssetsSectionCard: React.FC<{
       <div className="flex items-center gap-2 mb-4">
         <TimeFilterButtons
           timeFilter={timeFilter}
-          selectedTime={time}
+          selectedTime={time || timeFilter[0]}
           onTimeChange={setTime}
         />
         <CustomDatePopover

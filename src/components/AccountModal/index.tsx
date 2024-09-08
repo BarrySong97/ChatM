@@ -20,7 +20,7 @@ import {
   PopoverTrigger,
   Divider,
 } from "@nextui-org/react";
-import { Form, PlusOutlined, MinusCircleOutlined } from "antd";
+import { Form, PlusOutlined, MinusCircleOutlined, message } from "antd";
 import to from "await-to-js";
 import { FC, useEffect, useState } from "react";
 import Decimal from "decimal.js";
@@ -34,10 +34,13 @@ import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
 import AccountIconRender from "../AccountIconRender";
 import { useAtomValue } from "jotai";
 import { BookAtom } from "@/globals";
+import { useQueryClient } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
   type: "income" | "expense" | "asset" | "liability";
+  onDataChange?: () => void;
   data: any;
 }
 
@@ -50,6 +53,7 @@ const AccountModal: FC<AccountModalProps> = ({
   onOpenChange,
   type,
   data,
+  onDataChange,
 }) => {
   const [form] = Form.useForm();
   const { createAsset, editAsset, isCreateLoading, isEditLoading } =
@@ -87,7 +91,10 @@ const AccountModal: FC<AccountModalProps> = ({
   };
   const [iconId, setIconId] = useState<string | undefined>(undefined);
   const [iconType, setIconType] = useState<"emoji" | "bank">("emoji");
+
   const [selectIconType, setSelectIconType] = useState<"emoji" | "bank">();
+  const book = useAtomValue(BookAtom);
+  const queryClient = useQueryClient();
   const onCreate = async () => {
     const [err, values] = await to(form.validateFields());
     if (err) return;
@@ -159,7 +166,14 @@ const AccountModal: FC<AccountModalProps> = ({
           }
           break;
       }
+      message.destroy();
     }
+    if (data) {
+      message.success("编辑成功");
+    } else {
+      message.success("创建成功");
+    }
+    queryClient.invalidateQueries({ refetchActive: true });
   };
   useEffect(() => {
     if (data) {
@@ -263,7 +277,6 @@ const AccountModal: FC<AccountModalProps> = ({
       </Listbox>
     );
   };
-  const book = useAtomValue(BookAtom);
   useEffect(() => {
     if (!isOpen) {
       form.resetFields();

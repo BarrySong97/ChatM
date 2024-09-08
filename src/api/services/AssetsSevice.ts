@@ -325,10 +325,7 @@ export class AssetsService {
     const endDateDayjs = dayjs(endDate);
     let runningTotal = new Decimal(0);
 
-    while (
-      currentDate.isBefore(endDateDayjs, "day") ||
-      currentDate.isSame(endDateDayjs, "day")
-    ) {
+    while (currentDate.isBefore(endDateDayjs, "day")) {
       const dateString = currentDate.format("YYYY-MM-DD");
       if (dailyTotals.has(dateString)) {
         runningTotal = runningTotal.add(dailyTotals.get(dateString)!);

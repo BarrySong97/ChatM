@@ -27,7 +27,7 @@ export async function seed() {
 
       for (const modelData of providerData.chatModels) {
         await ModelService.createModel({
-          name: modelData.displayName || modelData.id,
+          name: modelData.id,
           providerId: provider.id,
         });
       }

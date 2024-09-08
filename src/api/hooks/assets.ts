@@ -166,6 +166,7 @@ export function useAssetCategoryService(filter: Filter) {
     Error
   >(queryKey, () => AssetsService.getCategory(book?.id ?? "", filter), {
     keepPreviousData: true,
+
     enabled: !!book,
   });
 

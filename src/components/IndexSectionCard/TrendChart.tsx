@@ -37,7 +37,6 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   showDefaultTitle = false,
   type,
   chartTabPlaceHolder,
-  accountId,
   showSankey = false,
   sankeyData,
 }) => {

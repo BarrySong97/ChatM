@@ -26,6 +26,7 @@ import { useTransactionService } from "@/api/hooks/transaction";
 import Decimal from "decimal.js";
 import AccountSelect from "../AccountSelect";
 import { liability } from "@db/schema";
+import { useQueryClient } from "react-query";
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -50,6 +51,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   const { createTransaction, isCreateLoading } = useTransactionService();
   const [date, setDate] = useState(new Date());
   const [createMore, setCreateMore] = useState(false);
+  const queryClient = useQueryClient();
   const onCreate = async (onClose?: () => void) => {
     const [err, values] = await to<TransactionModalForm, Error>(
       form.validateFields()
@@ -71,6 +73,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     await createTransaction({
       transaction,
     });
+    queryClient.invalidateQueries({ refetchActive: true });
     onClose?.();
   };
   const { assets } = useAssetsService();

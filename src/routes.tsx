@@ -8,7 +8,6 @@ import Transactions from "./pages/Transactions";
 import Lia from "./pages/Lia";
 import Income from "./pages/Income";
 import Expense from "./pages/Expense";
-import Settings from "./pages/Settings";
 import Tags from "./pages/Tags";
 
 const router = createHashRouter([
@@ -52,10 +51,6 @@ const router = createHashRouter([
       {
         path: "/category/:type/:id",
         element: <Category />,
-      },
-      {
-        path: "/settings",
-        element: <Settings />,
       },
       // {
       //   path: "/mapping",

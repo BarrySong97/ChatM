@@ -31,7 +31,7 @@ export type SideFilter = {
 
 export function useSideData(filter: SideFilter) {
   const book = useAtomValue(BookAtom);
-  const queryKey = ["side", filter, book?.id];
+  const queryKey = ["side", filter.startDate, filter.endDate, book?.id];
 
   const { data: sideData } = useQuery<{
     assetsData: AssetsData;
