@@ -23,7 +23,7 @@ interface SankeyChartProps {
   sankeyData: SankeyData | undefined;
 }
 
-const typeColorMap = {
+export const typeColorMap = {
   asset: "#AAD8D2",
   liability: "#F6E7C3",
   income: "#BFDCFD",

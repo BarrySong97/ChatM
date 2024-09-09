@@ -107,6 +107,7 @@ export const AssetsSectionCard: React.FC<{
         />
         <CustomDatePopover
           time={time}
+          type="single"
           value={value}
           isOpen={isOpen}
           setIsOpen={setIsOpen}

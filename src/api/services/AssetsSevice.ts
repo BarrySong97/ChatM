@@ -71,12 +71,7 @@ export class AssetsService {
 
       // Calculate inflows (income to asset, asset to asset transfers, liability to asset)
       const inflows = transactionResults.filter(
-        (t) =>
-          t.destination_account_id === asset.id &&
-          (t.type === FinancialOperation.Income ||
-            t.type === FinancialOperation.Transfer ||
-            t.type === FinancialOperation.Borrow ||
-            t.type === FinancialOperation.Refund)
+        (t) => t.destination_account_id === asset.id
       );
 
       for (const inflow of inflows) {
@@ -85,11 +80,7 @@ export class AssetsService {
 
       // Calculate outflows (asset to expense, asset to liability, asset to asset transfers)
       const outflows = transactionResults.filter(
-        (t) =>
-          t.source_account_id === asset.id &&
-          (t.type === FinancialOperation.Expenditure ||
-            t.type === FinancialOperation.Transfer ||
-            t.type === FinancialOperation.RepayLoan)
+        (t) => t.source_account_id === asset.id
       );
 
       for (const outflow of outflows) {

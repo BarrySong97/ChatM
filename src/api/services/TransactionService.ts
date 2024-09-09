@@ -1,10 +1,11 @@
-import { and, eq, gte, inArray, like, lte, or, sql } from "drizzle-orm";
+import { and, eq, gt, gte, inArray, like, lt, lte, or, sql } from "drizzle-orm";
 import { Transaction, transaction, transactionTags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditTransaction, TransactionListParams } from "../hooks/transaction";
 import { Page } from "../models/Page";
 import Decimal from "decimal.js";
+import dayjs from "dayjs";
 
 export class TransactionService {
   // 创建 transaction
@@ -209,5 +210,40 @@ export class TransactionService {
         .delete(transaction)
         .where(inArray(transaction.id, ids));
     });
+  }
+
+  // get transaction by startDate and endDate
+  public static async getTransactionByMonth(
+    monthDate: number,
+    book_id: string,
+    mode: "month" | "year"
+  ) {
+    const filterdStartDate =
+      mode === "month"
+        ? dayjs(monthDate)
+            .startOf("month")
+            .subtract(1, "day")
+            .toDate()
+            .getTime()
+        : dayjs(monthDate)
+            .startOf("year")
+            .subtract(1, "day")
+            .toDate()
+            .getTime();
+    const filterdEndDate =
+      mode === "month"
+        ? dayjs(monthDate).endOf("month").add(1, "day").toDate().getTime()
+        : dayjs(monthDate).endOf("year").add(1, "day").toDate().getTime();
+    const res = await db.query.transaction.findMany({
+      where: and(
+        gt(transaction.transaction_date, filterdStartDate),
+        lt(transaction.transaction_date, filterdEndDate),
+        eq(transaction.book_id, book_id)
+      ),
+    });
+    return res?.map((item) => ({
+      ...item,
+      amount: new Decimal(item.amount ?? 0).dividedBy(100).toNumber(),
+    }));
   }
 }

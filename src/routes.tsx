@@ -8,6 +8,7 @@ import Lia from "./pages/Lia";
 import Income from "./pages/Income";
 import Expense from "./pages/Expense";
 import Tags from "./pages/Tags";
+import Calendar from "./pages/Calendar";
 
 const router = createHashRouter([
   // 导航界面路由
@@ -50,6 +51,10 @@ const router = createHashRouter([
       {
         path: "/category/:type/:id",
         element: <Category />,
+      },
+      {
+        path: "/calendar",
+        element: <Calendar />,
       },
     ],
   },

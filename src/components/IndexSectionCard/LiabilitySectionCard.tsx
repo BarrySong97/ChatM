@@ -108,6 +108,7 @@ export const LiabilitySectionCard: React.FC<{
           time={time}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
+          type="single"
           onChange={setValue}
           onTimeReset={() => setTime("")}
         />

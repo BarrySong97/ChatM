@@ -74,11 +74,18 @@ const Side: FC<SideProps> = () => {
       icon: <TablerTransactionDollar />,
     },
     {
+      key: "calendar",
+      href: "/calendar",
+      title: "日历",
+      icon: <MaterialSymbolsCalendarMonth />,
+    },
+    {
       key: "tags",
       href: "/tags",
       title: "标签",
       icon: <SolarHashtagBold />,
     },
+
     {
       key: "settings",
       href: "/settings",
