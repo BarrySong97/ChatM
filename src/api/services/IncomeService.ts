@@ -83,12 +83,18 @@ export class IncomeService {
 
       // Calculate inflows (income to asset)
       const inflows = transactionResults.filter(
-        (t) =>
-          t.source_account_id === inc.id && t.type === FinancialOperation.Income
+        (t) => t.source_account_id === inc.id
       );
 
       for (const inflow of inflows) {
         incomeAmount = incomeAmount.add(new Decimal(inflow.amount || "0"));
+      }
+
+      const outflows = transactionResults.filter(
+        (t) => t.destination_account_id === inc.id
+      );
+      for (const outflow of outflows) {
+        incomeAmount = incomeAmount.sub(new Decimal(outflow.amount || "0"));
       }
 
       totalIncomeAmount = totalIncomeAmount.add(incomeAmount);
@@ -143,16 +149,27 @@ export class IncomeService {
 
     // Create a map to store daily income totals
     const dailyIncomes = new Map<string, Decimal>();
-    const filteredTransactions = transactions.filter((t) =>
+    const inFilteredTransactions = transactions.filter((t) =>
       incomeAccounts.some((i) => i.id === t.source_account_id)
     );
+    const outFilteredTransactions = transactions.filter((t) =>
+      incomeAccounts.some((i) => i.id === t.destination_account_id)
+    );
     // Calculate daily incomes from transactions
-    for (const t of filteredTransactions) {
+    for (const t of inFilteredTransactions) {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || "0").div(100);
       dailyIncomes.set(
         date,
         (dailyIncomes.get(date) || new Decimal(0)).add(amount)
+      );
+    }
+    for (const t of outFilteredTransactions) {
+      const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
+      const amount = new Decimal(t.amount || "0").div(100);
+      dailyIncomes.set(
+        date,
+        (dailyIncomes.get(date) || new Decimal(0)).sub(amount)
       );
     }
     // Generate trend data for each day in the date range
@@ -171,10 +188,7 @@ export class IncomeService {
 
   public static async getIncomeCategory(book_id: string, filter?: SideFilter) {
     // Fetch all income-related transactions within the date range
-    const conditions = [
-      eq(transaction.book_id, book_id),
-      eq(transaction.type, FinancialOperation.Income),
-    ];
+    const conditions = [eq(transaction.book_id, book_id)];
     if (filter?.startDate) {
       conditions.push(gte(transaction.transaction_date, filter.startDate));
     }
@@ -182,10 +196,7 @@ export class IncomeService {
       conditions.push(lte(transaction.transaction_date, filter.endDate));
     }
     const transactions = await db
-      .select({
-        amount: transaction.amount,
-        source_account_id: transaction.source_account_id,
-      })
+      .select()
       .from(transaction)
       .where(and(...conditions));
 
@@ -197,14 +208,31 @@ export class IncomeService {
 
     // Create a map of income account IDs to names
     const accountNameMap = new Map(incomeAccounts.map((acc) => [acc.id, acc]));
-
-    // Group transactions by source_account_id and sum amounts
-    const categoryTotals = transactions.reduce((acc, t) => {
-      const accountId = t.source_account_id || "";
-      const amount = new Decimal(t.amount || "0").div(100);
-      acc.set(accountId, (acc.get(accountId) || new Decimal(0)).add(amount));
-      return acc;
-    }, new Map<string, Decimal>());
+    const categoryTotals = new Map<string, Decimal>();
+    transactions.forEach((t) => {
+      const amount = new Decimal(t.amount || "0");
+      if (
+        t.destination_account_id &&
+        accountNameMap.has(t.destination_account_id)
+      ) {
+        // outflow
+        categoryTotals.set(
+          t.destination_account_id,
+          (categoryTotals.get(t.destination_account_id) || new Decimal(0)).sub(
+            amount
+          )
+        );
+      }
+      if (t.source_account_id && accountNameMap.has(t.source_account_id)) {
+        // inflow
+        categoryTotals.set(
+          t.source_account_id,
+          (categoryTotals.get(t.source_account_id) || new Decimal(0)).add(
+            amount
+          )
+        );
+      }
+    });
 
     // Convert the grouped data to the required format
     const categoryData = Array.from(
@@ -242,7 +270,7 @@ export class IncomeService {
 
     return categoryData.map((item) => ({
       ...item,
-      amount: item.amount.toFixed(2),
+      amount: new Decimal(item.amount).div(100).toFixed(2),
     }));
   }
 

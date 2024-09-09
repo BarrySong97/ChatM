@@ -178,7 +178,7 @@ export class ExpenseService {
     filter: Omit<Filter, "category_id">
   ) {
     // Fetch all expense-related transactions within the date range
-    const conditions = [eq(transaction.type, FinancialOperation.Expenditure)];
+    const conditions = [];
 
     const startDate = dayjs(filter.startDate)
       .subtract(1, "day")
@@ -195,10 +195,7 @@ export class ExpenseService {
       conditions.push(eq(transaction.book_id, book_id));
     }
     const transactions = await db
-      .select({
-        amount: transaction.amount,
-        destination_account_id: transaction.destination_account_id,
-      })
+      .select()
       .from(transaction)
       .where(and(...conditions));
 
@@ -210,14 +207,32 @@ export class ExpenseService {
 
     // Create a map of expense account IDs to names
     const accountNameMap = new Map(expenseAccounts.map((acc) => [acc.id, acc]));
-
+    const categoryTotals = new Map<string, Decimal>();
     // Group transactions by destination_account_id and sum amounts
-    const categoryTotals = transactions.reduce((acc, t) => {
-      const accountId = t.destination_account_id || "";
-      const amount = new Decimal(t.amount || "0").div(100);
-      acc.set(accountId, (acc.get(accountId) || new Decimal(0)).add(amount));
-      return acc;
-    }, new Map<string, Decimal>());
+    transactions.forEach((t) => {
+      const amount = new Decimal(t.amount || "0");
+      if (
+        t.destination_account_id &&
+        accountNameMap.has(t.destination_account_id)
+      ) {
+        // Inflow
+        categoryTotals.set(
+          t.destination_account_id,
+          (categoryTotals.get(t.destination_account_id) || new Decimal(0)).add(
+            amount
+          )
+        );
+      }
+      if (t.source_account_id && accountNameMap.has(t.source_account_id)) {
+        // Outflow
+        categoryTotals.set(
+          t.source_account_id,
+          (categoryTotals.get(t.source_account_id) || new Decimal(0)).sub(
+            amount
+          )
+        );
+      }
+    });
 
     // Convert the grouped data to the required format
     const categoryData = Array.from(
@@ -255,7 +270,7 @@ export class ExpenseService {
 
     return categoryData.map((item) => ({
       ...item,
-      amount: item.amount.toFixed(2),
+      amount: new Decimal(item.amount).div(100).toFixed(2),
     }));
   }
   // edit expense

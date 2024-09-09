@@ -72,10 +72,7 @@ export class LiabilityService {
 
       // Calculate inflows (asset to liability, liability to liability transfers)
       const inflows = transactionResults.filter(
-        (t) =>
-          t.source_account_id === liab.id &&
-          (t.type === FinancialOperation.Borrow ||
-            t.type === FinancialOperation.LoanExpenditure)
+        (t) => t.source_account_id === liab.id
       );
 
       for (const inflow of inflows) {
@@ -86,9 +83,7 @@ export class LiabilityService {
 
       // Calculate outflows (liability to asset, liability to liability transfers)
       const outflows = transactionResults.filter(
-        (t) =>
-          t.destination_account_id === liab.id &&
-          t.type === FinancialOperation.RepayLoan
+        (t) => t.destination_account_id === liab.id
       );
 
       for (const outflow of outflows) {
@@ -126,11 +121,6 @@ export class LiabilityService {
     const conditions = [
       eq(transaction.book_id, book_id),
       lt(transaction.transaction_date, filterEndDate),
-      or(
-        eq(transaction.type, FinancialOperation.Borrow),
-        eq(transaction.type, FinancialOperation.LoanExpenditure),
-        eq(transaction.type, FinancialOperation.RepayLoan)
-      ),
     ];
     if (filter?.accountId) {
       const q = eq(transaction.source_account_id, filter.accountId);
@@ -170,21 +160,11 @@ export class LiabilityService {
         dailyTotals.set(date, new Decimal(0));
       }
 
-      if (
-        t.type === FinancialOperation.Borrow &&
-        liabilityIds.has(t.source_account_id ?? "")
-      ) {
+      if (liabilityIds.has(t.source_account_id ?? "")) {
         dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
-      } else if (
-        t.type === FinancialOperation.RepayLoan &&
-        liabilityIds.has(t.destination_account_id ?? "")
-      ) {
+      }
+      if (liabilityIds.has(t.destination_account_id ?? "")) {
         dailyTotals.set(date, dailyTotals.get(date)!.minus(amount));
-      } else if (
-        t.type === FinancialOperation.LoanExpenditure &&
-        liabilityIds.has(t.source_account_id ?? "")
-      ) {
-        dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
       }
     });
     console.log(Array.from(dailyTotals.values()).map((v) => v.toFixed(2)));
@@ -216,14 +196,7 @@ export class LiabilityService {
   public static async getCategory(book_id: string, filter?: SideFilter) {
     // Fetch all liability-related transactions within the date range
 
-    const conditions = [
-      eq(transaction.book_id, book_id),
-      or(
-        eq(transaction.type, FinancialOperation.Borrow),
-        eq(transaction.type, FinancialOperation.LoanExpenditure),
-        eq(transaction.type, FinancialOperation.RepayLoan)
-      ),
-    ];
+    const conditions = [eq(transaction.book_id, book_id)];
     if (filter?.endDate) {
       conditions.push(lte(transaction.transaction_date, filter.endDate));
     }
@@ -247,29 +220,31 @@ export class LiabilityService {
     const accountNameMap = new Map(
       liabilityAccounts.map((acc) => [acc.id, acc])
     );
-
+    const categoryTotals = new Map<string, Decimal>();
     // Group transactions by liability account and sum amounts
-    const categoryTotals = transactions.reduce((acc, t) => {
-      let accountId;
-      let amount;
-
-      if (t.type === FinancialOperation.RepayLoan) {
-        accountId = t.destination_account_id;
-        amount = new Decimal(t.amount || "0").div(100).negated();
-      } else if (t.type === FinancialOperation.Borrow) {
-        accountId = t.source_account_id;
-        amount = new Decimal(t.amount || "0").div(100);
-      } else {
-        accountId = t.source_account_id;
-        amount = new Decimal(t.amount || "0").div(100);
+    transactions.map((t) => {
+      if (t.source_account_id && accountNameMap.has(t.source_account_id)) {
+        // outflow
+        categoryTotals.set(
+          t.source_account_id,
+          (categoryTotals.get(t.source_account_id) || new Decimal(0)).add(
+            new Decimal(t.amount || "0")
+          )
+        );
       }
-
-      if (accountId) {
-        acc.set(accountId, (acc.get(accountId) || new Decimal(0)).add(amount));
+      if (
+        t.destination_account_id &&
+        accountNameMap.has(t.destination_account_id)
+      ) {
+        // inflow
+        categoryTotals.set(
+          t.destination_account_id,
+          (categoryTotals.get(t.destination_account_id) || new Decimal(0)).sub(
+            new Decimal(t.amount || "0")
+          )
+        );
       }
-      return acc;
-    }, new Map<string, Decimal>());
-
+    });
     // Convert the grouped data to the required format
     const categoryData = Array.from(
       categoryTotals,
@@ -306,7 +281,7 @@ export class LiabilityService {
 
     return categoryData.map((item) => ({
       ...item,
-      amount: item.amount.toFixed(2),
+      amount: new Decimal(item.amount).div(100).toFixed(2),
     }));
   }
   // delete liability
