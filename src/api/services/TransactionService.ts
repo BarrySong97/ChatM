@@ -95,9 +95,13 @@ export class TransactionService {
       condition.push(lte(transaction.amount, transactionListParams?.maxAmount));
     }
     if (transactionListParams?.startDate) {
-      condition.push(
-        gte(transaction.transaction_date, transactionListParams?.startDate)
-      );
+      const startDate = dayjs(
+        dayjs(transactionListParams?.startDate).format("YYYY-MM-DD")
+      )
+        .subtract(1, "day")
+        .toDate()
+        .getTime();
+      condition.push(gt(transaction.transaction_date, startDate));
     }
     if (transactionListParams?.search) {
       condition.push(
@@ -105,9 +109,13 @@ export class TransactionService {
       );
     }
     if (transactionListParams?.endDate) {
-      condition.push(
-        lte(transaction.transaction_date, transactionListParams?.endDate)
-      );
+      const endDate = dayjs(
+        dayjs(transactionListParams?.endDate).format("YYYY-MM-DD")
+      )
+        .add(1, "day")
+        .toDate()
+        .getTime();
+      condition.push(lte(transaction.transaction_date, endDate));
     }
     const finalCondition =
       transactionListParams?.filterConditions === "or"

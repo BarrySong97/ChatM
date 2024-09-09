@@ -135,16 +135,27 @@ export class ExpenseService {
 
     // Create a map to store daily expense totals
     const dailyExpenses = new Map<string, Decimal>();
-    const filteredTransactions = transactions.filter((t) =>
+    const inFilteredTransactions = transactions.filter((t) =>
       expenseAccounts.some((e) => e.id === t.destination_account_id)
     );
+    const outFilteredTransactions = transactions.filter((t) =>
+      expenseAccounts.some((e) => e.id === t.source_account_id)
+    );
     // Calculate daily expenses from transactions
-    for (const t of filteredTransactions) {
+    for (const t of inFilteredTransactions) {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || "0").div(100);
       dailyExpenses.set(
         date,
         (dailyExpenses.get(date) || new Decimal(0)).add(amount)
+      );
+    }
+    for (const t of outFilteredTransactions) {
+      const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
+      const amount = new Decimal(t.amount || "0").div(100);
+      dailyExpenses.set(
+        date,
+        (dailyExpenses.get(date) || new Decimal(0)).sub(amount)
       );
     }
 
