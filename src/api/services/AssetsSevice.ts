@@ -7,14 +7,12 @@ import { assets, transaction, expense, income, liability } from "@db/schema";
 import { db, FinancialOperation } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditAsset } from "../hooks/assets";
-import { eq, lte, gte, and, min, or, sql, lt, gt } from "drizzle-orm";
-
+import { eq, and, min, or, sql, lt, gt, SQL } from "drizzle-orm";
 import Decimal from "decimal.js";
 import { SideFilter } from "../hooks/side";
 import { LiabilityService } from "./LiabilityService";
 import dayjs from "dayjs";
 import { Link, SankeyData } from "../models/Chart";
-import { alias } from "drizzle-orm/sqlite-core";
 import { ExpenseService } from "./ExpenseService";
 import { IncomeService } from "./IncomeService";
 export class AssetsService {
@@ -240,27 +238,17 @@ export class AssetsService {
       .getTime();
     const assets = await this.listAssets(book_id);
 
-    const conditions = [
-      lt(transaction.transaction_date, endDate),
-      or(
-        eq(transaction.type, FinancialOperation.Income),
-        eq(transaction.type, FinancialOperation.Expenditure),
-        eq(transaction.type, FinancialOperation.Transfer),
-        eq(transaction.type, FinancialOperation.RepayLoan),
-        eq(transaction.type, FinancialOperation.Borrow),
-        eq(transaction.type, FinancialOperation.Refund)
-      ),
-    ];
+    const conditions = [lt(transaction.transaction_date, endDate)];
     if (book_id) {
       conditions.push(eq(transaction.book_id, book_id));
     }
     if (filter.accountId) {
-      conditions.push(
-        or(
-          eq(transaction.source_account_id, filter.accountId),
-          eq(transaction.destination_account_id, filter.accountId)
-        )
-      );
+      if (filter?.accountId) {
+        const q = eq(transaction.source_account_id, filter.accountId);
+        const q2 = eq(transaction.destination_account_id, filter.accountId);
+        const orQ = or(q, q2);
+        conditions.push(orQ as SQL<unknown>);
+      }
     }
     // Fetch relevant transactions
     const transactions = await db

@@ -27,7 +27,7 @@ const propmts = (
     "```\n" +
     "然后给流水进行设置来源账户和流向账户，账户参考一下账户";
   const background = [
-    `我发送的是${importSource}的流水数据\n`,
+    `我发送的是${importSource}的流水数据，主要账户是${importSource}\n`,
     "然后给流水进行设置来源账户和流向账户，账户参考一下账户: \n",
     `支出账户: ${JSON.stringify(expense)} \n`,
     `收入账户: ${JSON.stringify(income)} \n`,

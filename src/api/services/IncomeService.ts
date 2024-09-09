@@ -121,12 +121,11 @@ export class IncomeService {
     const startDate = dayjs(filter?.startDate).format("YYYY-MM-DD");
     const endDate = dayjs(filter?.endDate).format("YYYY-MM-DD");
     const daysDifference = dayjs(endDate).diff(startDate, "day");
-
+    const incomeAccounts = await this.listIncome(book_id);
     const trendData = [];
     const conditions = [
       gt(transaction.transaction_date, filterStartDate),
       lt(transaction.transaction_date, filterEndDate),
-      eq(transaction.type, FinancialOperation.Income),
       eq(transaction.book_id, book_id),
     ];
 
@@ -144,9 +143,11 @@ export class IncomeService {
 
     // Create a map to store daily income totals
     const dailyIncomes = new Map<string, Decimal>();
-
+    const filteredTransactions = transactions.filter((t) =>
+      incomeAccounts.some((i) => i.id === t.source_account_id)
+    );
     // Calculate daily incomes from transactions
-    for (const t of transactions) {
+    for (const t of filteredTransactions) {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || "0").div(100);
       dailyIncomes.set(

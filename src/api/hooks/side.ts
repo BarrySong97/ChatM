@@ -44,6 +44,7 @@ export function useSideData(filter: SideFilter) {
         filter,
         book?.id ?? ""
       );
+
       const liabilitiesData = await LiabilityService.getLiabilitySumAmount(
         filter,
         book?.id ?? ""

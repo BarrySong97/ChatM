@@ -77,13 +77,17 @@ export class ExpenseService {
       let expenseAmount = new Decimal(0);
 
       // Calculate outflows (asset to expense)
-      const outflows = transactionResults.filter(
-        (t) =>
-          t.destination_account_id === exp.id &&
-          t.type === FinancialOperation.Expenditure
+      const inFlow = transactionResults.filter(
+        (t) => t.destination_account_id === exp.id
       );
-      for (const outflow of outflows) {
+      for (const outflow of inFlow) {
         expenseAmount = expenseAmount.add(new Decimal(outflow.amount || "0"));
+      }
+      const outFlow = transactionResults.filter(
+        (t) => t.source_account_id === exp.id
+      );
+      for (const outflow of outFlow) {
+        expenseAmount = expenseAmount.sub(new Decimal(outflow.amount || "0"));
       }
 
       totalExpenseAmount = totalExpenseAmount.add(expenseAmount);
@@ -105,7 +109,7 @@ export class ExpenseService {
       .add(1, "day")
       .toDate()
       .getTime();
-
+    const expenseAccounts = await this.listExpense(book_id);
     const startDate = dayjs(filter.startDate).format("YYYY-MM-DD");
     const endDate = dayjs(filter.endDate).format("YYYY-MM-DD");
     // Calculate the number of days between start and end dates
@@ -115,7 +119,6 @@ export class ExpenseService {
       eq(transaction.book_id, book_id),
       gt(transaction.transaction_date, filterStartDate),
       lt(transaction.transaction_date, filterEndDate),
-      eq(transaction.type, FinancialOperation.Expenditure),
     ];
     if (filter?.accountId) {
       const q = eq(transaction.source_account_id, filter.accountId);
@@ -132,9 +135,11 @@ export class ExpenseService {
 
     // Create a map to store daily expense totals
     const dailyExpenses = new Map<string, Decimal>();
-
+    const filteredTransactions = transactions.filter((t) =>
+      expenseAccounts.some((e) => e.id === t.destination_account_id)
+    );
     // Calculate daily expenses from transactions
-    for (const t of transactions) {
+    for (const t of filteredTransactions) {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || "0").div(100);
       dailyExpenses.set(
