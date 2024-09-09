@@ -80,7 +80,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       case "bar":
         return <Barchart type={type} chartData={lineData ?? []} />;
       case "sankey":
-        return <SankeyChart sankeyData={sankeyData} />;
+        return sankeyData?.nodes?.length ? (
+          <SankeyChart sankeyData={sankeyData} />
+        ) : null;
       default:
         const chart = chartTabPlaceHolder?.find(
           (item) => item.name === chartType

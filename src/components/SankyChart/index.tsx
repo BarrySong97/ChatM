@@ -38,6 +38,7 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
       </div>
     );
   }
+
   return (
     <EChart
       style={{
@@ -59,8 +60,6 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
               return {
                 ...v,
                 itemStyle: {
-                  // color: "#E4E4E5",
-                  // borderColor: "#E4E4E5",
                   borderColor:
                     typeColorMap[v.type as keyof typeof typeColorMap],
                   color: typeColorMap[v.type as keyof typeof typeColorMap],

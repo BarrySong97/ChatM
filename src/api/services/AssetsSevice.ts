@@ -380,12 +380,6 @@ export class AssetsService {
     const filteredEnd = endDate
       ? dayjs(endDate).add(1, "day").toDate().getTime()
       : undefined;
-    console.log(
-      dayjs(startDate).format("YYYY-MM-DD"),
-      dayjs(filteredStart).format("YYYY-MM-DD"),
-      dayjs(endDate).format("YYYY-MM-DD"),
-      dayjs(filteredEnd).format("YYYY-MM-DD")
-    );
 
     // 1. Query transactions with related account information
     let account: { name: string | null } | undefined;
@@ -469,7 +463,7 @@ export class AssetsService {
         name: t.destination_account_name as string,
         type: t.destinationType as string,
       });
-      if (type === "liabilities") {
+      if (type === "liability") {
         nodes.add(account?.name ?? "");
         nodes.add(`${t.destination_account_name}-借款`);
         links.push({
@@ -516,7 +510,7 @@ export class AssetsService {
         type: t.sourcetype as string,
       });
 
-      if (type === "liabilities") {
+      if (type === "liability") {
         nodes.add(`${t.source_account_name}-还款`);
         links.push({
           source: `${t.source_account_name}-还款`,
