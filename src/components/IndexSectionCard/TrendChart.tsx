@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Tab, Tabs } from "@nextui-org/react";
 import {
   MaterialSymbolsShowChart,
@@ -10,6 +10,9 @@ import { NormalChartData, SankeyData } from "@/api/models/Chart";
 import { Barchart } from "../BarChart";
 import { useAssetSankeyService } from "@/api/hooks/assets";
 import SankeyChart from "../SankyChart";
+import { useUpdate } from "ahooks";
+import { keyBy } from "lodash";
+import { useECharts } from "@kbox-labs/react-echarts";
 export interface ChartTabPlaceHolder {
   name: string;
   icon: React.ReactNode;
@@ -80,9 +83,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       case "bar":
         return <Barchart type={type} chartData={lineData ?? []} />;
       case "sankey":
-        return sankeyData?.nodes?.length ? (
-          <SankeyChart sankeyData={sankeyData} />
-        ) : null;
+        return <SankeyChart sankeyData={sankeyData} />;
       default:
         const chart = chartTabPlaceHolder?.find(
           (item) => item.name === chartType

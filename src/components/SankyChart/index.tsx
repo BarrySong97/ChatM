@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Empty } from "antd";
 import { EChart } from "@kbox-labs/react-echarts";
 
@@ -38,8 +38,38 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
       </div>
     );
   }
-
-  return (
+  const data = useMemo(() => {
+    return sankeyData?.nodes?.map((v) => {
+      return {
+        ...v,
+        itemStyle: {
+          borderColor: typeColorMap[v.type as keyof typeof typeColorMap],
+          color: typeColorMap[v.type as keyof typeof typeColorMap],
+        },
+      };
+    });
+  }, [sankeyData]);
+  const links = useMemo(() => {
+    return sankeyData?.links?.map((v) => {
+      return {
+        ...v,
+        lineStyle: {
+          color: v.flow !== "in" ? "#F3A5B6" : "#BFDCFD",
+        },
+      };
+    });
+  }, [sankeyData]);
+  const [show, setShow] = useState(false);
+  const ref = useRef<number>(0);
+  useEffect(() => {
+    if (sankeyData && ref.current === 0) {
+      setTimeout(() => {
+        setShow(true);
+        ref.current = 1;
+      }, 100);
+    }
+  }, [sankeyData]);
+  return show ? (
     <EChart
       style={{
         height: "300px",
@@ -55,26 +85,8 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
           emphasis: {
             focus: "adjacency",
           },
-          data:
-            sankeyData?.nodes?.map((v) => {
-              return {
-                ...v,
-                itemStyle: {
-                  borderColor:
-                    typeColorMap[v.type as keyof typeof typeColorMap],
-                  color: typeColorMap[v.type as keyof typeof typeColorMap],
-                },
-              };
-            }) ?? [],
-          links:
-            sankeyData?.links?.map((v) => {
-              return {
-                ...v,
-                lineStyle: {
-                  color: v.flow !== "in" ? "#F3A5B6" : "#BFDCFD",
-                },
-              };
-            }) ?? [],
+          data: data,
+          links: links,
           lineStyle: {
             color: "#F3A5B6",
             curveness: 0.5,
@@ -92,7 +104,7 @@ const SankeyChart: React.FC<SankeyChartProps> = ({ sankeyData }) => {
         },
       ]}
     />
-  );
+  ) : null;
 };
 
 export default SankeyChart;

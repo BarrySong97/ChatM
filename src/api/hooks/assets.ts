@@ -203,8 +203,8 @@ export function useAssetSankeyService(
     SankeyData,
     Error
   >(queryKey, () => AssetsService.getSankeyData(accountId, type, start, end), {
-    keepPreviousData: true,
     enabled: !!accountId,
+    keepPreviousData: true,
   });
 
   return {
