@@ -119,10 +119,6 @@ export class LiabilityService {
   }
 
   public static async getTrend(book_id: string, filter?: SideFilter) {
-    const filterStartDate = dayjs(dayjs(filter?.startDate).format("YYYY-MM-DD"))
-      .subtract(1, "day")
-      .toDate()
-      .getTime();
     const filterEndDate = dayjs(dayjs(filter?.endDate).format("YYYY-MM-DD"))
       .add(1, "day")
       .toDate()
@@ -162,7 +158,7 @@ export class LiabilityService {
 
     // Process transactions
     const liabilityIds = new Set(
-      await this.listLiability().then((liabilities) =>
+      await this.listLiability(book_id).then((liabilities) =>
         liabilities.map((l) => l.id)
       )
     );
@@ -191,6 +187,7 @@ export class LiabilityService {
         dailyTotals.set(date, dailyTotals.get(date)!.plus(amount));
       }
     });
+    console.log(Array.from(dailyTotals.values()).map((v) => v.toFixed(2)));
 
     // Fill in the trend data
 

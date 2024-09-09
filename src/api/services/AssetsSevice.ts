@@ -238,7 +238,7 @@ export class AssetsService {
       .add(1, "day")
       .toDate()
       .getTime();
-    const assets = await this.listAssets();
+    const assets = await this.listAssets(book_id);
 
     const conditions = [
       lt(transaction.transaction_date, endDate),

@@ -95,6 +95,7 @@ export const LiabilitySectionCard: React.FC<{
     value.start,
     value.end
   );
+
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">

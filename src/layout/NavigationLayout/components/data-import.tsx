@@ -60,9 +60,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       setSteps(2);
       switch (fileSource) {
         case "alipay":
-          console.log(results);
           const alipayData = results.slice(25);
-          console.log(alipayData);
           setPureData(alipayData);
           setFileData(getAlipayData(alipayData) as unknown as Transaction[]);
           break;

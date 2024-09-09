@@ -119,7 +119,6 @@ const AccountSelect: FC<AccountSelectProps> = ({
           if (e.has("new") && inputValue) {
             // Create new account
             const newAccount = { name: inputValue };
-            console.log(type);
 
             let res;
             switch (type) {
