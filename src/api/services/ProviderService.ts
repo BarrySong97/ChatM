@@ -4,10 +4,11 @@ import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 
 export type EditProvider = {
-  name: string;
+  name?: string;
   apiKey?: string;
   baseUrl?: string;
   defaultModel?: string;
+  is_default?: number;
 };
 
 export class ProviderService {
@@ -17,7 +18,7 @@ export class ProviderService {
       .insert(provider)
       .values({
         id: uuidv4(),
-        name: body.name,
+        name: body.name ?? "",
         apiKey: body.apiKey,
         baseUrl: body.baseUrl,
         defaultModel: body.defaultModel,
@@ -33,13 +34,19 @@ export class ProviderService {
   }
 
   // edit provider
-  public static async editProvider(id: string, body: EditProvider) {
-    const res = await db
-      .update(provider)
-      .set(body)
-      .where(eq(provider.id, id))
-      .returning();
-    return res[0];
+  public static async editProvider(
+    id: string,
+    body: Partial<EditProvider & { is_default?: number }>
+  ) {
+    if (body.is_default) {
+      return await db.transaction(async (tx) => {
+        await tx.update(provider).set({ is_default: 0 });
+
+        await tx.update(provider).set(body).where(eq(provider.id, id));
+      });
+    } else {
+      await db.update(provider).set(body).where(eq(provider.id, id));
+    }
   }
 
   // delete provider

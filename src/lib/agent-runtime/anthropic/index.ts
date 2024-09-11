@@ -62,9 +62,7 @@ export class LobeAnthropicAI implements LobeRuntimeAI {
         debugStream(debug.toReadableStream()).catch(console.error);
       }
 
-      return StreamingResponse(AnthropicStream(prod, options?.callback), {
-        headers: options?.headers,
-      });
+      return prod;
     } catch (error) {
       let desensitizedEndpoint = this.baseURL;
 

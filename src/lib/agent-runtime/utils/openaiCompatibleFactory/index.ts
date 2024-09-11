@@ -183,37 +183,12 @@ export const LobeOpenAICompatibleFactory = <
             ...(chatCompletion?.noUserId ? {} : { user: options?.user }),
           },
           {
-            // https://github.com/lobehub/lobe-chat/pull/318
             headers: { Accept: "*/*" },
             signal: options?.signal,
           }
         );
 
-        if (postPayload.stream) {
-          const [prod, useForDebug] = response.tee();
-
-          if (debug?.chatCompletion?.()) {
-            debugStream(useForDebug.toReadableStream()).catch(console.error);
-          }
-
-          return StreamingResponse(OpenAIStream(prod, options?.callback), {
-            headers: options?.headers,
-          });
-        }
-
-        if (debug?.chatCompletion?.()) {
-          debugResponse(response);
-        }
-
-        if (responseMode === "json") return Response.json(response);
-
-        const stream = transformResponseToStream(
-          response as unknown as OpenAI.ChatCompletion
-        );
-
-        return StreamingResponse(OpenAIStream(stream, options?.callback), {
-          headers: options?.headers,
-        });
+        return response;
       } catch (error) {
         throw this.handleError(error);
       }

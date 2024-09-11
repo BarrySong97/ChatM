@@ -73,9 +73,7 @@ export function useProviderService() {
         );
         return { previousProviders };
       },
-      onSuccess() {
-        message.success("修改成功");
-      },
+      onSuccess() {},
       onSettled() {
         setIsEditLoading(false);
       },

@@ -1,3 +1,4 @@
+import AgentRuntime from "@/lib/agent-runtime/AgentRuntime";
 import { Expense, Income, Liability, Asset } from "@db/schema";
 import OpenAI from "openai";
 
@@ -47,26 +48,52 @@ const propmts = (
   const prompt = context + background.join("") + tone;
   return prompt;
 };
+
+export interface AIServiceParams {
+  expense: Expense[];
+  income: Income[];
+  liabilities: Liability[];
+  assets: Asset[];
+  data: Array<Array<string>>;
+  importSource: string;
+  provider: string;
+  model: string;
+  apiKey: string;
+  baseURL: string;
+}
+
 export class AIService {
-  static async getAIResponse(
-    expense: Expense[],
-    income: Income[],
-    liabilities: Liability[],
-    assets: Asset[],
-    data: Array<Array<string>>,
-    importSource: string
-  ) {
+  static async getAIResponse({
+    expense,
+    income,
+    liabilities,
+    assets,
+    data,
+    importSource,
+    provider,
+    model,
+    apiKey,
+    baseURL,
+  }: AIServiceParams) {
     const dataString = data.map((item) => item.join(", ")).join("\n");
     const prompt = propmts(expense, income, liabilities, assets, importSource);
-    const controller = new AbortController();
-    const response = await client.chat.completions.create({
-      model: "deepseek-chat",
+    const agentRuntime = await AgentRuntime.initializeWithProviderOptions(
+      provider,
+      {
+        [provider]: { apiKey: apiKey, baseURL: baseURL },
+      }
+    );
+    const response = await agentRuntime.chat({
+      model: model,
+      temperature: 0.2,
       messages: [
         { role: "system", content: prompt },
         { role: "user", content: dataString },
       ],
       stream: true,
     });
-    return response;
+    console.log(typeof response);
+
+    return response as any;
   }
 }

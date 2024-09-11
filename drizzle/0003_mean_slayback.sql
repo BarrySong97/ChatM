@@ -1,1 +1,0 @@
-ALTER TABLE provider ADD `default_model` text;

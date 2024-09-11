@@ -13,10 +13,7 @@ import {
 
 export interface LobeRuntimeAI {
   baseURL?: string;
-  chat(
-    payload: ChatStreamPayload,
-    options?: ChatCompetitionOptions
-  ): Promise<Response>;
+  chat(payload: ChatStreamPayload, options?: ChatCompetitionOptions): any;
 
   models?(): Promise<any>;
 }

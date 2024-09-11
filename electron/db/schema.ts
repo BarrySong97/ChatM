@@ -146,6 +146,7 @@ export const provider = sqliteTable("provider", {
   name: text("name").notNull(),
   apiKey: text("api_key"),
   baseUrl: text("base_url"),
+  is_default: integer("is_default"),
   defaultModel: text("default_model"), // Add this line
 });
 

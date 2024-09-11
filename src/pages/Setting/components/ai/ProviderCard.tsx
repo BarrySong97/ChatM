@@ -12,6 +12,7 @@ import {
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider } from "@db/schema";
+import { EyeFilledIcon, EyeSlashFilledIcon } from "@/assets/icon";
 
 interface ProviderCardProps {
   provider: Provider;
@@ -43,6 +44,9 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
       },
     });
   };
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  const toggleVisibility = () => setIsVisible(!isVisible);
   return (
     <Card className="w-full" shadow="sm">
       <CardHeader className="flex justify-between items-center">
@@ -54,7 +58,24 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
             <Input placeholder="Enter proxy URL (optional)" />
           </Form.Item>
           <Form.Item name="apiKey" label="API Key">
-            <Input type="password" placeholder="Enter your API key" />
+            <Input
+              placeholder="Enter your API key"
+              endContent={
+                <button
+                  className="focus:outline-none"
+                  type="button"
+                  onClick={toggleVisibility}
+                  aria-label="toggle password visibility"
+                >
+                  {isVisible ? (
+                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                  ) : (
+                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                  )}
+                </button>
+              }
+              type={isVisible ? "text" : "password"}
+            />
           </Form.Item>
           <Form.Item
             name="defaultModel"

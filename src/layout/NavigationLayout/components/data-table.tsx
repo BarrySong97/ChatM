@@ -11,10 +11,12 @@ import { AgGridReact } from "ag-grid-react";
 // import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
 // import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
 import { FinancialOperation } from "@/api/db/manager";
-import { AIService } from "@/api/services/AIService";
+import { AIService, AIServiceParams } from "@/api/services/AIService";
 import dayjs from "dayjs";
 import to from "await-to-js";
 import TableContent from "@/components/Transactions/components/TableContent";
+import TitleComponent from "./TitleComponent"; // Add this import
+import { useProviderStore } from "@/store/provider";
 
 const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.Income]: "#4CAF50", // Green
@@ -40,6 +42,8 @@ export interface TransactionsTableProps {
   pureData?: Array<Array<string>>;
   onDataChange?: (data: Array<Transaction & { status: boolean }>) => void;
   importSource: string;
+  provider: string;
+  model: string;
 }
 export default function ImportDataTable({
   data,
@@ -54,7 +58,15 @@ export default function ImportDataTable({
   const [processLoading, setProcessLoading] = useState(false);
   const [processedCount, setProcessedCount] = useState(0);
 
-  const batchAiProcess = async () => {
+  const batchAiProcess = async ({
+    provider,
+    model,
+    apiKey,
+    baseURL,
+  }: Omit<
+    AIServiceParams,
+    "expense" | "income" | "liabilities" | "assets" | "data" | "importSource"
+  >) => {
     if (!pureData || !data) {
       return;
     }
@@ -70,9 +82,14 @@ export default function ImportDataTable({
       const startIndex = i * batchSize;
       const endIndex = Math.min((i + 1) * batchSize, pureData.length);
 
-      const [err] = await to(aiProcess(startIndex, endIndex));
+      const [err] = await to(
+        aiProcess(startIndex, endIndex, provider, model, apiKey, baseURL)
+      );
+
       if (err) {
         // If aiProcess returns false, stop processing
+        console.log(err);
+
         break;
       }
     }
@@ -95,7 +112,14 @@ export default function ImportDataTable({
     onDataChange?.([...data]);
     setProcessLoading(false);
   };
-  const aiProcess = async (startIndex: number, endIndex: number) => {
+  const aiProcess = async (
+    startIndex: number,
+    endIndex: number,
+    provider: string,
+    model: string,
+    apiKey: string,
+    baseURL: string
+  ) => {
     if (
       !expenses ||
       !incomes ||
@@ -107,14 +131,20 @@ export default function ImportDataTable({
       return;
     }
 
-    const stream = await AIService.getAIResponse(
-      expenses,
-      incomes,
-      liabilities,
-      assets,
-      pureData.slice(startIndex, endIndex),
-      importSource
-    );
+    const params: AIServiceParams = {
+      expense: expenses,
+      income: incomes,
+      liabilities: liabilities,
+      assets: assets,
+      data: pureData.slice(startIndex, endIndex),
+      importSource,
+      provider,
+      model,
+      apiKey,
+      baseURL,
+    };
+
+    const stream = await AIService.getAIResponse(params);
     let dataIndex = startIndex;
     let innerIndex = 0;
     let rawText = "";
@@ -399,51 +429,24 @@ export default function ImportDataTable({
       editable: true,
     },
   ]);
-  const renderTitle = () => {
-    const totalCount = data?.length ?? 0;
-    const processedPercent = Math.round((processedCount / totalCount) * 100);
-    const remainingCount = totalCount - processedCount;
 
-    return (
-      <div className="flex justify-between items-center">
-        <div>
-          共{totalCount}条数据
-          {processLoading ? (
-            <>
-              ，已处理{processedCount}条，剩余{remainingCount}条，进度
-              {processedPercent}%
-            </>
-          ) : null}
-        </div>
-        <div>
-          <Button
-            onClick={() => batchAiProcess()}
-            radius="sm"
-            isDisabled={!data?.length || processLoading}
-            size="sm"
-            isLoading={processLoading}
-            color="primary"
-          >
-            一键AI处理
-          </Button>
-        </div>
-        {/* <div>AI已处理</div> */}
-      </div>
-    );
-  };
   return (
     <div id="import-data-table">
       <ConfigProvider
         theme={{
           components: {
             Table: {
-              // headerBg: "transparent",
               headerSplitColor: "transparent",
             },
           },
         }}
       >
-        {renderTitle()}
+        <TitleComponent
+          totalCount={data?.length ?? 0}
+          processedCount={processedCount}
+          processLoading={processLoading}
+          onAIProcess={batchAiProcess}
+        />
         <TableContent
           transactions={data ?? []}
           assets={assets ?? []}

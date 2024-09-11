@@ -1,23 +1,23 @@
-import OpenAI, { ClientOptions } from 'openai';
+import OpenAI, { ClientOptions } from "openai";
 
-import { LobeRuntimeAI } from '../BaseAI';
-import { AgentRuntimeErrorType } from '../error';
+import { LobeRuntimeAI } from "../BaseAI";
+import { AgentRuntimeErrorType } from "../error";
 import {
   ChatCompetitionOptions,
   ChatStreamPayload,
   ModelProvider,
   OpenAIChatMessage,
-} from '../types';
-import { AgentRuntimeError } from '../utils/createError';
-import { debugStream } from '../utils/debugStream';
-import { desensitizeUrl } from '../utils/desensitizeUrl';
-import { handleOpenAIError } from '../utils/handleOpenAIError';
-import { StreamingResponse } from '../utils/response';
-import { OpenAIStream } from '../utils/streams';
-import { parseDataUri } from '../utils/uriParser';
-import { generateApiToken } from './authToken';
+} from "../types";
+import { AgentRuntimeError } from "../utils/createError";
+import { debugStream } from "../utils/debugStream";
+import { desensitizeUrl } from "../utils/desensitizeUrl";
+import { handleOpenAIError } from "../utils/handleOpenAIError";
+import { StreamingResponse } from "../utils/response";
+import { OpenAIStream } from "../utils/streams";
+import { parseDataUri } from "../utils/uriParser";
+import { generateApiToken } from "./authToken";
 
-const DEFAULT_BASE_URL = 'https://open.bigmodel.cn/api/paas/v4';
+const DEFAULT_BASE_URL = "https://open.bigmodel.cn/api/paas/v4";
 
 export class LobeZhipuAI implements LobeRuntimeAI {
   private client: OpenAI;
@@ -29,9 +29,13 @@ export class LobeZhipuAI implements LobeRuntimeAI {
     this.baseURL = this.client.baseURL;
   }
 
-  static async fromAPIKey({ apiKey, baseURL = DEFAULT_BASE_URL, ...res }: ClientOptions = {}) {
+  static async fromAPIKey({
+    apiKey,
+    baseURL = DEFAULT_BASE_URL,
+    ...res
+  }: ClientOptions = {}) {
     const invalidZhipuAPIKey = AgentRuntimeError.createError(
-      AgentRuntimeErrorType.InvalidProviderAPIKey,
+      AgentRuntimeErrorType.InvalidProviderAPIKey
     );
 
     if (!apiKey) throw invalidZhipuAPIKey;
@@ -55,18 +59,16 @@ export class LobeZhipuAI implements LobeRuntimeAI {
       const params = this.buildCompletionsParams(payload);
 
       const response = await this.client.chat.completions.create(
-        params as unknown as OpenAI.ChatCompletionCreateParamsStreaming,
+        params as unknown as OpenAI.ChatCompletionCreateParamsStreaming
       );
 
       const [prod, debug] = response.tee();
 
-      if (process.env.DEBUG_ZHIPU_CHAT_COMPLETION === '1') {
+      if (process.env.DEBUG_ZHIPU_CHAT_COMPLETION === "1") {
         debugStream(debug.toReadableStream()).catch(console.error);
       }
 
-      return StreamingResponse(OpenAIStream(prod, options?.callback), {
-        headers: options?.headers,
-      });
+      return prod;
     } catch (error) {
       const { errorResult, RuntimeError } = handleOpenAIError(error);
 
@@ -101,24 +103,29 @@ export class LobeZhipuAI implements LobeRuntimeAI {
   }
 
   // TODO: 临时处理，后续需要移除
-  private transformMessage = (message: OpenAIChatMessage): OpenAIChatMessage => {
+  private transformMessage = (
+    message: OpenAIChatMessage
+  ): OpenAIChatMessage => {
     return {
       ...message,
       content:
-        typeof message.content === 'string'
+        typeof message.content === "string"
           ? message.content
           : message.content.map((c) => {
               switch (c.type) {
                 default:
-                case 'text': {
+                case "text": {
                   return c;
                 }
 
-                case 'image_url': {
+                case "image_url": {
                   const { base64 } = parseDataUri(c.image_url.url);
                   return {
-                    image_url: { ...c.image_url, url: base64 || c.image_url.url },
-                    type: 'image_url',
+                    image_url: {
+                      ...c.image_url,
+                      url: base64 || c.image_url.url,
+                    },
+                    type: "image_url",
                   };
                 }
               }
