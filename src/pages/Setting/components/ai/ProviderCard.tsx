@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Form } from "antd";
+import React, { useEffect, useState } from "react";
+import { Form, message } from "antd";
 import {
   Card,
   CardBody,
@@ -8,11 +8,17 @@ import {
   Select,
   SelectItem,
   Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@nextui-org/react";
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider } from "@db/schema";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/assets/icon";
+import { PlusIcon } from "@/components/Transactions/icon";
 
 interface ProviderCardProps {
   provider: Provider;
@@ -20,8 +26,10 @@ interface ProviderCardProps {
 
 const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
   const [form] = Form.useForm();
-  const { editProvider, providers } = useProviderService();
-  const { models } = useModelService(provider.id);
+  const { editProvider } = useProviderService();
+  const { models, createModel } = useModelService(provider.id);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newModelName, setNewModelName] = useState("");
 
   useEffect(() => {
     if (provider) {
@@ -43,10 +51,34 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
         defaultModel: Array.from(values.defaultModel)[0] as string,
       },
     });
+    message.success("保存成功");
   };
+
+  const handleAddModel = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setNewModelName("");
+  };
+
+  const handleModalConfirm = async () => {
+    if (newModelName.trim()) {
+      await createModel({
+        model: {
+          name: newModelName,
+          providerId: provider.id,
+        },
+      });
+      closeModal();
+    }
+  };
+
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
   return (
     <Card className="w-full" shadow="sm">
       <CardHeader className="flex justify-between items-center">
@@ -83,7 +115,20 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
             valuePropName="selectedKeys"
             trigger="onSelectionChange"
           >
-            <Select placeholder="Select a default model">
+            <Select
+              placeholder="Select a default model"
+              startContent={
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  onPress={handleAddModel}
+                  aria-label="Add new model"
+                >
+                  <PlusIcon />
+                </Button>
+              }
+            >
               {models?.map((model) => (
                 <SelectItem key={model.name} value={model.name}>
                   {model.name}
@@ -98,6 +143,30 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
           </Form.Item>
         </Form>
       </CardBody>
+
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            Add New Model
+          </ModalHeader>
+          <ModalBody>
+            <Input
+              label="Model Name"
+              placeholder="Enter model name"
+              value={newModelName}
+              onChange={(e) => setNewModelName(e.target.value)}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" variant="light" onPress={closeModal}>
+              Cancel
+            </Button>
+            <Button color="primary" onPress={handleModalConfirm}>
+              Add Model
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Card>
   );
 };

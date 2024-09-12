@@ -8,6 +8,7 @@ export const operationColors: Record<FinancialOperation, string> = {
   [FinancialOperation.Borrow]: "#FF9800", // Orange
   [FinancialOperation.LoanExpenditure]: "#795548", // Brown
   [FinancialOperation.Refund]: "#FF5722", // Deep Orange
+  [FinancialOperation.LoanRefund]: "#00BCD4", // Cyan
 };
 
 export const operationTranslations: Record<FinancialOperation, string> = {
@@ -18,4 +19,5 @@ export const operationTranslations: Record<FinancialOperation, string> = {
   [FinancialOperation.Borrow]: "借款",
   [FinancialOperation.LoanExpenditure]: "贷款支出",
   [FinancialOperation.Refund]: "退款",
+  [FinancialOperation.LoanRefund]: "贷款退款",
 };

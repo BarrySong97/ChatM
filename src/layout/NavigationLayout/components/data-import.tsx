@@ -147,7 +147,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
   return (
     <>
       <Modal
-        size={steps === 2 ? "5xl" : "xl"} // Changed from 3 to 2
+        size={steps == 2 ? "5xl" : "xl"} // Changed from 3 to 2
         scrollBehavior="inside"
         isDismissable={false}
         isOpen={isOpen}
@@ -170,7 +170,16 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                     重新选择数据源
                   </Button>
                 ) : null}
-                <Button variant="flat" onPress={() => setSteps(steps - 1)}>
+                <Button
+                  variant="flat"
+                  onPress={() => {
+                    if (steps > 0) {
+                      setSteps(steps - 1);
+                    } else {
+                      onClose();
+                    }
+                  }}
+                >
                   {steps > 0 ? "上一步" : "取消"}
                 </Button>
                 {steps === 0 ? null : (

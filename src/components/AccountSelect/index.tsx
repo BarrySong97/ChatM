@@ -7,6 +7,7 @@ import { useLiabilityService } from "@/api/hooks/liability";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useIncomeService } from "@/api/hooks/income";
 import AccountIconRender from "../AccountIconRender";
+import { message } from "antd";
 export interface AccountSelectProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -143,6 +144,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
                 });
                 break;
             }
+            message.destroy();
             if (res) {
               onChange?.(res.id);
             }

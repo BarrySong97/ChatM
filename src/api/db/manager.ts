@@ -8,6 +8,7 @@ export enum FinancialOperation {
   Borrow = "Borrow",
   LoanExpenditure = "LoanExpenditure",
   Refund = "Refund",
+  LoanRefund = "LoanRefund",
 }
 export const db = drizzle(
   async (...args) => {

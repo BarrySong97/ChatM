@@ -108,7 +108,7 @@ const ZhiPu: ModelProviderCard = {
   checkModel: "glm-4-flash",
   id: "zhipu",
   name: "ZhiPu",
-  baseURL: "https://api.moonshot.cn/v1",
+  baseURL: "https://open.bigmodel.cn/api/paas/v4",
   defaultModel: "glm-4-flash",
 };
 

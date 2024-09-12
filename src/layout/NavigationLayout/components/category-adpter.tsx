@@ -53,7 +53,7 @@ function getWechatData(data: string[][]) {
         transaction_date: item[0],
         amount: Number(item[5].slice(1)),
         type: item[4],
-        content: `${item[1]} ${item[2]} ${item[3]}`,
+        content: `交易类型: ${item[1]} | 交易对方:${item[2]} | 商品:${item[3]} | 收/付款方式:${item[6]}`,
       });
     }
   }
@@ -69,7 +69,7 @@ function getAlipayData(data: string[][]) {
         transaction_date: item[0],
         amount: Number(item[6]),
         type: item[5],
-        content: `${item[1]} ${item[2]} ${item[4]}`,
+        content: `交易类型：${item[1]} | 交易对方:${item[2]} | 商品: ${item[4]} | 收/付款方式:${item[7]}`,
       });
     }
   }

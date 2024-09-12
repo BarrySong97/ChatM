@@ -4,7 +4,9 @@ import { ModelService, EditModel } from "../services/ModelService";
 import { useState } from "react";
 import { message } from "antd";
 
-export function useModelService(providerId: string) {
+export const useModelService = (providerId: string) => {
+  const [models, setModels] = useState<Model[]>([]);
+
   const queryClient = useQueryClient();
   const queryKey = ["models", providerId];
 
@@ -13,7 +15,7 @@ export function useModelService(providerId: string) {
   const [isCreateLoading, setIsCreateLoading] = useState(false);
 
   // Fetch model list
-  const { data: models, isLoading: isLoadingModels } = useQuery<
+  const { data: modelsData, isLoading: isLoadingModels } = useQuery<
     Array<Model>,
     Error
   >(queryKey, () => ModelService.listModels(providerId), {
@@ -108,14 +110,5 @@ export function useModelService(providerId: string) {
     }
   );
 
-  return {
-    models,
-    isLoadingModels,
-    editModel,
-    deleteModel,
-    createModel,
-    isEditLoading,
-    isDeleteLoading,
-    isCreateLoading,
-  };
-}
+  return { models: modelsData, createModel };
+};

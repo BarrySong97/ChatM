@@ -59,46 +59,6 @@ const TableContent: React.FC<TableContentProps> = ({
   selectedTransactions,
   importTable = false,
 }) => {
-  const renderSource = (type: FinancialOperation) => {
-    switch (type) {
-      case FinancialOperation.RepayLoan:
-        return ["assets", assets];
-      case FinancialOperation.Income:
-        return ["incomes", incomes];
-      case FinancialOperation.Expenditure:
-        return ["assets", assets];
-      case FinancialOperation.Transfer:
-        return ["assets", assets];
-      case FinancialOperation.Borrow:
-        return ["liabilities", liabilities];
-      case FinancialOperation.LoanExpenditure:
-        return ["liabilities", liabilities];
-      case FinancialOperation.Refund:
-        return ["expenses", expenses];
-      default:
-        return ["", null];
-    }
-  };
-  const renderDestination = (type: FinancialOperation) => {
-    switch (type) {
-      case FinancialOperation.Income:
-        return ["assets", assets];
-      case FinancialOperation.Expenditure:
-        return ["expenses", expenses];
-      case FinancialOperation.Transfer:
-        return ["assets", assets];
-      case FinancialOperation.RepayLoan:
-        return ["liabilities", liabilities];
-      case FinancialOperation.Borrow:
-        return ["assets", assets];
-      case FinancialOperation.LoanExpenditure:
-        return ["expenses", expenses];
-      case FinancialOperation.Refund:
-        return ["assets", assets];
-      default:
-        return ["", null];
-    }
-  };
   const asssetsRef = useRef<Asset[]>([]);
   const liabilitiesRef = useRef<Liability[]>([]);
   const incomesRef = useRef<Income[]>([]);
@@ -107,6 +67,50 @@ const TableContent: React.FC<TableContentProps> = ({
   expensesRef.current = expenses;
   incomesRef.current = incomes;
   liabilitiesRef.current = liabilities;
+  const renderSource = (type: FinancialOperation) => {
+    switch (type) {
+      case FinancialOperation.RepayLoan:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.Income:
+        return ["income", incomesRef.current];
+      case FinancialOperation.Expenditure:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.Transfer:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.Borrow:
+        return ["liability", liabilitiesRef.current];
+      case FinancialOperation.LoanExpenditure:
+        return ["liability", liabilitiesRef.current];
+      case FinancialOperation.Refund:
+        return ["expense", expensesRef.current];
+      case FinancialOperation.LoanRefund:
+        return ["liability", liabilitiesRef.current];
+      default:
+        return ["", null];
+    }
+  };
+  const renderDestination = (type: FinancialOperation) => {
+    switch (type) {
+      case FinancialOperation.Income:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.Expenditure:
+        return ["expense", expensesRef.current];
+      case FinancialOperation.Transfer:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.RepayLoan:
+        return ["liability", liabilitiesRef.current];
+      case FinancialOperation.Borrow:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.LoanExpenditure:
+        return ["expense", expensesRef.current];
+      case FinancialOperation.Refund:
+        return ["asset", asssetsRef.current];
+      case FinancialOperation.LoanRefund:
+        return ["expense", expensesRef.current];
+      default:
+        return ["", null];
+    }
+  };
 
   const { tags } = useTagService();
   const queryClient = useQueryClient();
@@ -471,6 +475,7 @@ const TableContent: React.FC<TableContentProps> = ({
           const rows = nodes.map((node) => node.data);
           onSelectionChanged(rows);
         }}
+        suppressScrollOnNewData
         columnDefs={colDefs}
         rowSelection="multiple"
         suppressRowClickSelection={true}

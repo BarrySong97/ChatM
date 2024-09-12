@@ -1,42 +1,18 @@
-import React, { useRef, useState } from "react";
-import { Button, Link, Select, SelectItem, Spinner } from "@nextui-org/react";
-import { ColDef } from "ag-grid-community";
+import { useState } from "react";
 import { ConfigProvider, DatePicker, Table, TableProps, Tag } from "antd";
-import { income, Transaction } from "@db/schema";
+import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
-import { AgGridReact } from "ag-grid-react";
-// import "ag-grid-community/styles/ag-grid.css"; // Mandatory CSS required by the Data Grid
-// import "ag-grid-community/styles/ag-theme-quartz.css"; // Optional Theme applied to the Data Grid
 import { FinancialOperation } from "@/api/db/manager";
 import { AIService, AIServiceParams } from "@/api/services/AIService";
-import dayjs from "dayjs";
 import to from "await-to-js";
 import TableContent from "@/components/Transactions/components/TableContent";
 import TitleComponent from "./TitleComponent"; // Add this import
-import { useProviderStore } from "@/store/provider";
+import { Button } from "@nextui-org/react";
+import PopoverConfirm from "@/components/PopoverConfirm";
 
-const operationColors: Record<FinancialOperation, string> = {
-  [FinancialOperation.Income]: "#4CAF50", // Green
-  [FinancialOperation.Expenditure]: "#F44336", // Red
-  [FinancialOperation.Transfer]: "#2196F3", // Blue
-  [FinancialOperation.RepayLoan]: "#9C27B0", // Purple
-  [FinancialOperation.Borrow]: "#FF9800", // Orange
-  [FinancialOperation.LoanExpenditure]: "#795548", // Brown
-  [FinancialOperation.Refund]: "#FF9800", // Orange
-};
-
-export const operationTranslations: Record<FinancialOperation, string> = {
-  [FinancialOperation.Income]: "收入",
-  [FinancialOperation.Expenditure]: "支出",
-  [FinancialOperation.Transfer]: "转账",
-  [FinancialOperation.RepayLoan]: "还贷",
-  [FinancialOperation.Borrow]: "借款",
-  [FinancialOperation.LoanExpenditure]: "贷款支出",
-  [FinancialOperation.Refund]: "退款",
-};
 export interface TransactionsTableProps {
   data?: Array<Transaction & { status: boolean }>;
   pureData?: Array<Array<string>>;
@@ -136,7 +112,7 @@ export default function ImportDataTable({
       income: incomes,
       liabilities: liabilities,
       assets: assets,
-      data: pureData.slice(startIndex, endIndex),
+      data: data.slice(startIndex, endIndex),
       importSource,
       provider,
       model,
@@ -175,263 +151,18 @@ export default function ImportDataTable({
         onDataChange?.([...data]);
       }
     }
+    console.log(rawText);
+
     return true;
   };
-  const [colDefs, setColDefs] = useState<
-    ColDef<Transaction & { status: boolean }>[]
-  >([
-    {
-      field: "transaction_date",
-      headerName: "日期",
-      width: 120,
-      editable: true,
-      cellEditor: ({ value, onValueChange }) => {
-        const date = typeof value === "string" ? dayjs(value) : value;
 
-        return (
-          <DatePicker
-            defaultOpen
-            allowClear={false}
-            className="w-full outline-none h-[42px] rounded-none"
-            getPopupContainer={() =>
-              document.getElementById("import-data-table")!
-            }
-            onChange={(v) => {
-              onValueChange(v.toString());
-            }}
-            value={date}
-          />
-        );
-      },
-      valueFormatter: (params) => {
-        return dayjs(params.value).format("YYYY-MM-DD");
-      },
-    },
-    {
-      field: "content",
-      width: 200,
-      editable: true,
-      headerName: "交易内容",
-    },
-    {
-      field: "amount",
-      type: "rightAligned",
-      width: 100,
-      editable: true,
-      headerName: "金额",
-    },
-    {
-      field: "type",
-      width: 110,
-      headerName: "类型",
-      editable: true,
-      cellEditor: ({ value, onValueChange, data }) => {
-        return (
-          <Select
-            items={Object.values(FinancialOperation).map((type) => ({
-              label: operationTranslations[type],
-              value: type,
-            }))}
-            variant="underlined"
-            defaultOpen
-            radius="none"
-            classNames={{
-              trigger: "data-[open=true]:after:!hidden",
-            }}
-            selectionMode="single"
-            selectedKeys={new Set([value])}
-            onSelectionChange={(v) => {
-              onValueChange(Array.from(v)[0]);
-            }}
-          >
-            {(item) => {
-              return <SelectItem key={item.value}>{item.label}</SelectItem>;
-            }}
-          </Select>
-        );
-      },
-      cellRenderer: (params: any) => {
-        const { data } = params;
-        const color = operationColors[params.value as FinancialOperation];
-        const text = operationTranslations[params.value as FinancialOperation];
-        return data?.status ? (
-          <Spinner size="sm" />
-        ) : (
-          <Tag
-            className="mr-0 hover:cursor-pointer"
-            color={color}
-            bordered={false}
-          >
-            {text}
-          </Tag>
-        );
-      },
-    },
-    {
-      field: "source_account_id",
-      headerName: "来源账户",
-      width: 100,
-      editable: true,
-      cellRenderer: (params: any) => {
-        const { data } = params;
-        let source = assets?.find((asset) => asset.id === params.value)?.name;
-        if (!source) {
-          source = liabilities?.find(
-            (liability) => liability.id === params.value
-          )?.name;
-        }
-        if (!source) {
-          source = incomes?.find((income) => income.id === params.value)?.name;
-        }
-        if (!source) {
-          source = expenses?.find(
-            (expense) => expense.id === params.value
-          )?.name;
-        }
-
-        return data?.status ? (
-          <Spinner size="sm" />
-        ) : (
-          <Tag
-            className="mr-0 hover:cursor-pointer"
-            color="processing"
-            bordered={false}
-          >
-            {source}
-          </Tag>
-        );
-      },
-      cellEditor: ({ value, onValueChange, data }) => {
-        return (
-          <Select
-            items={[
-              ...assets?.map((asset) => ({
-                label: asset.name,
-                value: asset.id,
-              })),
-              ...liabilities?.map((liability) => ({
-                label: liability.name,
-                value: liability.id,
-              })),
-              ...incomes?.map((income) => ({
-                label: income.name,
-                value: income.id,
-              })),
-              ...expenses?.map((expense) => ({
-                label: expense.name,
-                value: expense.id,
-              })),
-            ]}
-            variant="underlined"
-            defaultOpen
-            radius="none"
-            classNames={{
-              trigger: "data-[open=true]:after:!hidden",
-            }}
-            selectionMode="single"
-            selectedKeys={new Set([value])}
-            onSelectionChange={(v) => {
-              onValueChange(Array.from(v)[0]);
-            }}
-          >
-            {(item) => {
-              return <SelectItem key={item.value}>{item.label}</SelectItem>;
-            }}
-          </Select>
-        );
-      },
-    },
-    {
-      field: "destination_account_id",
-      headerName: "目标账户",
-      width: 100,
-      editable: true,
-      cellRenderer: (params: any) => {
-        const { data } = params;
-        let destination = expenses?.find(
-          (expense) => expense.id === params.value
-        )?.name;
-        if (!destination) {
-          destination = incomes?.find(
-            (income) => income.id === params.value
-          )?.name;
-        }
-        if (!destination) {
-          destination = assets?.find(
-            (asset) => asset.id === params.value
-          )?.name;
-        }
-        if (!destination) {
-          destination = liabilities?.find(
-            (liability) => liability.id === params.value
-          )?.name;
-        }
-        return data?.status ? (
-          <Spinner size="sm" />
-        ) : (
-          <Tag
-            className="mr-0 hover:cursor-pointer"
-            color="processing"
-            bordered={false}
-          >
-            {destination}
-          </Tag>
-        );
-      },
-      cellEditor: ({ value, onValueChange, data }) => {
-        return (
-          <Select
-            items={[
-              ...assets?.map((asset) => ({
-                label: asset.name,
-                value: asset.id,
-              })),
-              ...liabilities?.map((liability) => ({
-                label: liability.name,
-                value: liability.id,
-              })),
-              ...incomes?.map((income) => ({
-                label: income.name,
-                value: income.id,
-              })),
-              ...expenses?.map((expense) => ({
-                label: expense.name,
-                value: expense.id,
-              })),
-            ]}
-            variant="underlined"
-            defaultOpen
-            radius="none"
-            classNames={{
-              trigger: "data-[open=true]:after:!hidden",
-            }}
-            selectionMode="single"
-            selectedKeys={new Set([value])}
-            onSelectionChange={(v) => {
-              onValueChange(Array.from(v)[0]);
-            }}
-          >
-            {(item) => {
-              return <SelectItem key={item.value}>{item.label}</SelectItem>;
-            }}
-          </Select>
-        );
-      },
-    },
-    {
-      field: "tags",
-      headerName: "标签",
-      editable: true,
-    },
-    {
-      field: "remark",
-      headerName: "备注",
-      editable: true,
-    },
-  ]);
-
+  const [selectedRows, setSelectedRows] = useState<Transaction[]>([]);
+  const deleteTransactions = (ids: string[]) => {
+    const newData = data?.filter((v) => !ids.includes(v.id));
+    onDataChange?.(newData ?? []);
+  };
   return (
-    <div id="import-data-table">
+    <div id="import-data-table relative">
       <ConfigProvider
         theme={{
           components: {
@@ -458,9 +189,48 @@ export default function ImportDataTable({
           totalPages={0}
           totalCount={0}
           importTable
-          selectedTransactions={[]}
-          onSelectionChanged={() => {}}
+          selectedTransactions={selectedRows}
+          onSelectionChanged={setSelectedRows}
         />
+        <div
+          className="absolute bottom-[70px] left-0 right-0 bg-background border-t rounded-b-lg border-divider shadow-lg transition-transform duration-300 ease-in-out transform translate-y-0"
+          style={{
+            transform:
+              selectedRows.length > 0
+                ? "translateY(-10px)"
+                : "translateY(100%)",
+            opacity: selectedRows.length > 0 ? 1 : 0,
+            transition: "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
+          }}
+        >
+          <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div className="text-sm">
+              已选择 <span className="font-bold">{selectedRows.length}</span> 项
+            </div>
+            <div className="space-x-2">
+              <Button
+                onClick={() => setSelectedRows([])}
+                variant="flat"
+                size="sm"
+                radius="sm"
+              >
+                取消选择
+              </Button>
+              <PopoverConfirm
+                title="删除所选多个流水"
+                desc="删除所选多个流水将无法恢复，请谨慎操作"
+                onOk={async () => {
+                  await deleteTransactions(selectedRows.map((row) => row.id));
+                  return Promise.resolve();
+                }}
+              >
+                <Button radius="sm" size="sm" color="danger">
+                  删除所选
+                </Button>
+              </PopoverConfirm>
+            </div>
+          </div>
+        </div>
       </ConfigProvider>
     </div>
   );

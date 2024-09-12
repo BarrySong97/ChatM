@@ -1,0 +1,9 @@
+<svg width="400" height="600" style="margin: 20px; background-color: #FFFFFF; font-family: 'Kaiti', cursive;">
+    <text x="50%" y="50" text-anchor="middle" font-size="24" fill="#333333">汉语新解</text>
+    <line x1="50" y1="70" x2="350" y2="70" stroke="#333333" stroke-width="1" />
+    <text x="50" y="100" font-size="20" fill="#333333">春心荡漾</text>
+    <text x="50" y="130" font-size="16" fill="#333333">chūn xīn dàng yàng</text>
+    <text x="50" y="160" font-size="16" fill="#333333">The heart is full of spring</text>
+    <text x="50" y="190" font-size="16" fill="#333333">春の心が揺らめく</text>
+    <text x="50" y="220" font-size="20" fill="#333333">刺向他人时, 决定在剑刃上撒上止痛药。</text>
+</svg>

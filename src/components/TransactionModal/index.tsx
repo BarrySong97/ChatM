@@ -101,6 +101,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         return ["liability", liabilities];
       case FinancialOperation.Refund:
         return ["expense", expenses];
+      case FinancialOperation.LoanRefund:
+        return ["expense", expenses];
       default:
         return ["", null];
     }
@@ -121,6 +123,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
         return ["expense", expenses];
       case FinancialOperation.Refund:
         return ["asset", assets];
+      case FinancialOperation.LoanRefund:
+        return ["liability", liabilities];
       default:
         return ["", null];
     }
@@ -293,6 +297,18 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                           }}
                         ></div>
                         <div>退款</div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem key={FinancialOperation.LoanRefund} value="7">
+                      <div className="flex items-center gap-1 ">
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{
+                            backgroundColor:
+                              operationColors[FinancialOperation.Refund],
+                          }}
+                        ></div>
+                        <div>贷款退款</div>
                       </div>
                     </SelectItem>
                   </Select>
