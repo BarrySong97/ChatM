@@ -55,15 +55,12 @@ export function ipcWindowResize(action: TRAFFIC_LIGHT) {
 }
 
 // 打开文件夹
-export function ipcOpenFolder(projectId: number): Promise<string> {
-  return ipcRenderer.invoke(IPC_EVENT_KEYS.OPEN_FOLDER, projectId);
+export function ipcOpenFolder(): Promise<string> {
+  return ipcRenderer.invoke(IPC_EVENT_KEYS.OPEN_FOLDER);
 }
 
 // 生成csv文件
-export function ipcExportCsv(
-  name: string,
-  data: Record<string, any>[]
-): Promise<string> {
-  return ipcRenderer.invoke(IPC_EVENT_KEYS.SAVE_CSV_FILE, name, data);
+export function ipcExportCsv(filePath: string, data: any): Promise<string> {
+  return ipcRenderer.invoke(IPC_EVENT_KEYS.SAVE_CSV_FILE, filePath, data);
 }
 // 生成excel文件

@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { ConfigProvider, DatePicker, Table, TableProps, Tag } from "antd";
+import {
+  ConfigProvider,
+  DatePicker,
+  message,
+  Table,
+  TableProps,
+  Tag,
+} from "antd";
 import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
@@ -64,7 +71,10 @@ export default function ImportDataTable({
 
       if (err) {
         // If aiProcess returns false, stop processing
-        console.log(err);
+        message.error(`AI处理失败，${err.message}`);
+        data.forEach((v) => {
+          v.status = false;
+        });
 
         break;
       }
@@ -72,9 +82,9 @@ export default function ImportDataTable({
     // Sort data to prioritize incomplete entries
     data.sort((a, b) => {
       const aIncomplete =
-        !a.type || !a.source_account_id || !a.destination_account_id || !a.type;
+        !a.source_account_id || !a.destination_account_id || !a.type;
       const bIncomplete =
-        !b.type || !b.source_account_id || !b.destination_account_id || !b.type;
+        !b.source_account_id || !b.destination_account_id || !b.type;
 
       if (aIncomplete && !bIncomplete) return -1;
       if (!aIncomplete && bIncomplete) return 1;

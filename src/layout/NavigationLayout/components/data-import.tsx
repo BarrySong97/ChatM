@@ -12,7 +12,11 @@ import FileUploader from "./FileUploader";
 import ImportDataTable from "./data-table";
 import ConfirmImportModal from "./ConfirmImportModal";
 import { Transaction } from "@db/schema";
-import { getWechatData, getAlipayData } from "./category-adpter";
+import {
+  getWechatData,
+  getAlipayData,
+  getTemplateData,
+} from "./category-adpter";
 import { message } from "antd";
 import { TransactionService } from "@/api/services/TransactionService";
 import to from "await-to-js";
@@ -23,6 +27,7 @@ import { UploadChangeParam, UploadFile } from "antd/es/upload";
 import { useAtomValue } from "jotai";
 import { BookAtom } from "@/globals";
 import { useQueryClient } from "react-query";
+import { ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -64,6 +69,13 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
           setPureData(alipayData);
           setFileData(getAlipayData(alipayData) as unknown as Transaction[]);
           break;
+        case "template":
+          const templateData = results.slice(1);
+          setPureData(templateData);
+          setFileData(
+            getTemplateData(templateData) as unknown as Transaction[]
+          );
+          break;
         case "wechat":
           const wechatData = results.slice(17);
           setPureData(wechatData);
@@ -77,38 +89,6 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
   const handleCategoryChange = (key: string) => {
     setFileSource(key);
     setSteps(1);
-  };
-  // const handleConfirmImport = async () => {
-  //   setImportLoading(true);
-
-  //   console.log(fileData);
-  //   // const [err, res] = await to(
-  //   //   TransactionService.createTransactions(
-  //   //     fileData?.map((v) => {
-  //   //       return {
-  //   //         ...v,
-  //   //         transaction_date: dayjs(v.transaction_date).toDate().getTime(),
-  //   //         amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
-  //   //         book_id: book?.id,
-  //   //       };
-  //   //     }) as unknown as EditTransaction[]
-  //   //   )
-  //   // );
-  //   // if (err) {
-  //   //   console.error(err);
-  //   //   return;
-  //   // } else {
-  //   //   queryClient.invalidateQueries({ refetchActive: true });
-  //   //   onClose();
-  //   //   onOpenChange(false);
-  //   //   message.success("导入成功");
-  //   // }
-  //   setImportLoading(false);
-  // };
-
-  const onClose = () => {
-    setIsComfirmModalOpen(false);
-    onOpenChange(false);
   };
 
   const renderStep = () => {
@@ -144,6 +124,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
     (item) => item.type && item.destination_account_id && item.source_account_id
   );
 
+  const [daownLoading, setDaownLoading] = useState(false);
   return (
     <>
       <Modal
@@ -160,48 +141,82 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                 {titles[steps]}
               </ModalHeader>
               <ModalBody>{renderStep()}</ModalBody>
-              <ModalFooter>
-                {steps > 0 ? (
+              <ModalFooter className="justify-between">
+                <div>
+                  {steps == 0 ? (
+                    <Button
+                      onClick={async () => {
+                        const res = await ipcOpenFolder();
+                        if (res) {
+                          const headers = [
+                            "日期",
+                            "描述",
+                            "金额",
+                            "类型",
+                            "来源账户",
+                            "目标账户",
+                            "标签",
+                            "备注",
+                          ];
+                          const csvData = headers.join(",");
+                          const filePath = `${res}/流记模板.csv`;
+                          setDaownLoading(true);
+                          await ipcExportCsv(filePath, csvData);
+                          message.success("下载成功");
+                        }
+                        setDaownLoading(false);
+                      }}
+                      isLoading={daownLoading}
+                      variant="shadow"
+                      color="primary"
+                    >
+                      下载模板文件
+                    </Button>
+                  ) : null}
+                </div>
+                <div className="flex gap-2">
+                  {steps > 0 ? (
+                    <Button
+                      color="secondary"
+                      variant="flat"
+                      onPress={() => setSteps(0)}
+                    >
+                      重新选择数据源
+                    </Button>
+                  ) : null}
                   <Button
-                    color="secondary"
                     variant="flat"
-                    onPress={() => setSteps(0)}
-                  >
-                    重新选择数据源
-                  </Button>
-                ) : null}
-                <Button
-                  variant="flat"
-                  onPress={() => {
-                    if (steps > 0) {
-                      setSteps(steps - 1);
-                    } else {
-                      onClose();
-                    }
-                  }}
-                >
-                  {steps > 0 ? "上一步" : "取消"}
-                </Button>
-                {steps === 0 ? null : (
-                  <Button
-                    color="primary"
-                    isDisabled={
-                      (steps === 2 && !isAllDataComplete) ||
-                      importLoading ||
-                      !fileData.length
-                    }
                     onPress={() => {
-                      if (steps === 2) {
-                        // Changed from 3 to 2
-                        setIsComfirmModalOpen(true);
+                      if (steps > 0) {
+                        setSteps(steps - 1);
                       } else {
-                        setSteps(steps + 1);
+                        onClose();
                       }
                     }}
                   >
-                    {steps < 2 ? "下一步" : "导入"}
+                    {steps > 0 ? "上一步" : "取消"}
                   </Button>
-                )}
+                  {steps === 0 ? null : (
+                    <Button
+                      color="primary"
+                      isDisabled={
+                        (steps === 2 && !isAllDataComplete) ||
+                        importLoading ||
+                        !fileData.length
+                      }
+                      onPress={() => {
+                        if (steps === 2) {
+                          // Changed from 3 to 2
+                          setIsComfirmModalOpen(true);
+                        } else {
+                          setSteps(steps + 1);
+                        }
+                      }}
+                    >
+                      {steps < 2 ? "下一步" : "导入"}
+                    </Button>
+                  )}
+                </div>
               </ModalFooter>
               <ConfirmImportModal
                 isOpen={isComfirmModalOpen}

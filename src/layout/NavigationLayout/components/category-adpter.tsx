@@ -1,7 +1,7 @@
 import { ImportCategory } from "./import-category";
 import yinlian from "./icon/union.png";
 import Wechat from "./icon/wechat.png";
-import { PhBank } from "@/assets/icon";
+import { PhBank, TablerTemplate } from "@/assets/icon";
 import { v4 as uuidv4 } from "uuid";
 import Alipay from "./icon/zhifubao.webp";
 export const CategoryTypes: ImportCategory[] = [
@@ -14,6 +14,11 @@ export const CategoryTypes: ImportCategory[] = [
     name: "支付宝",
     key: "alipay",
     icon: <img src={Alipay} alt="" className="w-16 h-16" />,
+  },
+  {
+    name: "模板导入",
+    key: "template",
+    icon: <TablerTemplate className="w-16 h-16" />,
   },
   {
     name: "银行卡（开发中）",
@@ -75,6 +80,21 @@ function getAlipayData(data: string[][]) {
   }
   return result;
 }
+function getTemplateData(data: string[][]) {
+  const result = [];
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (item[0]) {
+      result.push({
+        id: uuidv4(),
+        transaction_date: item[0],
+        amount: Number(item[1]),
+        content: item[2],
+      });
+    }
+  }
+  return result;
+}
 function china_bank(data: string[][], column: string[]) {}
 
 const categoryAdapter = {
@@ -83,4 +103,4 @@ const categoryAdapter = {
   china_bank,
 };
 
-export { getWechatData, getAlipayData, china_bank };
+export { getWechatData, getAlipayData, china_bank, getTemplateData };

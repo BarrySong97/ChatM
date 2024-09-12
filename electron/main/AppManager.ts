@@ -146,7 +146,7 @@ export class AppManager {
   /**
    * 打开选择文件夹，用于导出窗口
    */
-  async [IPC_EVENT_KEYS.OPEN_FOLDER](projectId: number) {
+  async [IPC_EVENT_KEYS.OPEN_FOLDER]() {
     const projectWindow = BrowserWindow.getFocusedWindow();
     if (projectWindow) {
       const res = await dialog.showOpenDialog(projectWindow, {
@@ -159,15 +159,12 @@ export class AppManager {
   }
 
   // 根据数组对象生成csv文件
-  async [IPC_EVENT_KEYS.SAVE_CSV_FILE](filename: string, dataArray: any) {
+  async [IPC_EVENT_KEYS.SAVE_CSV_FILE](filePath: string, dataArray: any) {
     const projectWindow = BrowserWindow.getFocusedWindow();
     if (projectWindow) {
-      const res = await dialog.showSaveDialog(projectWindow, {
-        defaultPath: filename,
-      });
-      if (res.filePath) {
-        fs.writeFileSync(res.filePath, Buffer.from(dataArray));
-        return res.filePath;
+      if (filePath) {
+        fs.writeFileSync(filePath, Buffer.from(dataArray));
+        return filePath;
       }
     }
     return "";
