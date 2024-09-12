@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { parseDate } from "@internationalized/date";
 
-import { ConfigProvider, Menu, type MenuProps } from "antd";
+import { ConfigProvider, Menu, message, type MenuProps } from "antd";
 import {
   Button,
   Popover,
@@ -31,7 +31,7 @@ import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
-import { ipcDevtoolMain } from "@/service/ipc";
+import { ipcDevtoolMain, ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
 import {
   MaterialSymbolsEditDocumentOutlineRounded,
   MaterialSymbolsHelpOutline,
@@ -55,6 +55,11 @@ import Setting from "@/pages/Setting";
 import { Book } from "@db/schema";
 import BookModal from "@/components/BookModal";
 import { useQueryClient } from "react-query";
+import { TransactionService } from "@/api/services/TransactionService";
+import dayjs from "dayjs";
+import { useTagService } from "@/api/hooks/tag";
+import { FinancialOperation } from "@/api/db/manager";
+import { operationTranslations } from "@/components/Transactions/contant";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -394,8 +399,9 @@ const Side: FC<SideProps> = () => {
   const book = useAtomValue(BookAtom);
   const [showBookPopover, setShowBookPopover] = useState(false);
   const [editBook, setEditBook] = useState<Book>();
-  const queryClient = useQueryClient();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
+  const { tags } = useTagService();
+  const [loading, setLoading] = useState(false);
   return (
     <ConfigProvider
       theme={{
@@ -634,12 +640,93 @@ const Side: FC<SideProps> = () => {
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center mx-4 gap-4">
           <Button
+            className="flex-1"
             size="sm"
             radius="sm"
+            isLoading={loading}
+            color="default"
+            variant="shadow"
+            onClick={async () => {
+              const res = await ipcOpenFolder();
+              if (res) {
+                const headers = [
+                  "日期",
+                  "描述",
+                  "金额",
+                  "类型",
+                  "来源账户",
+                  "目标账户",
+                  "标签",
+                  "备注",
+                ];
+                const filePath = `${res}/流记数据导出-${dayjs(month[0]).format(
+                  "YYYY-MM-DD"
+                )}.csv`;
+                const transactions =
+                  await TransactionService.getAllTransactions(book?.id ?? "");
+                const csvData = [headers.join(",")];
+                setLoading(true);
+                transactions.forEach((t) => {
+                  const sourceAccount =
+                    [
+                      ...(assets || []),
+                      ...(liabilities || []),
+                      ...(incomes || []),
+                      ...(expenses || []),
+                    ].find((a) => a.id === t.source_account_id)?.name || "";
+                  const destAccount =
+                    [
+                      ...(assets || []),
+                      ...(liabilities || []),
+                      ...(incomes || []),
+                      ...(expenses || []),
+                    ].find((a) => a.id === t.destination_account_id)?.name ||
+                    "";
+                  const tagNames = t.transactionTags
+                    ?.map((tt) => {
+                      if (tt.tag) {
+                        return `#${tt.tag.name}`;
+                      }
+                    })
+                    .join(" ");
+
+                  const type =
+                    operationTranslations[
+                      t.type as unknown as FinancialOperation
+                    ];
+                  console.log(type);
+
+                  const row = [
+                    dayjs(t.transaction_date).format("YYYY-MM-DD HH:mm:ss"),
+                    t.content || "",
+                    new Decimal(t.amount || 0).dividedBy(100).toString(),
+                    type || "",
+                    sourceAccount,
+                    destAccount,
+                    tagNames,
+                    t.remark || "",
+                  ];
+
+                  csvData.push(row.join(","));
+                });
+                const csvString = csvData.join("\n");
+                await ipcExportCsv(filePath, csvString);
+                setLoading(false);
+                message.success("导出成功");
+              }
+            }}
+          >
+            导出流水数据
+          </Button>
+          <Button
+            className="flex-1"
+            size="sm"
+            radius="sm"
+            variant="shadow"
+            color="primary"
             onClick={handleClick}
-            className="w-full mx-4"
           >
             导入CSV文件
           </Button>

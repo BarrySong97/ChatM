@@ -8,6 +8,20 @@ import Decimal from "decimal.js";
 import dayjs from "dayjs";
 
 export class TransactionService {
+  // get all
+  public static async getAllTransactions(book_id: string) {
+    const res = await db.query.transaction.findMany({
+      where: eq(transaction.book_id, book_id),
+      with: {
+        transactionTags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
+    });
+    return res;
+  }
   // 创建 transaction
   public static async createTransaction(
     book_id: string,
