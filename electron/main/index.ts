@@ -83,21 +83,6 @@ function resizeWindow(action: TRAFFIC_LIGHT) {
       break;
   }
 }
-function trafficLightListener(win?: BrowserWindow) {
-  if (!isMac) {
-    win?.on("maximize", () => {
-      win?.webContents.send(MAIN_SEND_RENDER_KEYS.MAXIMIZE);
-    });
-    win?.on("restore", () => {
-      win?.webContents.send(MAIN_SEND_RENDER_KEYS.RESTORE);
-    });
-    win?.on("resize", () => {
-      if (!win?.isMaximized()) {
-        win?.webContents.send(MAIN_SEND_RENDER_KEYS.RESTORE);
-      }
-    });
-  }
-}
 const isMac = process.platform === "darwin";
 async function createWindow() {
   win = new BrowserWindow({
@@ -112,9 +97,18 @@ async function createWindow() {
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
     },
   });
+  win.on("moved", () => {
+    if (!win?.isMaximized()) {
+      win?.webContents.send(MAIN_SEND_RENDER_KEYS.RESTORE);
+    }
+  });
+  win.on("minimize", () => {
+    win?.webContents.send(MAIN_SEND_RENDER_KEYS.MINIMIZE);
+  });
+
   win.setBackgroundColor("rgba(0, 0, 0, 0)");
   win.webContents.on("will-navigate", () => {});
-  trafficLightListener(win);
+  // trafficLightListener(win);
   if (url) {
     win.loadURL(url);
   } else {

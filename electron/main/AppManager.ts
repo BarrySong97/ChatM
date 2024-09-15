@@ -17,7 +17,7 @@ function resizeWindow(action: TRAFFIC_LIGHT) {
       win?.minimize();
       break;
     case TRAFFIC_LIGHT.RESTORE:
-      win?.restore();
+      win?.unmaximize();
       break;
     case TRAFFIC_LIGHT.CLOSE:
       win?.close();
@@ -30,7 +30,9 @@ function trafficLightListener(win?: BrowserWindow) {
       win?.webContents.send(MAIN_SEND_RENDER_KEYS.MAXIMIZE);
     });
     win?.on("restore", () => {
-      win?.webContents.send(MAIN_SEND_RENDER_KEYS.RESTORE);
+      if (!win?.isMaximized()) {
+        win?.webContents.send(MAIN_SEND_RENDER_KEYS.RESTORE);
+      }
     });
     win?.on("resize", () => {
       if (!win?.isMaximized()) {

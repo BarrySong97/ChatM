@@ -12,21 +12,23 @@ import { FC } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import TrafficLight from "@/components/TrafficLight";
 import Side from "./components/side";
+import { ipcWindowResize } from "@/service/ipc";
+import { TRAFFIC_LIGHT } from "@/constant";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
   return (
     <NextUIProvider navigate={navigate}>
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden ">
         <aside className="dark:bg-default-100 bg-white   h-screen w-[308px]  ">
           <Side />
         </aside>
-        <div className="flex-1 bg-[#ECECEC]">
+        <div className="flex-1 bg-[#ECECEC]  ">
           <div
             style={{
               width: "100%",
             }}
-            className="relative dark:bg-transparent "
+            className="relative dark:bg-transparent h-[28px]"
           >
             <DragTitle className="absolute bg-[#ECECEC] dark:bg-transparent   top-0 w-full  py-3.5 flex justify-end  ">
               <TrafficLight isDev={false} />

@@ -11,6 +11,7 @@ export enum IPC_EVENT_KEYS {
 export enum MAIN_SEND_RENDER_KEYS {
   MAXIMIZE = "maximize",
   RESTORE = "restore",
+  MINIMIZE = "minimize",
 }
 export enum ModuleType {
   TITLE_ABSTRACT_SCREENING = "title_abstract_screening",

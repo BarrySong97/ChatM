@@ -8,7 +8,7 @@ import {
 import { MAIN_SEND_RENDER_KEYS, TRAFFIC_LIGHT } from "@/constant";
 import { ipcDevtoolProject, ipcWindowResize } from "@/service/ipc";
 import { Button } from "@nextui-org/react";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 export interface TrafficLightProps {
   className?: string;
   isMaximize?: boolean;
@@ -24,12 +24,19 @@ const TrafficLight: FC<TrafficLightProps> = ({
   isMinimize = true,
 }) => {
   const [maximize, setmaximize] = useState(false);
+  const maximizeRef = useRef(false);
   useEffect(() => {
     window.ipcRenderer.on(MAIN_SEND_RENDER_KEYS.MAXIMIZE, () => {
+      console.log("ipcRenderer.on", MAIN_SEND_RENDER_KEYS.MAXIMIZE);
       setmaximize(true);
     });
     window.ipcRenderer.on(MAIN_SEND_RENDER_KEYS.RESTORE, () => {
+      console.log("ipcRenderer.on", MAIN_SEND_RENDER_KEYS.RESTORE);
       setmaximize(false);
+    });
+    window.ipcRenderer.on(MAIN_SEND_RENDER_KEYS.MINIMIZE, () => {
+      console.log("ipcRenderer.on", MAIN_SEND_RENDER_KEYS.MINIMIZE);
+      setmaximize(true);
     });
   }, []);
 
@@ -38,6 +45,7 @@ const TrafficLight: FC<TrafficLightProps> = ({
   if (isMac) {
     return null;
   }
+
   return (
     <div className={`absolute no-drag  top-0 right-0 flex ${className}`}>
       {isDev && !isProduction ? (
@@ -54,14 +62,16 @@ const TrafficLight: FC<TrafficLightProps> = ({
       ) : null}
       {isMinimize ? (
         <Button
-          onClick={() => ipcWindowResize(TRAFFIC_LIGHT.MINIMIZE)}
+          onClick={() => {
+            ipcWindowResize(TRAFFIC_LIGHT.MINIMIZE);
+          }}
           variant="light"
           isIconOnly
           className="dark:text-foreground"
           size="sm"
           radius="sm"
         >
-          <MingcuteMinimizeLine className="text-lg" />
+          <MingcuteMinimizeLine className="text-lg mb-1" />
         </Button>
       ) : null}
       {isMaximize ? (
@@ -69,6 +79,7 @@ const TrafficLight: FC<TrafficLightProps> = ({
           variant="light"
           onClick={() => {
             setmaximize(!maximize);
+            maximizeRef.current = !maximize;
             ipcWindowResize(
               !maximize ? TRAFFIC_LIGHT.MAXIMIZE : TRAFFIC_LIGHT.RESTORE
             );
@@ -79,9 +90,9 @@ const TrafficLight: FC<TrafficLightProps> = ({
           radius="sm"
         >
           {!maximize ? (
-            <ClarityWindowMaxLine className="text-lg" />
+            <ClarityWindowMaxLine className="text-lg mb-1" />
           ) : (
-            <ClarityWindowRestoreLine className="text-lg" />
+            <ClarityWindowRestoreLine className="text-lg mb-1" />
           )}
         </Button>
       ) : null}
@@ -93,7 +104,7 @@ const TrafficLight: FC<TrafficLightProps> = ({
           size="sm"
           radius="sm"
         >
-          <ClarityWindowCloseLine className="text-lg dark:text-foreground" />
+          <ClarityWindowCloseLine className="text-lg dark:text-foreground mb-1" />
         </Button>
       ) : null}
     </div>
