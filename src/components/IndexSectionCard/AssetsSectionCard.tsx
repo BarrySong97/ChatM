@@ -18,6 +18,7 @@ const now = dayjs();
 export const AssetsSectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
+  onValueChange?: (value: { start: number; end: number }) => void;
   showDefaultTitle?: boolean;
   accountId?: string;
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
@@ -29,8 +30,9 @@ export const AssetsSectionCard: React.FC<{
   chartTabPlaceHolder,
   showSankey = false,
   accountId,
+  onValueChange,
 }) => {
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({
     start: now.subtract(3, "months").valueOf(),
     end: now.valueOf(),
@@ -71,13 +73,11 @@ export const AssetsSectionCard: React.FC<{
           end: now.valueOf(),
         });
         break;
-      default:
-        setValue({
-          start: now.subtract(1, "year").valueOf(),
-          end: now.valueOf(),
-        });
     }
   }, [time]);
+  useEffect(() => {
+    onValueChange?.(value);
+  }, [value]);
 
   const { lineData } = useAssetTrendService({
     startDate: value.start,
@@ -102,12 +102,11 @@ export const AssetsSectionCard: React.FC<{
       <div className="flex items-center gap-2 mb-4">
         <TimeFilterButtons
           timeFilter={timeFilter}
-          selectedTime={time || timeFilter[0]}
+          selectedTime={time}
           onTimeChange={setTime}
         />
         <CustomDatePopover
           time={time}
-          type="single"
           value={value}
           isOpen={isOpen}
           setIsOpen={setIsOpen}

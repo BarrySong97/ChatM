@@ -8,33 +8,21 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { CategoryBarChart } from "@/components/PieChart";
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
 import AccountModal from "@/components/AccountModal";
+import dayjs from "dayjs";
 
 export interface PageProps {}
 
-const date = new Date();
+const now = dayjs();
 
 const Page: FC<PageProps> = () => {
-  const navigate = useNavigate();
-
   const { expenditureData } = useIndexData();
 
   const [value, setValue] = useState<{
     start: number;
     end: number;
   }>({
-    start: new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    ).getTime(),
-    end: new Date(
-      date.getFullYear(),
-      date.getMonth() + 1,
-      0,
-      0,
-      0,
-      0
-    ).getTime(),
+    start: now.startOf("month").valueOf(),
+    end: now.endOf("month").valueOf(),
   });
   const { categoryData } = useExpenseCategoryService({
     startDate: value.start,
@@ -59,7 +47,13 @@ const Page: FC<PageProps> = () => {
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
-        <ExpenseSectionCard showLeft={false} showDefaultTitle />
+        <ExpenseSectionCard
+          showLeft={false}
+          showDefaultTitle
+          onValueChange={(value) => {
+            setValue(value);
+          }}
+        />
       </div>
       <div className="grid grid-cols-2 gap-8">
         <Card shadow="sm" radius="sm">

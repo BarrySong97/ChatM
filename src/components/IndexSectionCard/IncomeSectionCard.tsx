@@ -18,6 +18,7 @@ export const IncomeSectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
   showDefaultTitle?: boolean;
+  onValueChange?: (value: { start: number; end: number }) => void;
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
   accountId?: string;
   showSankey?: boolean;
@@ -26,10 +27,11 @@ export const IncomeSectionCard: React.FC<{
   title,
   showDefaultTitle = false,
   chartTabPlaceHolder,
+  onValueChange,
   accountId,
   showSankey = false,
 }) => {
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({
     start: now.startOf("month").valueOf(),
     end: now.endOf("month").valueOf(),
@@ -76,14 +78,12 @@ export const IncomeSectionCard: React.FC<{
           end: now.valueOf(),
         });
         break;
-      default:
-        setValue({
-          start: now.startOf("month").valueOf(),
-          end: now.endOf("month").valueOf(),
-        });
     }
   }, [time]);
 
+  useEffect(() => {
+    onValueChange?.(value);
+  }, [value]);
   const { lineData } = useIncomeLineChartService({
     startDate: value.start,
     endDate: value.end,
@@ -106,7 +106,7 @@ export const IncomeSectionCard: React.FC<{
       <div className="flex items-center gap-2 mb-4">
         <TimeFilterButtons
           timeFilter={timeFilter}
-          selectedTime={time || timeFilter[0]}
+          selectedTime={time}
           onTimeChange={setTime}
         />
         <CustomDatePopover

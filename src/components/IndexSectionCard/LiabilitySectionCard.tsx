@@ -19,18 +19,20 @@ export const LiabilitySectionCard: React.FC<{
   showLeft?: boolean;
   title?: React.ReactNode;
   accountId?: string;
+  onValueChange?: (value: { start: number; end: number }) => void;
   showDefaultTitle?: boolean;
   chartTabPlaceHolder?: ChartTabPlaceHolder[];
   showSankey?: boolean;
 }> = ({
   showLeft = true,
   title,
+  onValueChange,
   showDefaultTitle = true,
   chartTabPlaceHolder,
   accountId,
   showSankey = false,
 }) => {
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState(timeFilter[0]);
   const [value, setValue] = useState({
     start: now.subtract(3, "months").valueOf(),
     end: now.valueOf(),
@@ -70,14 +72,12 @@ export const LiabilitySectionCard: React.FC<{
           end: now.valueOf(),
         });
         break;
-      default:
-        setValue({
-          start: now.subtract(1, "year").valueOf(),
-          end: now.valueOf(),
-        });
     }
   }, [time]);
 
+  useEffect(() => {
+    onValueChange?.(value);
+  }, [value]);
   const { lineData } = useLiabilityTrendService({
     startDate: value.start,
     endDate: value.end,
@@ -101,7 +101,7 @@ export const LiabilitySectionCard: React.FC<{
       <div className="flex items-center gap-2 mb-4">
         <TimeFilterButtons
           timeFilter={timeFilter}
-          selectedTime={time || timeFilter[0]}
+          selectedTime={time}
           onTimeChange={setTime}
         />
         <CustomDatePopover
@@ -109,7 +109,6 @@ export const LiabilitySectionCard: React.FC<{
           time={time}
           isOpen={isOpen}
           setIsOpen={setIsOpen}
-          type="single"
           onChange={setValue}
           onTimeReset={() => setTime("")}
         />

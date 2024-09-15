@@ -173,7 +173,13 @@ export function useExpenseLineChartService(filter: Filter) {
 
 export function useExpenseCategoryService(filter: Filter) {
   const book = useAtomValue(BookAtom);
-  const queryKey = ["expenses", "category", filter, book?.id];
+  const queryKey = [
+    "expenses",
+    "category",
+    filter?.startDate,
+    filter?.endDate,
+    book?.id,
+  ];
 
   const { data: categoryData, isLoading: isLoadingCategory } = useQuery<
     CategoryListData[],

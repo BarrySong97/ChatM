@@ -8,14 +8,19 @@ import { CategoryBarChart } from "@/components/PieChart";
 import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySectionCard";
 import { useLiabilityCategoryService } from "@/api/hooks/liability";
 import AccountModal from "@/components/AccountModal";
+import dayjs from "dayjs";
 
 export interface PageProps {}
 
-const now = new Date().getTime();
+const now = dayjs();
 const Page: FC<PageProps> = () => {
+  const [value, setValue] = useState({
+    start: now.startOf("month").valueOf(),
+    end: now.endOf("month").valueOf(),
+  });
   const { categoryData } = useLiabilityCategoryService({
-    startDate: now,
-    endDate: now,
+    startDate: value.start,
+    endDate: value.end,
   });
   const { liabilitiesData } = useIndexData();
   const [showAccountModal, setShowAccountModal] = useState(false);
@@ -36,12 +41,10 @@ const Page: FC<PageProps> = () => {
       <Divider className="my-6" />
       <div className="mt-8">
         <LiabilitySectionCard
-          title={
-            <div className="pl-4 font-semibold text-lg">
-              金额：{liabilitiesData?.totalAmount}
-            </div>
-          }
           showLeft={false}
+          onValueChange={(value) => {
+            setValue(value);
+          }}
         />
       </div>
       <div className="grid grid-cols-2 gap-8">

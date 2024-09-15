@@ -8,6 +8,7 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { AssetsSectionCard } from "@/components/IndexSectionCard/AssetsSectionCard";
 import { CategoryBarChart } from "@/components/PieChart";
 import AccountModal from "@/components/AccountModal";
+import dayjs from "dayjs";
 export interface PageProps {}
 interface DataType {
   key: string;
@@ -16,14 +17,17 @@ interface DataType {
   address: string;
   tags: string[];
 }
-const now = new Date().getTime();
+const now = dayjs();
 const Page: FC<PageProps> = () => {
+  const [value, setValue] = useState({
+    start: now.startOf("month").valueOf(),
+    end: now.endOf("month").valueOf(),
+  });
   const { categoryData } = useAssetCategoryService({
-    startDate: now,
-    endDate: now,
+    startDate: value.start,
+    endDate: value.end,
   });
 
-  const { assetsData } = useIndexData();
   const [showAccountModal, setShowAccountModal] = useState(false);
 
   return (
@@ -43,11 +47,14 @@ const Page: FC<PageProps> = () => {
       <Divider className="my-6" />
       <div className="mt-8">
         <AssetsSectionCard
-          title={
-            <div className="pl-4 font-semibold text-lg">
-              金额：{assetsData?.totalAmount}
-            </div>
-          }
+          // title={
+          //   <div className="pl-4 font-semibold text-lg">
+          //     金额：{assetsData?.totalAmount}
+          //   </div>
+          // }
+          onValueChange={(value) => {
+            setValue(value);
+          }}
           showLeft={false}
         />
       </div>
