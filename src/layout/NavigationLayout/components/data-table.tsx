@@ -161,7 +161,6 @@ export default function ImportDataTable({
         onDataChange?.([...data]);
       }
     }
-    console.log(rawText);
 
     return true;
   };

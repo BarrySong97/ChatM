@@ -696,7 +696,6 @@ const Side: FC<SideProps> = () => {
                     operationTranslations[
                       t.type as unknown as FinancialOperation
                     ];
-                  console.log(type);
 
                   const row = [
                     dayjs(t.transaction_date).format("YYYY-MM-DD HH:mm:ss"),

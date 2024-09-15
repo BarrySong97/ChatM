@@ -59,28 +59,14 @@ export function useProviderService() {
     (params: { providerId: string; provider: EditProvider }) =>
       ProviderService.editProvider(params.providerId, params.provider),
     {
-      onMutate: async ({ providerId, provider }) => {
-        await queryClient.cancelQueries(queryKey);
-        const previousProviders =
-          queryClient.getQueryData<Array<Provider>>(queryKey);
-        setIsEditLoading(true);
-        queryClient.setQueryData<Array<Provider>>(
-          queryKey,
-          (oldProviders = []) =>
-            oldProviders.map((p) =>
-              p.id === providerId ? { ...p, ...provider } : p
-            )
-        );
-        return { previousProviders };
+      onSuccess() {
+        queryClient.invalidateQueries(queryKey);
       },
-      onSuccess() {},
       onSettled() {
         setIsEditLoading(false);
       },
       onError: (_error, _variables, context) => {
-        if (context?.previousProviders) {
-          queryClient.setQueryData(queryKey, context.previousProviders);
-        }
+        message.error("编辑失败");
       },
     }
   );

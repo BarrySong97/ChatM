@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Select, SelectItem } from "@nextui-org/react";
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
@@ -25,30 +25,43 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
 }) => {
   const { providers, isLoadingProviders, editProvider } = useProviderService();
   const [selectedProvider, setSelectedProvider] = useState<string>("");
-  const { models, isLoadingModels } = useModelService(selectedProvider);
+  const { models } = useModelService(selectedProvider);
   const [selectedModel, setSelectedModel] = useState<string>("");
+  const ref = useRef<number>(0);
 
   useEffect(() => {
-    if (providers && providers.length > 0) {
+    if (providers && providers.length > 0 && ref.current === 0) {
       const defaultProvider = providers.find((p) => p.is_default === 1);
       if (defaultProvider) {
         setSelectedProvider(defaultProvider.id);
       }
-    }
-    const savedModel = localStorage.getItem("selectedModel");
-    if (savedModel) {
-      setSelectedModel(savedModel);
+      const savedModel = localStorage.getItem(
+        `selectedModel-${defaultProvider?.id}`
+      );
+      if (savedModel) {
+        setSelectedModel(savedModel);
+      } else {
+        const defaultModel = models?.[0]?.id;
+        if (defaultModel) {
+          handleModelChange(defaultModel);
+        }
+      }
+      ref.current = 1;
     }
   }, [providers]);
 
   const handleProviderChange = async (providerId: string) => {
     setSelectedProvider(providerId);
     await editProvider({ providerId, provider: { is_default: 1 } });
+    const savedModel = localStorage.getItem(`selectedModel-${providerId}`);
+    if (savedModel) {
+      setSelectedModel(savedModel);
+    }
   };
 
   const handleModelChange = (modelId: string) => {
     setSelectedModel(modelId);
-    localStorage.setItem("selectedModel", modelId);
+    localStorage.setItem(`selectedModel-${selectedProvider}`, modelId);
   };
 
   const processedPercent = Math.round((processedCount / totalCount) * 100);
@@ -92,7 +105,6 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
           onSelectionChange={(keys) =>
             handleModelChange(Array.from(keys)[0] as string)
           }
-          isLoading={isLoadingModels}
         >
           {models?.map((model) => (
             <SelectItem key={model.id} value={model.id}>

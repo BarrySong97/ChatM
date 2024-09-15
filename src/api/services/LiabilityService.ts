@@ -167,7 +167,6 @@ export class LiabilityService {
         dailyTotals.set(date, dailyTotals.get(date)!.minus(amount));
       }
     });
-    console.log(Array.from(dailyTotals.values()).map((v) => v.toFixed(2)));
 
     // Fill in the trend data
 
