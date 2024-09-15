@@ -27,7 +27,12 @@ import { IncomeService } from "@/api/services/IncomeService";
 import { ExpenseService } from "@/api/services/ExpenseService";
 import { AssetsService } from "@/api/services/AssetsSevice";
 import { LiabilityService } from "@/api/services/LiabilityService";
-import { MaterialSymbolsDelete, PhBankDuotone } from "./icon";
+import {
+  MaterialSymbolsDelete,
+  MingcuteAlipayFill,
+  MingcuteWechatPayFill,
+  PhBankDuotone,
+} from "./icon";
 import BankIconPicker from "../BankIconPicker";
 import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
 import AccountIconRender from "../AccountIconRender";
@@ -82,10 +87,14 @@ const AccountModal: FC<AccountModalProps> = ({
     }
   };
   const [iconId, setIconId] = useState<string | undefined>(undefined);
-  const [iconType, setIconType] = useState<"emoji" | "bank">("emoji");
+  const [iconType, setIconType] = useState<"emoji" | "bank" | "wallet">(
+    "emoji"
+  );
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  const [selectIconType, setSelectIconType] = useState<"emoji" | "bank">();
+  const [selectIconType, setSelectIconType] = useState<
+    "emoji" | "bank" | "wallet"
+  >("emoji");
   const book = useAtomValue(BookAtom);
   const queryClient = useQueryClient();
   const onCreate = async () => {
@@ -95,7 +104,7 @@ const AccountModal: FC<AccountModalProps> = ({
     const accounts = values.accounts;
     setSubmitLoading(true);
     for (const account of accounts) {
-      const icon = account.icon || iconId; // 假设每个账户可以有自己的图标，否则使用全局的
+      const icon = iconId || account.icon; // 假设每个账户可以有自己的图标，否则使用全局的
       switch (type) {
         case "income":
           if (data) {
@@ -249,11 +258,68 @@ const AccountModal: FC<AccountModalProps> = ({
         </div>
       );
     }
+    if (selectIconType === "wallet") {
+      return (
+        <div className="p-1">
+          <div className="flex items-center">
+            <Button
+              variant="light"
+              radius="sm"
+              size="sm"
+              isIconOnly
+              onClick={() => setSelectIconType(undefined)}
+            >
+              <MaterialSymbolsArrowBackIosNewRounded />
+            </Button>
+            <div>请选择</div>
+          </div>
+          <Listbox>
+            <ListboxSection>
+              <ListboxItem
+                onClick={() => {
+                  setIconId("wallet:alipay");
+                  setIconType("wallet");
+                  setIconOpen(false);
+                }}
+                startContent={
+                  <MingcuteAlipayFill className="text-xl  text-[#1677FF]" />
+                }
+                key="bank"
+              >
+                支付宝
+              </ListboxItem>
+              <ListboxItem
+                onClick={() => {
+                  setIconId("wallet:wechat");
+                  setIconType("wallet");
+                  setIconOpen(false);
+                }}
+                startContent={
+                  <MingcuteWechatPayFill className="text-xl text-[#1AAD19]" />
+                }
+                key="bank"
+              >
+                微信
+              </ListboxItem>
+            </ListboxSection>
+          </Listbox>
+        </div>
+      );
+    }
     return (
       <Listbox title="选择图标" className="p-2">
         <ListboxSection title="选择图标类型">
           <ListboxItem
-            startContent={<PhBankDuotone className="text-lg" />}
+            startContent={
+              <MingcuteAlipayFill className="text-xl  text-[#1677FF]" />
+            }
+            key="bank"
+            onClick={() => setSelectIconType("wallet")}
+          >
+            电子钱包
+          </ListboxItem>
+          <ListboxItem
+            startContent={<PhBankDuotone className="text-xl " />}
             key="bank"
             onClick={() => setSelectIconType("bank")}
           >

@@ -18,7 +18,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
   return (
     <NextUIProvider navigate={navigate}>
       <div className="flex h-screen overflow-hidden">
-        <aside className="dark:bg-default-100 bg-white  app-draggable h-screen w-[308px]  ">
+        <aside className="dark:bg-default-100 bg-white   h-screen w-[308px]  ">
           <Side />
         </aside>
         <div className="flex-1 bg-[#ECECEC]">
@@ -28,7 +28,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
             }}
             className="relative dark:bg-transparent "
           >
-            <DragTitle className="absolute bg-[#ECECEC] dark:bg-transparent  z-[99] top-0 w-full  py-3.5 flex justify-end  ">
+            <DragTitle className="absolute bg-[#ECECEC] dark:bg-transparent   top-0 w-full  py-3.5 flex justify-end  ">
               <TrafficLight isDev={false} />
             </DragTitle>
           </div>
