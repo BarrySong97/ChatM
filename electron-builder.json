@@ -1,12 +1,13 @@
 {
-  "appId": "com.meta-analysis.app",
+  "appId": "cc.flowm",
   "asar": true,
   "directories": {
     "output": "release/${version}"
   },
   "files": [
     "dist-electron",
-    "dist"
+    "dist",
+    "drizzle"
   ],
   "mac": {
     "artifactName": "${productName}_${version}_${arch}.${ext}",

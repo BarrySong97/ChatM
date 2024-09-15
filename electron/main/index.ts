@@ -85,6 +85,7 @@ function resizeWindow(action: TRAFFIC_LIGHT) {
 }
 const isMac = process.platform === "darwin";
 async function createWindow() {
+  await runMigrate();
   win = new BrowserWindow({
     title: "Main window",
     icon: join(process.env.VITE_PUBLIC, "favicon.ico"),
@@ -128,15 +129,14 @@ async function createWindow() {
     return { action: "deny" };
   });
 
-  await runMigrate();
   new AppManager(win, indexHtml, preload, url);
   // 把所有通信的代码都挂载上面
   // Apply electron-updater
   update(win);
 }
 app.whenReady().then(() => {
-  createWindow();
   ipcMain.handle("db:execute", execute);
+  createWindow();
 });
 
 app.on("window-all-closed", () => {
