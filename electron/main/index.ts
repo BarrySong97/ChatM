@@ -104,12 +104,15 @@ async function createWindow() {
     title: "Main window",
     icon: join(process.env.VITE_PUBLIC, "favicon.ico"),
     titleBarStyle: "hidden",
+    transparent: true,
+    frame: false,
     ...MainWindowSize,
     webPreferences: {
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
     },
   });
+  win.setBackgroundColor("rgba(0, 0, 0, 0)");
   win.webContents.on("will-navigate", () => {});
   trafficLightListener(win);
   if (url) {
