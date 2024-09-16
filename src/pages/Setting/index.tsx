@@ -17,17 +17,16 @@ export interface SettingProps {
 }
 const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
   const menus = [
+    {
+      key: "about",
+      name: "关于流记",
+      icon: <PhQuestion />,
+    },
     { key: "pricing", name: "定价", icon: <PhCreditCardLight /> },
     {
       key: "ai",
       name: "AI设置",
       icon: <MdiRobotOutline />,
-    },
-
-    {
-      key: "about",
-      name: "关于流记",
-      icon: <PhQuestion />,
     },
   ];
   const [activeKey, setActiveKey] = useState<string>("about");
@@ -66,7 +65,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
                   <span> 设置</span>
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                  <div className="text-sm text-[#575859]">常规</div>
+                  <div className="text-sm text-[#575859]">常规1</div>
                   {menus.map((item) => {
                     const isActive = activeKey === item.key;
                     return (

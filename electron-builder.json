@@ -37,5 +37,12 @@
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false
-  }
+  },
+  "publish": [
+    {
+      "provider": "generic",
+      "channel": "latest",
+      "url": "https://release.flowm.cc/update/flavor/flowm/${os}${arch}/"
+    }
+  ]
 }

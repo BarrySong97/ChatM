@@ -120,9 +120,11 @@ async function createWindow() {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
 
-  win.webContents.openDevTools({
-    mode: "detach",
-  });
+  if (import.meta.env.DEV) {
+    win.webContents.openDevTools({
+      mode: "detach",
+    });
+  }
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("https:")) shell.openExternal(url);

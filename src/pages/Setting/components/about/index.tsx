@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import SettingWrapper from "../setting-wrapper";
 import { Button } from "@nextui-org/react";
+import Update from "@/components/update";
 
 export interface AboutProps {}
 const About: FC<AboutProps> = () => {
@@ -21,13 +22,11 @@ const About: FC<AboutProps> = () => {
             </div>
           </div>
           <div>
-            <div className="font-bold">流记</div>
+            <div className="font-bold">流记1</div>
             <div className="text-sm text-gray-500">0.0.1-alpha</div>
           </div>
         </div>
-        <Button color="primary" size="sm" radius="sm" variant="shadow">
-          检查更新
-        </Button>
+        <Update />
       </div>
     </SettingWrapper>
   );
