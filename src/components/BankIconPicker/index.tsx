@@ -1,6 +1,7 @@
 import { Button, Card, CardHeader, Divider, Input } from "@nextui-org/react";
 import React, { FC, useState } from "react";
 import bankcode from "./bank.json";
+import ElectronImage from "../Image";
 
 type BankCode = Array<{
   name: string;
@@ -54,7 +55,11 @@ const BankIconPicker: FC<BankIconPickerProps> = ({
                     onClick={() => onChange?.(item.logo)}
                     onMouseEnter={() => setFocusBank(item)}
                   >
-                    <img className="h-5 w-5" src={item.logo} alt={item.name} />
+                    <ElectronImage
+                      className="h-5 w-5"
+                      src={item.logo}
+                      alt={item.name}
+                    />
                   </Button>
                 </div>
               );
@@ -64,7 +69,7 @@ const BankIconPicker: FC<BankIconPickerProps> = ({
       <Divider className="mt-2 mb-2" />
       <div className="flex items-center gap-2">
         {focusBank.logo ? (
-          <img
+          <ElectronImage
             className="h-10 w-10"
             src={focusBank.logo}
             alt={focusBank.name}

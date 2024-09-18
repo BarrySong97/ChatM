@@ -114,22 +114,22 @@ const Update = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Software Update
+                <div className="text-lg font-bold">软件更新</div>
               </ModalHeader>
               <ModalBody>
                 {updateError ? (
                   <div>
-                    <p>Error downloading the latest version.</p>
+                    <p>更新失败</p>
                     <p>{updateError.message}</p>
                   </div>
                 ) : updateAvailable ? (
                   <div>
-                    <div>The last version is: v{versionInfo?.newVersion}</div>
+                    <div>最新版本: v{versionInfo?.newVersion}</div>
                     <div className="new-version__target">
                       v{versionInfo?.version} -&gt; v{versionInfo?.newVersion}
                     </div>
                     <div className="update__progress">
-                      <div className="progress__title">Update progress:</div>
+                      <div className="progress__title">更新进度:</div>
                       <Progress
                         aria-label="Update progress"
                         size="md"
@@ -142,7 +142,7 @@ const Update = () => {
                   </div>
                 ) : (
                   <div className="can-not-available">
-                    {JSON.stringify(versionInfo ?? {}, null, 2)}
+                    当前已是最新版本: {process.env.PACKAGE_VERSION}
                   </div>
                 )}
               </ModalBody>
@@ -150,10 +150,10 @@ const Update = () => {
                 {updateAvailable && (
                   <>
                     <Button color="danger" variant="light" onPress={onClose}>
-                      {modalBtn.cancelText || "Cancel"}
+                      {modalBtn.cancelText || "取消"}
                     </Button>
                     <Button color="primary" onPress={modalBtn.onOk}>
-                      {modalBtn.okText || "Update"}
+                      {modalBtn.okText || "更新"}
                     </Button>
                   </>
                 )}
@@ -167,6 +167,7 @@ const Update = () => {
         color="primary"
         size="sm"
         radius="sm"
+        isLoading={checking}
         variant="shadow"
         isDisabled={checking}
       >

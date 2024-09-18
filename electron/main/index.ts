@@ -11,6 +11,7 @@ import {
 } from "../../src/constant";
 import { AppManager } from "./AppManager";
 import { execute, runMigrate } from "./db";
+import path from "path";
 
 globalThis.__filename = fileURLToPath(import.meta.url);
 globalThis.__dirname = dirname(__filename);
@@ -106,7 +107,7 @@ async function createWindow() {
   win.on("minimize", () => {
     win?.webContents.send(MAIN_SEND_RENDER_KEYS.MINIMIZE);
   });
-
+  // 在创建窗口时添加
   win.setBackgroundColor("rgba(0, 0, 0, 0)");
   win.webContents.on("will-navigate", () => {});
   // trafficLightListener(win);
@@ -118,6 +119,7 @@ async function createWindow() {
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
+    win?.webContents.send("app-path", app.getAppPath());
   });
 
   if (import.meta.env.DEV) {
@@ -136,6 +138,15 @@ async function createWindow() {
   // Apply electron-updater
   update(win);
 }
+
+ipcMain.handle("get-image-path", (_, relativePath) => {
+  return path.join(app.getAppPath(), relativePath);
+});
+
+ipcMain.on("get-app-path", (event) => {
+  event.returnValue = app.getAppPath();
+});
+
 app.whenReady().then(() => {
   ipcMain.handle("db:execute", execute);
   createWindow();

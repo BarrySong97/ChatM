@@ -1,7 +1,7 @@
 import PaperParse from "papaparse";
 import { Divider } from "@nextui-org/react";
 import React, { FC, useEffect, useRef, useState } from "react";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsProps } from "antd";
@@ -14,7 +14,7 @@ import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySec
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
 import FinancialItem from "./components/metic-card";
 import { seed } from "@/seed";
-import { BookAtom } from "@/globals";
+import { AppPathAtom, BookAtom } from "@/globals";
 import { BookService } from "@/api/services/BookService";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
@@ -65,6 +65,17 @@ const Index: FC<IndexProps> = () => {
       children: <LiabilitySectionCard showDefaultTitle />,
     },
   ];
+  const setAppPath = useSetAtom(AppPathAtom);
+  useEffect(() => {
+    window.ipcRenderer.on("app-path", (_, path) => {
+      setAppPath(path);
+    });
+
+    return () => {
+      window.ipcRenderer.removeAllListeners("app-path");
+    };
+  }, []);
+
   const {
     assetsData,
     liabilitiesData,

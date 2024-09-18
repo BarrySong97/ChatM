@@ -19,6 +19,9 @@ export default defineConfig(({ command }) => {
         "@db": path.join(__dirname, "electron/db"),
       },
     },
+    define: {
+      "process.env.PACKAGE_VERSION": JSON.stringify(pkg.version),
+    },
     plugins: [
       react(),
       electron({

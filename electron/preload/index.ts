@@ -130,3 +130,9 @@ window.onmessage = (ev) => {
 };
 
 setTimeout(removeLoading, 4999);
+
+contextBridge.exposeInMainWorld("electron", {
+  app: {
+    getAppPath: () => ipcRenderer.sendSync("get-app-path"),
+  },
+});

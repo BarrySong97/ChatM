@@ -3,6 +3,7 @@ import {
   MingcuteAlipayFill,
   MingcuteWechatPayFill,
 } from "../AccountModal/icon";
+import ElectronImage from "../Image";
 interface AccountIconRenderProps {
   icon: string;
   size?: string;
@@ -28,7 +29,7 @@ const AccountIconRender: React.FC<AccountIconRenderProps> = ({
     iconElement = <em-emoji id={iconId} size={emojiSize}></em-emoji>;
   } else if (iconType === "bank") {
     iconElement = (
-      <img
+      <ElectronImage
         className={` object-cover `}
         style={{
           height: bankSize,

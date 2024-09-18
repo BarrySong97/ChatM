@@ -313,7 +313,7 @@ const AccountModal: FC<AccountModalProps> = ({
             startContent={
               <MingcuteAlipayFill className="text-xl  text-[#1677FF]" />
             }
-            key="bank"
+            key="wallet"
             onClick={() => setSelectIconType("wallet")}
           >
             电子钱包
