@@ -9,6 +9,7 @@ import {
 
 const { autoUpdater } = createRequire(import.meta.url)("electron-updater");
 
+let cancellationToken = new CancellationToken();
 export function update(win: Electron.BrowserWindow) {
   // When set to false, the update download will be triggered through the API
   autoUpdater.autoDownload = false;
@@ -50,11 +51,6 @@ export function update(win: Electron.BrowserWindow) {
     }
   });
   // Start downloading and feedback on progress
-  let cancellationToken = new CancellationToken();
-  const abortDownload = () => {
-    cancellationToken.cancel();
-    cancellationToken = new CancellationToken();
-  };
   ipcMain.handle("start-download", (event: Electron.IpcMainInvokeEvent) => {
     startDownload(
       (error, progressInfo) => {
@@ -72,8 +68,7 @@ export function update(win: Electron.BrowserWindow) {
       () => {
         // feedback update downloaded message
         event.sender.send("update-downloaded");
-      },
-      cancellationToken
+      }
     );
   });
   ipcMain.handle("abort-download", () => {
@@ -86,10 +81,13 @@ export function update(win: Electron.BrowserWindow) {
   });
 }
 
+function abortDownload() {
+  cancellationToken.cancel();
+  cancellationToken = new CancellationToken();
+}
 function startDownload(
   callback: (error: Error | null, info: ProgressInfo | null) => void,
-  complete: (event: UpdateDownloadedEvent) => void,
-  cancellationToken: CancellationToken
+  complete: (event: UpdateDownloadedEvent) => void
 ) {
   autoUpdater.on("download-progress", (info: ProgressInfo) =>
     callback(null, info)
