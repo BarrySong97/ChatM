@@ -128,17 +128,19 @@ const Update = () => {
                     <div className="new-version__target">
                       v{versionInfo?.version} -&gt; v{versionInfo?.newVersion}
                     </div>
-                    <div className="update__progress">
-                      <div className="progress__title">更新进度:</div>
-                      <Progress
-                        aria-label="Update progress"
-                        size="md"
-                        value={progressInfo?.percent}
-                        color="primary"
-                        showValueLabel={true}
-                        className="max-w-md"
-                      />
-                    </div>
+                    {progressInfo?.percent ? (
+                      <div className="update__progress">
+                        <div className="progress__title">更新进度:</div>
+                        <Progress
+                          aria-label="Update progress"
+                          size="md"
+                          value={progressInfo?.percent}
+                          color="primary"
+                          showValueLabel={true}
+                          className="max-w-md"
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="can-not-available">
@@ -149,7 +151,14 @@ const Update = () => {
               <ModalFooter>
                 {updateAvailable && (
                   <>
-                    <Button color="danger" variant="light" onPress={onClose}>
+                    <Button
+                      color="danger"
+                      variant="light"
+                      onPress={() => {
+                        onClose();
+                        window.ipcRenderer.invoke("abort-download");
+                      }}
+                    >
                       {modalBtn.cancelText || "取消"}
                     </Button>
                     <Button color="primary" onPress={modalBtn.onOk}>

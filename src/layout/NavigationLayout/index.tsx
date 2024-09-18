@@ -14,6 +14,7 @@ import TrafficLight from "@/components/TrafficLight";
 import Side from "./components/side";
 import { ipcWindowResize } from "@/service/ipc";
 import { TRAFFIC_LIGHT } from "@/constant";
+import AutoCheckUpdate from "@/components/AutoCheckUpdate";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
             <Outlet />
           </div>
         </div>
+        {import.meta.env.DEV ? null : <AutoCheckUpdate />}
       </div>
     </NextUIProvider>
   );

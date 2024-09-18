@@ -6,15 +6,15 @@ import "./App.css";
 import { RouterProvider, useNavigate } from "react-router-dom";
 import { NextUIProvider } from "@nextui-org/react";
 import router from "./routes";
+import AutoCheckUpdate from "./components/AutoCheckUpdate";
 
 function App() {
   return (
-    <NextUIProvider>
-      <RouterProvider
-        router={router}
-        fallbackElement={<p>Initial Load...</p>}
-      />
-    </NextUIProvider>
+    <div>
+      {/* Other components */}
+      <AutoCheckUpdate />
+      {/* Other components */}
+    </div>
   );
 }
 

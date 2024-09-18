@@ -65,7 +65,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
                   <span> 设置</span>
                 </div>
                 <div className="flex flex-col gap-2 mt-4">
-                  <div className="text-sm text-[#575859]">常规1</div>
+                  <div className="text-sm text-[#575859]">常规</div>
                   {menus.map((item) => {
                     const isActive = activeKey === item.key;
                     return (
