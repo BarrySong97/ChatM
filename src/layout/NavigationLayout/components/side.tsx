@@ -49,8 +49,8 @@ import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
 import BookList from "./book-list";
-import { BookAtom } from "@/globals";
-import { useAtomValue } from "jotai";
+import { AppPathAtom, BookAtom } from "@/globals";
+import { useAtom, useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import { Book } from "@db/schema";
 import BookModal from "@/components/BookModal";
@@ -402,6 +402,9 @@ const Side: FC<SideProps> = () => {
   const [isShowBookModal, setIsShowBookModal] = useState(false);
   const { tags } = useTagService();
   const [loading, setLoading] = useState(false);
+  const [appPath] = useAtom(AppPathAtom);
+  const iconSrc = "/icon-side.png";
+  const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
   return (
     <ConfigProvider
       theme={{
@@ -452,7 +455,7 @@ const Side: FC<SideProps> = () => {
                     size: "sm",
                     isBordered: true,
                     name: "B",
-                    src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+                    src: imageSrc,
                   }}
                 />
               </PopoverTrigger>

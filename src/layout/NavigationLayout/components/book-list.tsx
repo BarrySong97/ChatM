@@ -1,5 +1,5 @@
 import { useBookService } from "@/api/hooks/book";
-import { BookAtom } from "@/globals";
+import { AppPathAtom, BookAtom } from "@/globals";
 import {
   Button,
   Chip,
@@ -49,6 +49,9 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
     });
   };
 
+  const [appPath] = useAtom(AppPathAtom);
+  const iconSrc = "/icon-side.png";
+  const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
   return (
     <>
       <div className="w-[280px] py-2">
@@ -72,7 +75,7 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
           avatarProps={{
             radius: "sm",
             size: "sm",
-            src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+            src: imageSrc,
           }}
         />
         <Divider className="my-2" />

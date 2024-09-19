@@ -88,7 +88,7 @@ const Pricing: FC = () => {
         <PricingItem
           isPopular
           title="永久会员"
-          price="9.9"
+          price="待定"
           features={basicFeatures}
         />
       </div>
