@@ -49,7 +49,7 @@ import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
 import BookList from "./book-list";
-import { AppPathAtom, BookAtom } from "@/globals";
+import { AppPathAtom, BookAtom, LicenseAtom } from "@/globals";
 import { useAtom, useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import { Book } from "@db/schema";
@@ -60,6 +60,8 @@ import dayjs from "dayjs";
 import { useTagService } from "@/api/hooks/tag";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationTranslations } from "@/components/Transactions/contant";
+import { useLocalStorageState } from "ahooks";
+import { License } from "@/api/models/license";
 export interface SideProps {}
 const now = new Date();
 type MenuItem = Required<MenuProps>["items"][number];
@@ -404,6 +406,7 @@ const Side: FC<SideProps> = () => {
   const [loading, setLoading] = useState(false);
   const [appPath] = useAtom(AppPathAtom);
   const iconSrc = "/icon-side.png";
+  const license = useAtomValue(LicenseAtom);
   const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
   return (
     <ConfigProvider
@@ -430,7 +433,7 @@ const Side: FC<SideProps> = () => {
             >
               <PopoverTrigger>
                 <User
-                  description="BarrySong97@gmail.com"
+                  description={license?.email ?? "探索宇宙，永葆青春"}
                   classNames={{
                     wrapper: "flex-col-reverse",
                   }}

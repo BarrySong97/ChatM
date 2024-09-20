@@ -59,7 +59,26 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
   const [licenseStatus] = useLocalStorageState<string>("license-status", {
     defaultValue: "",
   });
+  const [license, setLicense] = useLocalStorageState<License | null>(
+    "license",
+    {
+      defaultValue: null,
+    }
+  );
   const renderLicenseStatus = () => {
+    if (!licenseStatus || !license) {
+      return (
+        <Chip
+          size="sm"
+          className="mt-1"
+          color="primary"
+          radius="sm"
+          variant="flat"
+        >
+          普通用户
+        </Chip>
+      );
+    }
     if (licenseStatus === "DISABLED") {
       return (
         <Chip
@@ -102,15 +121,15 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
     <>
       <div className="w-[280px] py-2">
         <User
-          description="BarrySong97@gmail.com"
+          description={license?.email ?? "探索宇宙，永葆青春"}
           classNames={{
             wrapper: "flex-col-reverse",
           }}
           name={renderLicenseStatus()}
           className="cursor-pointer"
           avatarProps={{
+            isBordered: true,
             radius: "sm",
-            size: "sm",
             src: imageSrc,
           }}
         />

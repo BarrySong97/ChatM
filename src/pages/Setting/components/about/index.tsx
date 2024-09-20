@@ -9,6 +9,8 @@ import to from "await-to-js";
 import { message } from "antd";
 import { License } from "@/api/models/license";
 import { ApiError } from "@/api/core/ApiError";
+import { useSetAtom } from "jotai";
+import { LicenseAtom } from "@/globals";
 
 export interface AboutProps {}
 const About: FC<AboutProps> = () => {
@@ -68,7 +70,7 @@ const About: FC<AboutProps> = () => {
       </Chip>
     );
   };
-
+  const setLicenseAtom = useSetAtom(LicenseAtom);
   return (
     <SettingWrapper title="关于流记">
       <div className="flex items-center justify-between">
@@ -123,6 +125,8 @@ const About: FC<AboutProps> = () => {
                 );
                 if (data) {
                   setLicense(null);
+                  setLicenseAtom(null);
+                  window.localStorage.removeItem("license");
                   message.success("取消激活成功");
                 }
                 if (err) {
@@ -148,6 +152,7 @@ const About: FC<AboutProps> = () => {
                   );
                   if (data) {
                     setLicense(data);
+                    setLicenseAtom(data);
                     switch (data.status) {
                       case "ACTIVE":
                         message.success("激活成功");
