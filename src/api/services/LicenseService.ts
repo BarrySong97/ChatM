@@ -42,4 +42,17 @@ export class LicenseService {
       },
     });
   }
+
+  // 校验许可证
+  public static async CheckLicense(license: License): Promise<License> {
+    const macId = await window.ipcRenderer.invoke("get-mac-address");
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/license/verify",
+      body: {
+        licenseKey: license.key,
+        macId,
+      },
+    });
+  }
 }

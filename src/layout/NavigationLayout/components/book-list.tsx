@@ -22,6 +22,10 @@ import { message } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
 import { IonMdMore } from "@/components/ExpandTreeMenu/icon";
 import BookItem from "./BookItem"; // Add this import
+import { useLocalStorageState, useRequest } from "ahooks";
+import { LicenseService } from "@/api/services/LicenseService";
+import { License } from "@/api/models/license";
+import { ApiError } from "@/api/core/ApiError";
 
 export interface BookListProps {
   onClose: () => void;
@@ -52,6 +56,48 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
   const [appPath] = useAtom(AppPathAtom);
   const iconSrc = "/icon-side.png";
   const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
+  const [licenseStatus] = useLocalStorageState<string>("license-status", {
+    defaultValue: "",
+  });
+  const renderLicenseStatus = () => {
+    if (licenseStatus === "DISABLED") {
+      return (
+        <Chip
+          size="sm"
+          className="mt-1"
+          color="danger"
+          radius="sm"
+          variant="flat"
+        >
+          已禁用
+        </Chip>
+      );
+    }
+    if (licenseStatus === "EXPIRED") {
+      return (
+        <Chip
+          size="sm"
+          className="mt-1"
+          color="danger"
+          radius="sm"
+          variant="flat"
+        >
+          已过期
+        </Chip>
+      );
+    }
+    return (
+      <Chip
+        size="sm"
+        className="mt-1"
+        color="primary"
+        radius="sm"
+        variant="flat"
+      >
+        内测用户
+      </Chip>
+    );
+  };
   return (
     <>
       <div className="w-[280px] py-2">
@@ -60,17 +106,7 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
           classNames={{
             wrapper: "flex-col-reverse",
           }}
-          name={
-            <Chip
-              size="sm"
-              color="primary"
-              radius="sm"
-              variant="flat"
-              className="mt-1"
-            >
-              免费
-            </Chip>
-          }
+          name={renderLicenseStatus()}
           className="cursor-pointer"
           avatarProps={{
             radius: "sm",
