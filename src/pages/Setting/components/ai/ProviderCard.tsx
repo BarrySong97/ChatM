@@ -17,7 +17,11 @@ import {
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider } from "@db/schema";
-import { EyeFilledIcon, EyeSlashFilledIcon } from "@/assets/icon";
+import {
+  EyeFilledIcon,
+  EyeSlashFilledIcon,
+  MaterialSymbolsAddRounded,
+} from "@/assets/icon";
 import { PlusIcon } from "@/components/Transactions/icon";
 
 interface ProviderCardProps {
@@ -125,7 +129,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
                   onPress={handleAddModel}
                   aria-label="Add new model"
                 >
-                  <PlusIcon />
+                  <MaterialSymbolsAddRounded className="text-base" />
                 </Button>
               }
             >
@@ -146,23 +150,20 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            Add New Model
-          </ModalHeader>
+          <ModalHeader className="flex flex-col gap-1">添加模型</ModalHeader>
           <ModalBody>
             <Input
-              label="Model Name"
-              placeholder="Enter model name"
+              label="模型名称"
               value={newModelName}
               onChange={(e) => setNewModelName(e.target.value)}
             />
           </ModalBody>
           <ModalFooter>
             <Button color="danger" variant="light" onPress={closeModal}>
-              Cancel
+              取消
             </Button>
             <Button color="primary" onPress={handleModalConfirm}>
-              Add Model
+              添加
             </Button>
           </ModalFooter>
         </ModalContent>

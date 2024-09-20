@@ -195,9 +195,8 @@ export class AIService {
       model: model,
       temperature: 0.2,
       messages: [
-        { role: "system", content: prompt },
         // { role: "user", content: prompt },
-        { role: "user", content: dataString },
+        { role: "user", content: `${prompt} \n\n ${dataString}` },
       ],
       stream: true,
     });
