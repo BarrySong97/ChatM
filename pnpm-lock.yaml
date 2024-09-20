@@ -65,6 +65,9 @@ dependencies:
   framer-motion:
     specifier: ^11.0.6
     version: 11.5.4(react-dom@18.3.1)(react@18.3.1)
+  getmac:
+    specifier: ^6.6.0
+    version: 6.6.0
   jotai:
     specifier: ^2.7.1
     version: 2.9.3(@types/react@18.3.5)(react@18.3.1)
@@ -10415,6 +10418,11 @@ packages:
     resolution: {integrity: sha512-Ln0UQDlxH1BapMu3GPtf7CuYNwRZf2gwCuPqbyG6pB8WfmFpzqcy4xtAaAMUhnNqjMKTiCPZG2oMT3YSx8U2NA==}
     engines: {node: '>=0.10.0'}
     dev: true
+
+  /getmac@6.6.0:
+    resolution: {integrity: sha512-o1sq9o5QTfwUyWy7Dao1YGZOI9lN+xzEr9Ul36hyOxFrtuwgLG1ff7oiBEfRDxOrB3jJ2u4jKEs5KMSElyE0cQ==}
+    engines: {node: '>=8'}
+    dev: false
 
   /giscus@1.5.0:
     resolution: {integrity: sha512-t3LL0qbSO3JXq3uyQeKpF5CegstGfKX/0gI6eDe1cmnI7D56R7j52yLdzw4pdKrg3VnufwCgCM3FDz7G1Qr6lg==}

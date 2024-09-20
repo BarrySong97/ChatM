@@ -12,6 +12,7 @@ import {
 import { AppManager } from "./AppManager";
 import { execute, runMigrate } from "./db";
 import path from "path";
+import getMAC, { isMAC } from "getmac";
 
 globalThis.__filename = fileURLToPath(import.meta.url);
 globalThis.__dirname = dirname(__filename);
@@ -95,6 +96,7 @@ async function createWindow() {
     frame: false,
     ...MainWindowSize,
     webPreferences: {
+      webSecurity: false,
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
     },
@@ -149,6 +151,10 @@ ipcMain.on("get-app-path", (event) => {
 
 app.whenReady().then(() => {
   ipcMain.handle("db:execute", execute);
+  ipcMain.handle("get-mac-address", async () => {
+    const mac = getMAC();
+    return mac;
+  });
   createWindow();
 });
 

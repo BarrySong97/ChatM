@@ -1,6 +1,7 @@
 import { ipcRenderer, contextBridge } from "electron";
 const api = {
   db_execute: (...args: any) => ipcRenderer.invoke("db:execute", ...args),
+  get_mac_address: () => ipcRenderer.invoke("get-mac-address"),
 };
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld("ipcRenderer", withPrototype(ipcRenderer));

@@ -2,22 +2,22 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import axios from "axios";
 import type {
   AxiosError,
+  AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
-  AxiosInstance,
 } from "axios";
+import axios from "axios";
 import FormData from "form-data";
 
+import to from "await-to-js";
 import { ApiError } from "./ApiError";
 import type { ApiRequestOptions } from "./ApiRequestOptions";
 import type { ApiResult } from "./ApiResult";
-import { CancelablePromise } from "./CancelablePromise";
 import type { OnCancel } from "./CancelablePromise";
-import type { OpenAPIConfig } from "./OpenAPI";
-import { message } from "antd";
+import { CancelablePromise } from "./CancelablePromise";
+import { OpenAPI, type OpenAPIConfig } from "./OpenAPI";
 
 export const isDefined = <T>(
   value: T | null | undefined
@@ -186,7 +186,7 @@ export const getHeaders = async (
     );
 
   if (isStringWithValue(token)) {
-    headers["token"] = `${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   if (isStringWithValue(username) && isStringWithValue(password)) {
@@ -270,10 +270,10 @@ export const getResponseBody = (response: AxiosResponse<any>): any => {
   return undefined;
 };
 
-export const catchErrorCodes = (
+export const catchErrorCodes = async (
   options: ApiRequestOptions,
   result: ApiResult
-): void => {
+): Promise<void> => {
   const errors: Record<number, string> = {
     400: "Bad Request",
     401: "Unauthorized",
@@ -287,12 +287,7 @@ export const catchErrorCodes = (
 
   const error = errors[result.status];
 
-  if (error) {
-    message.error(result.body.message);
-    throw new ApiError(options, result, error);
-  }
-  if (result.body.code !== 200 && result.body.code !== "200") {
-    message.error(result.body.message);
+  if (error || result.body.errorCode) {
     throw new ApiError(options, result, error);
   }
 
@@ -360,20 +355,11 @@ export const request = <T>(
           body: responseHeader ?? responseBody,
         };
 
-        if (
-          response.headers &&
-          response.headers.get("content-type").includes("json")
-        ) {
-          catchErrorCodes(options, result);
-          resolve(result.body.data || { session: result.body.session });
-        } else {
-          resolve(responseBody);
-        }
+        await catchErrorCodes(options, result);
+
+        resolve(result.body);
       }
-    } catch (error: any) {
-      if (error.message === "Network Error") {
-        message.error(error.message);
-      }
+    } catch (error) {
       reject(error);
     }
   });
