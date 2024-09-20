@@ -99,17 +99,19 @@ export function Trend(props: TrendProps) {
               if (props.payload && props.payload.length > 0) {
                 const data = props.payload[0].payload;
                 return (
-                  <div className="bg-white p-2  rounded shadow">
+                  <div className="bg-white p-2  rounded shadow flex gap-2">
                     <div className="flex items-center gap-1">
                       <div
-                        className="w-2 h-2 rounded-full"
+                        className="w-1 h-full rounded-md"
                         style={{
                           backgroundColor: `hsl(var(--chart-${type}))`,
                         }}
                       ></div>
-                      <p>{`${title}: ${props.label}`}</p>
                     </div>
-                    <p>{`金额: ${data.amount.toFixed(2)}`}</p>
+                    <div>
+                      <p>{`日期: ${props.label}`}</p>
+                      <p>{`${title}: ${data.amount.toFixed(2)}`}</p>
+                    </div>
                   </div>
                 );
               }

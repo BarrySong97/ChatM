@@ -78,7 +78,28 @@ export default function NewworthChart({ data }: TrendProps) {
           />
           <ChartTooltip
             cursor={false}
-            content={<ChartTooltipContent indicator="line" />}
+            content={(props) => {
+              if (props.payload && props.payload.length > 0) {
+                const data = props.payload[0].payload;
+                return (
+                  <div className="bg-white p-2  rounded shadow flex gap-2">
+                    <div className="flex items-center gap-1">
+                      <div
+                        className="w-1 h-full rounded-md"
+                        style={{
+                          backgroundColor: `hsl(var(--chart-asset))`,
+                        }}
+                      ></div>
+                    </div>
+                    <div>
+                      <p>{`日期: ${props.label}`}</p>
+                      <p>{`净资产: ${data.data.toFixed(2)}`}</p>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            }}
           />
           <defs>
             <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
