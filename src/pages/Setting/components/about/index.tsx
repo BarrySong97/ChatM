@@ -114,8 +114,10 @@ const About: FC<AboutProps> = () => {
                   if (err instanceof ApiError) {
                     if (err.status === 404) {
                       message.error("没有找到该激活码");
+                    } else if (err.status === 400) {
+                      message.error("激活码已被设备绑定，达到最大绑定数量");
                     } else {
-                      message.error(err.message);
+                      message.error(err.body.message);
                     }
                   } else {
                     message.error(err.message);
