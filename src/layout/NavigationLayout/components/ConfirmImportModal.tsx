@@ -21,7 +21,16 @@ import { useQueryClient } from "react-query";
 interface ConfirmImportModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  fileData: Transaction[];
+  fileData: Array<
+    Transaction & {
+      transactionTags: Array<{
+        tag: {
+          name: string;
+          id: string;
+        };
+      }>;
+    }
+  >;
   onClose: () => void;
 }
 
@@ -37,29 +46,44 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
   const queryClient = useQueryClient();
   const handleConfirmImport = async () => {
     setImportLoading(true);
-    const [err, res] = await to(
-      TransactionService.createTransactions(
-        fileData?.map((v) => ({
-          ...v,
-          transaction_date: dayjs(v.transaction_date).toDate().getTime(),
-          amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
-          book_id: book?.id,
-        })) as unknown as EditTransaction[]
-      )
-    );
-    if (err) {
-      console.error(err);
+    try {
+      const [err, res] = await to(
+        TransactionService.createTransactions(
+          fileData?.map((v) => ({
+            ...v,
+            transaction_date: dayjs(v.transaction_date).toDate().getTime(),
+            amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
+            tags:
+              typeof v.transactionTags?.[0] === "string"
+                ? v.transactionTags
+                : v.transactionTags.map((v) => v.tag.id),
+            book_id: book!.id,
+          })) as unknown as Array<EditTransaction & { book_id: string }>
+        )
+      );
+      if (err) {
+        console.error(err);
+        message.error("导入失败");
+      } else {
+        onClose();
+        message.success("导入成功");
+      }
+      queryClient.invalidateQueries({ refetchActive: true });
+    } catch (error) {
+      console.error(error);
       message.error("导入失败");
-    } else {
-      onClose();
-      message.success("导入成功");
+    } finally {
+      setImportLoading(false);
     }
-    queryClient.invalidateQueries({ refetchActive: true });
-    setImportLoading(false);
   };
 
   return (
-    <Modal scrollBehavior="inside" isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal
+      className="z-[99999]"
+      scrollBehavior="inside"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -73,7 +97,7 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                isLoading={importLoading}
+                // isLoading={importLoading}
                 onPress={handleConfirmImport}
               >
                 确认导入

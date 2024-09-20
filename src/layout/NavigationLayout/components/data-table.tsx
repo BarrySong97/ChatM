@@ -111,6 +111,11 @@ export default function ImportDataTable({
 
         if (aIncomplete && !bIncomplete) return -1;
         if (!aIncomplete && bIncomplete) return 1;
+        if (aIncomplete && bIncomplete) {
+          // If both are incomplete, maintain their original order
+          return 0;
+        }
+        // If both are complete, maintain their original order
         return 0;
       });
     }
@@ -188,9 +193,12 @@ export default function ImportDataTable({
             type,
             source_account_id: sourceAccountId,
             transactionTags: transactionTags
-              ? (JSON.parse(transactionTags) as Array<{
-                  tag: { name: string; id: string };
-                }>)
+              ? (JSON.parse(transactionTags) as Array<string>).map((v) => ({
+                  tag: {
+                    name: tags?.find((tag) => tag.id === v)?.name ?? "",
+                    id: v,
+                  },
+                }))
               : [],
             destination_account_id: destinationAccountId,
             status: false, // Set status to false after processing

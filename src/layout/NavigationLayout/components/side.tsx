@@ -588,7 +588,7 @@ const Side: FC<SideProps> = () => {
           <div
             className="mt-4 overflow-auto scrollbar  "
             style={{
-              height: `calc(100vh - ${menuList.length * 40 + 220}px)`,
+              height: `calc(100vh - ${menuList.length * 40 + 180}px)`,
             }}
           >
             <div className="mb-4">

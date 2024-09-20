@@ -123,6 +123,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
   const isAllDataComplete = fileData?.every(
     (item) => item.type && item.destination_account_id && item.source_account_id
   );
+  console.log(fileData, isAllDataComplete);
 
   const [daownLoading, setDaownLoading] = useState(false);
   return (
@@ -206,6 +207,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                       }
                       onPress={() => {
                         if (steps === 2) {
+                          console.log(fileData);
                           // Changed from 3 to 2
                           setIsComfirmModalOpen(true);
                         } else {
