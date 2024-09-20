@@ -1,5 +1,12 @@
 import AgentRuntime from "@/lib/agent-runtime/AgentRuntime";
-import { Expense, Income, Liability, Asset, Transaction } from "@db/schema";
+import {
+  Expense,
+  Income,
+  Liability,
+  Asset,
+  Transaction,
+  Tag,
+} from "@db/schema";
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -19,6 +26,7 @@ export interface AIServiceParams {
   model: string;
   apiKey: string;
   baseURL: string;
+  tags: Tag[];
 }
 
 export class AIService {
@@ -34,6 +42,7 @@ export class AIService {
       model,
       apiKey,
       baseURL,
+      tags,
     }: AIServiceParams,
     abortController: AbortController
   ) {
@@ -122,6 +131,7 @@ export class AIService {
      - 保险
      - 信用借还
      - 充值缴费
+     - 转账红包
    - 以下是支付宝收入分类：
      - 收入
      - 转账红包
@@ -151,11 +161,27 @@ export class AIService {
    - 收入账户: ${JSON.stringify(income)}
    - 负债账户: ${JSON.stringify(liabilities)}
    - 资产账户: ${JSON.stringify(assets)}
+
+8. 标签匹配规则:
+   - 如果交易内容数据的语义能够匹配到标签，则匹配标签，否则不匹配标签, 标签数据来源于上面的**标签信息**
+   - 例子
+      - 交易内容：如果有饮食相关内容，则匹配餐饮美食标签
+      - 交易内容：如果有转账相关内容，则匹配转账标签
+      - 交易内容：如果有充值相关内容，则匹配充值缴费标签
+      - 交易内容：如果有还款相关内容，则匹配还款标签
+      - 交易内容：如果有借款相关内容，则匹配借款标签
+      - 交易内容：如果有退款相关内容，则匹配退款标签
+      - 交易内容：如果有转账相关内容，则匹配转账标签
+      - 交易内容：如果有转账相关内容，则匹配转账标签
+      - 交易内容：如果有转账相关内容，则匹配转账标签
+    - 例子里面的只是例子，实际处理时，需要根据实际语义进行匹配
+9. 标签信息:
+    - ${JSON.stringify(tags)}
 </rules>
 
 <instructions>
 1. 逐步思考每笔流水的分类过程，确保符合给定的规则和逻辑。
-2. 在处理每笔流水时，先确定其类型，然后根据账户优先级规则选择最合适的来源和目标账户。
+2. 在处理每笔流水时，先确定其类型，然后根据账户优先级规则选择最合适的来源和目标账户, 以及标签信息
 3. 在找不到合适账户时，JSON格式必须符合要求。
 4. 根据交易内容的数据格式（交易类型:xxxx | 交易对方:xxxx | 商品:xxxxx | 收/付款方式:xxxxx），进行判断
 5. 无匹配时使用 ${importSource} 作为备选账户。
@@ -165,18 +191,27 @@ export class AIService {
    - 如果交易内容中没有明确提到花呗、白条、月付、贷款等词，则用卡等词汇时类型。
 9. 如果交易类型里面就有消费相关的词语，分类就是支出
 10 在微信和支付宝里面给别人转账就是支出，而不是在自己的资产账户之间转账
+11. 如果交易内容数据的语义能够匹配到标签，则匹配标签，否则不匹配标签, 标签数据来源于上面的**标签信息**
+
 </instructions>
 
 <task>
 1. 根据分类规则，对每笔流水进行分类，并在分类时遵循账户优先级规则，确保资金在四种账户类型之间的流动符合逻辑。
 2. 为每条流水明确指定**来源账户（source_account_id）**和**目标账户（destination_account_id）**，确保这些账户属于四种账户类型中的一个，并按照优先级规则选取最合适的账户。
-3. 处理完所有流水数据后，请返回以下格式的 JSON 数据（请勿使用其他格式）：
+3. 为每条流水明确指定**transactionTags**，确保这些transactionTags属于标签信息表中的一个，并按照优先级规则选取最合适的tags, 如果没有tags，则不指定tags
+4. 处理完所有流水数据后，请返回以下格式的 JSON 数据（请勿使用其他格式）：
+   <tag_format>
+   {
+     "tag":{"name":"标签名","id":"标签id"}
+   }
+   </tag_format>
    <output_format>
    [
      {
        "type": "对应流水规则的英文枚举类型",
        "source_account_id": "来源账户的id",
        "destination_account_id": "目标账户的id",
+       "transactionTags": [<tag_format/>]  //  数据来源是上面给定的标签数据
      },
      // ... 其他流水记录
    ]

@@ -3,17 +3,14 @@ import {
   MaterialSymbolsAddRounded,
   MaterialSymbolsArrowBackIosNewRounded,
   MaterialSymbolsArrowForwardIosRounded,
-  MaterialSymbolsHome,
   MaterialSymbolsToolsWrench,
   MdiArrowDownCircle,
   MdiArrowUpCircle,
   SolarCardBoldDuotone,
   SolarHashtagBold,
-  SolarSettingsBold,
   TablerTransactionDollar,
 } from "@/assets/icon";
 import { cn } from "@/lib/utils";
-import { parseDate } from "@internationalized/date";
 
 import { ConfigProvider, Menu, message, type MenuProps } from "antd";
 import {
@@ -54,17 +51,13 @@ import { useAtom, useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import { Book } from "@db/schema";
 import BookModal from "@/components/BookModal";
-import { useQueryClient } from "react-query";
 import { TransactionService } from "@/api/services/TransactionService";
 import dayjs from "dayjs";
 import { useTagService } from "@/api/hooks/tag";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationTranslations } from "@/components/Transactions/contant";
-import { useLocalStorageState } from "ahooks";
-import { License } from "@/api/models/license";
 export interface SideProps {}
 const now = new Date();
-type MenuItem = Required<MenuProps>["items"][number];
 const Side: FC<SideProps> = () => {
   const [showSettingModal, setShowSettingModal] = useState(false);
   const menuList = [
@@ -98,6 +91,12 @@ const Side: FC<SideProps> = () => {
       href: "/settings",
       title: "设置",
       icon: <TablerSettings />,
+    },
+    {
+      key: "devtool",
+      href: "/devtool",
+      title: "开发者工具",
+      icon: <MaterialSymbolsToolsWrench />,
     },
   ];
   const location = useLocation();
@@ -496,10 +495,16 @@ const Side: FC<SideProps> = () => {
                     "font-semibold": isActive,
                   })}
                   onClick={() => {
-                    if (item.key === "settings") {
-                      setShowSettingModal(true);
-                    } else {
-                      navigate(item.href);
+                    switch (item.key) {
+                      case "settings":
+                        setShowSettingModal(true);
+                        break;
+                      case "devtool":
+                        ipcDevtoolMain();
+                        break;
+                      default:
+                        navigate(item.href);
+                        break;
                     }
                   }}
                   startContent={
@@ -514,18 +519,6 @@ const Side: FC<SideProps> = () => {
                 </Button>
               );
             })}
-            <Button
-              onClick={ipcDevtoolMain}
-              radius="sm"
-              className="justify-start"
-              size="sm"
-              startContent={
-                <MaterialSymbolsToolsWrench className="text-lg text-[#575859]" />
-              }
-              variant="light"
-            >
-              开发者工具
-            </Button>
           </div>
           <div className="mb-4 text-sm text-default-600 flex items-center justify-between px-4">
             <Button

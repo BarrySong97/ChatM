@@ -35,43 +35,78 @@ export class TransactionService {
     const now = Date.now();
     const tags = body.tags;
     delete body.tags;
-    const res = await db
-      .insert(transaction)
-      .values({
-        id: uuidv4(),
-        ...body,
-        book_id,
-        created_at: now,
-        updated_at: now,
-      })
-      .returning();
-    const id = res[0].id;
-    if (tags?.length) {
-      await db.insert(transactionTags).values(
-        tags.map((tag) => ({
+
+    const res = await db.transaction(async (trx) => {
+      const insertedTransaction = await trx
+        .insert(transaction)
+        .values({
           id: uuidv4(),
-          transaction_id: id,
-          tag_id: tag,
-        }))
-      );
-    }
-    return res[0];
+          ...body,
+          book_id,
+          created_at: now,
+          updated_at: now,
+        })
+        .returning();
+
+      const id = insertedTransaction[0].id;
+
+      if (tags?.length) {
+        await trx.insert(transactionTags).values(
+          tags.map((tag) => ({
+            id: uuidv4(),
+            transaction_id: id,
+            tag_id: tag,
+          }))
+        );
+      }
+
+      return insertedTransaction[0];
+    });
+
+    return res;
   }
 
   // 创建多个 transactions
-  public static async createTransactions(body: EditTransaction[]) {
+  public static async createTransactions(
+    body: Array<EditTransaction & { book_id: string }>
+  ) {
     const now = Date.now();
-    const res = await db
-      .insert(transaction)
-      .values(
-        body.map((item) => ({
-          id: uuidv4(),
-          ...item,
-          created_at: now,
-          updated_at: now,
-        }))
-      )
-      .returning();
+    const transactionsToInsert = body.map((item) => {
+      const { tags, ...transactionData } = item;
+      return {
+        id: uuidv4(),
+        ...transactionData,
+        tags: undefined,
+        book_id: item.book_id,
+        created_at: now,
+        updated_at: now,
+      };
+    });
+
+    const res = await db.transaction(async (trx) => {
+      const insertedTransactions = await trx
+        .insert(transaction)
+        .values(transactionsToInsert)
+        .returning();
+
+      const tagsToInsert = insertedTransactions.flatMap(
+        (transaction, index) => {
+          const originalItem = body[index];
+          return (originalItem.tags || []).map((tag) => ({
+            id: uuidv4(),
+            transaction_id: transaction.id,
+            tag_id: tag,
+          }));
+        }
+      );
+
+      if (tagsToInsert.length > 0) {
+        await trx.insert(transactionTags).values(tagsToInsert);
+      }
+
+      return insertedTransactions;
+    });
+
     return res;
   }
 

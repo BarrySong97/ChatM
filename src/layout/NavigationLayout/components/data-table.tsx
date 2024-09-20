@@ -19,9 +19,16 @@ import TableContent from "@/components/Transactions/components/TableContent";
 import TitleComponent from "./TitleComponent"; // Add this import
 import { Button } from "@nextui-org/react";
 import PopoverConfirm from "@/components/PopoverConfirm";
+import { useTagService } from "@/api/hooks/tag";
 
 export interface TransactionsTableProps {
-  data?: Array<Transaction & { status: boolean }>;
+  data?: Array<
+    Transaction & { status: boolean } & {
+      transactionTags: Array<{
+        tag: { name: string; id: string };
+      }>;
+    }
+  >;
   pureData?: Array<Array<string>>;
   onDataChange?: (data: Array<Transaction & { status: boolean }>) => void;
   importSource: string;
@@ -42,6 +49,7 @@ export default function ImportDataTable({
   const [processedCount, setProcessedCount] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
   const isAbort = useRef<boolean>(false);
+  const { tags } = useTagService();
 
   const batchAiProcess = async ({
     provider,
@@ -69,7 +77,6 @@ export default function ImportDataTable({
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       if (isAbort.current) {
-        isAbort.current = false;
         break;
       }
       const [err] = await to(
@@ -95,16 +102,19 @@ export default function ImportDataTable({
       }
     }
     // Sort data to prioritize incomplete entries
-    data.sort((a, b) => {
-      const aIncomplete =
-        !a.source_account_id || !a.destination_account_id || !a.type;
-      const bIncomplete =
-        !b.source_account_id || !b.destination_account_id || !b.type;
+    if (!isAbort.current) {
+      data.sort((a, b) => {
+        const aIncomplete =
+          !a.source_account_id || !a.destination_account_id || !a.type;
+        const bIncomplete =
+          !b.source_account_id || !b.destination_account_id || !b.type;
 
-      if (aIncomplete && !bIncomplete) return -1;
-      if (!aIncomplete && bIncomplete) return 1;
-      return 0;
-    });
+        if (aIncomplete && !bIncomplete) return -1;
+        if (!aIncomplete && bIncomplete) return 1;
+        return 0;
+      });
+    }
+    isAbort.current = false;
     data.forEach((v) => {
       v.status = false;
     });
@@ -144,6 +154,7 @@ export default function ImportDataTable({
       model,
       apiKey,
       baseURL,
+      tags: tags ?? [],
     };
 
     const stream = await AIService.getAIResponse(params, abortController);
@@ -152,19 +163,35 @@ export default function ImportDataTable({
     let rawText = "";
     for await (const chunk of stream) {
       rawText += chunk.choices[0].delta.content;
+      // console.log(rawText);
       const regex =
-        /\{[\s\S]*?"type":\s*"([^"]*)"[\s\S]*?"source_account_id":\s*"([^"]*)"[\s\S]*?"destination_account_id":\s*"([^"]*)"[\s\S]*?\}/g;
+        /\{[\s\S]*?"type":\s*"([^"]*)"[\s\S]*?"source_account_id":\s*"([^"]*)"[\s\S]*?"destination_account_id":\s*"([^"]*)"[\s\S]*?"transactionTags":\s*(\[[\s\S]*?\])[\s\S]*?\}/g;
+
       const matches = Array.from(rawText.matchAll(regex));
       const sub = matches.length - innerIndex;
       if (sub > 0) {
         for (let i = 0; i < sub; i++) {
           const match = matches[innerIndex];
-          const [fullMatch, type, sourceAccountId, destinationAccountId] =
-            match;
+          const [
+            fullMatch,
+            type,
+            sourceAccountId,
+            destinationAccountId,
+            transactionTags,
+          ] = match;
+          // const transactionTagsMatches = Array.from(
+          //   rawText.matchAll(transactionTagsRegex)
+          // );
+          //       console.log(transactionTagsMatches);
           data[dataIndex] = {
             ...data[dataIndex],
             type,
             source_account_id: sourceAccountId,
+            transactionTags: transactionTags
+              ? (JSON.parse(transactionTags) as Array<{
+                  tag: { name: string; id: string };
+                }>)
+              : [],
             destination_account_id: destinationAccountId,
             status: false, // Set status to false after processing
           };
@@ -219,7 +246,7 @@ export default function ImportDataTable({
           onSelectionChanged={setSelectedRows}
         />
         <div
-          className="absolute bottom-[70px] left-0 right-0 bg-background border-t rounded-b-lg border-divider shadow-lg transition-transform duration-300 ease-in-out transform translate-y-0"
+          className="absolute bottom-[70px] left-0 right-0 bg-background border-t border-b-none  rounded-b-none border-divider shadow-none transition-transform duration-300 ease-in-out transform translate-y-0"
           style={{
             transform:
               selectedRows.length > 0

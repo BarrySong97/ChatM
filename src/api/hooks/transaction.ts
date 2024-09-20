@@ -17,7 +17,7 @@ export type EditTransaction = {
   remark?: string;
   tags?: string[];
   destination_account_id: string;
-  amount: string;
+  amount: number;
 };
 
 export type TransactionListParams = {
