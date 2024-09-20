@@ -9,6 +9,8 @@ interface TitleComponentProps {
   totalCount: number;
   processedCount: number;
   processLoading: boolean;
+  abortControllerRef: React.RefObject<AbortController>;
+  isAbort: React.MutableRefObject<boolean>;
   onAIProcess: (
     params: Omit<
       AIServiceParams,
@@ -18,9 +20,11 @@ interface TitleComponentProps {
 }
 
 const TitleComponent: React.FC<TitleComponentProps> = ({
+  abortControllerRef,
   totalCount,
   processedCount,
   processLoading,
+  isAbort,
   onAIProcess,
 }) => {
   const { providers, isLoadingProviders, editProvider } = useProviderService();
@@ -113,28 +117,41 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
           )) ?? []}
         </Select>
 
-        <Button
-          onClick={() =>
-            onAIProcess({
-              provider: selectedProvider,
-              model: selectModelItem?.name ?? "",
-              apiKey: selectProviderItem?.apiKey ?? "",
-              baseURL: selectProviderItem?.baseUrl ?? "",
-            })
-          }
-          radius="sm"
-          isDisabled={
-            !totalCount ||
-            processLoading ||
-            !selectProviderItem?.apiKey ||
-            !selectProviderItem?.baseUrl
-          }
-          size="sm"
-          isLoading={processLoading}
-          color="primary"
-        >
-          一键AI处理
-        </Button>
+        {processLoading ? (
+          <Button
+            onClick={() => {
+              abortControllerRef.current?.abort();
+              isAbort.current = true;
+            }}
+            radius="sm"
+            size="sm"
+            color="primary"
+          >
+            停止
+          </Button>
+        ) : (
+          <Button
+            onClick={() =>
+              onAIProcess({
+                provider: selectedProvider,
+                model: selectModelItem?.name ?? "",
+                apiKey: selectProviderItem?.apiKey ?? "",
+                baseURL: selectProviderItem?.baseUrl ?? "",
+              })
+            }
+            radius="sm"
+            isDisabled={
+              !totalCount ||
+              !selectProviderItem?.apiKey ||
+              !selectProviderItem?.baseUrl
+            }
+            size="sm"
+            isLoading={processLoading}
+            color="primary"
+          >
+            一键AI处理
+          </Button>
+        )}
       </div>
     </div>
   );

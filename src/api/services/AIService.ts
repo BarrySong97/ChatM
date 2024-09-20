@@ -22,18 +22,21 @@ export interface AIServiceParams {
 }
 
 export class AIService {
-  static async getAIResponse({
-    expense,
-    income,
-    liabilities,
-    assets,
-    data,
-    importSource,
-    provider,
-    model,
-    apiKey,
-    baseURL,
-  }: AIServiceParams) {
+  static async getAIResponse(
+    {
+      expense,
+      income,
+      liabilities,
+      assets,
+      data,
+      importSource,
+      provider,
+      model,
+      apiKey,
+      baseURL,
+    }: AIServiceParams,
+    abortController: AbortController
+  ) {
     const dataString = JSON.stringify(
       data.map(
         ({
@@ -188,18 +191,29 @@ export class AIService {
     const agentRuntime = await AgentRuntime.initializeWithProviderOptions(
       provider,
       {
-        [provider]: { apiKey: apiKey, baseURL: baseURL },
+        [provider]: {
+          apiKey: apiKey,
+          baseURL: baseURL,
+        },
       }
     );
-    const response = await agentRuntime.chat({
-      model: model,
-      temperature: 0.2,
-      messages: [
-        // { role: "user", content: prompt },
-        { role: "user", content: `${prompt} \n\n ${dataString}` },
-      ],
-      stream: true,
-    });
+    const response = await agentRuntime.chat(
+      {
+        model: model,
+        temperature: 0.2,
+        messages: [
+          // { role: "user", content: prompt },
+          {
+            role: "user",
+            content: `${prompt} \n\n ${dataString} \n\n 请不要输出任何其他内容，按照前面规定输出JSON格式`,
+          },
+        ],
+        stream: true,
+      },
+      {
+        signal: abortController.signal,
+      }
+    );
 
     return response as any;
   }

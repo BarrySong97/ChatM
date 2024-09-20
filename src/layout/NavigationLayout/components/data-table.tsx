@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ConfigProvider,
   DatePicker,
@@ -40,6 +40,8 @@ export default function ImportDataTable({
   const { liabilities } = useLiabilityService();
   const [processLoading, setProcessLoading] = useState(false);
   const [processedCount, setProcessedCount] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const isAbort = useRef<boolean>(false);
 
   const batchAiProcess = async ({
     provider,
@@ -64,9 +66,22 @@ export default function ImportDataTable({
     for (let i = 0; i < totalBatches; i++) {
       const startIndex = i * batchSize;
       const endIndex = Math.min((i + 1) * batchSize, pureData.length);
-
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+      if (isAbort.current) {
+        isAbort.current = false;
+        break;
+      }
       const [err] = await to(
-        aiProcess(startIndex, endIndex, provider, model, apiKey, baseURL)
+        aiProcess(
+          startIndex,
+          endIndex,
+          provider,
+          model,
+          apiKey,
+          baseURL,
+          abortController
+        )
       );
 
       if (err) {
@@ -104,7 +119,8 @@ export default function ImportDataTable({
     provider: string,
     model: string,
     apiKey: string,
-    baseURL: string
+    baseURL: string,
+    abortController: AbortController
   ) => {
     if (
       !expenses ||
@@ -130,7 +146,7 @@ export default function ImportDataTable({
       baseURL,
     };
 
-    const stream = await AIService.getAIResponse(params);
+    const stream = await AIService.getAIResponse(params, abortController);
     let dataIndex = startIndex;
     let innerIndex = 0;
     let rawText = "";
@@ -140,7 +156,6 @@ export default function ImportDataTable({
         /\{[\s\S]*?"type":\s*"([^"]*)"[\s\S]*?"source_account_id":\s*"([^"]*)"[\s\S]*?"destination_account_id":\s*"([^"]*)"[\s\S]*?\}/g;
       const matches = Array.from(rawText.matchAll(regex));
       const sub = matches.length - innerIndex;
-
       if (sub > 0) {
         for (let i = 0; i < sub; i++) {
           const match = matches[innerIndex];
@@ -182,6 +197,8 @@ export default function ImportDataTable({
         }}
       >
         <TitleComponent
+          abortControllerRef={abortControllerRef}
+          isAbort={isAbort}
           totalCount={data?.length ?? 0}
           processedCount={processedCount}
           processLoading={processLoading}
