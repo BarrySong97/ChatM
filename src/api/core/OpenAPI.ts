@@ -18,8 +18,8 @@ export type OpenAPIConfig = {
   HEADERS?: Headers | Resolver<Headers> | undefined;
   ENCODE_PATH?: ((path: string) => string) | undefined;
 };
-const dev_url = "http://localhost:3000";
-const prod_url = "https://www.flowm.cc/api";
+const dev_url = import.meta.env.VITE_API_URL;
+const prod_url = import.meta.env.VITE_API_SERVER;
 
 export const OpenAPI: OpenAPIConfig = {
   BASE: import.meta.env.DEV ? dev_url : prod_url,

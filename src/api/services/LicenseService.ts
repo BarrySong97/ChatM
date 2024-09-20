@@ -25,4 +25,21 @@ export class LicenseService {
       },
     });
   }
+
+  // 取消激活许可证
+  public static async DeactivateLicense(
+    licenseKey: string,
+    email: string
+  ): Promise<void> {
+    const macId = await window.ipcRenderer.invoke("get-mac-address");
+    return __request(OpenAPI, {
+      method: "POST",
+      url: "/license/deactivate",
+      body: {
+        email,
+        licenseKey,
+        macId,
+      },
+    });
+  }
 }

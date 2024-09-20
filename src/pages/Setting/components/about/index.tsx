@@ -77,7 +77,18 @@ const About: FC<AboutProps> = () => {
             color="danger"
             variant="solid"
             radius="sm"
-            onClick={async () => {}}
+            onClick={async () => {
+              const [err, data] = await to(
+                LicenseService.DeactivateLicense(licenseKey, email)
+              );
+              if (data) {
+                setLicense(null);
+                message.success("取消激活成功");
+              }
+              if (err) {
+                message.error(err.message);
+              }
+            }}
             isDisabled={!license || license.status !== "ACTIVE"}
             size="sm"
             className="mt-4 w-[120px]"
@@ -112,10 +123,13 @@ const About: FC<AboutProps> = () => {
                 }
                 if (err) {
                   if (err instanceof ApiError) {
+                    setLicense(null);
                     if (err.status === 404) {
                       message.error("没有找到该激活码");
                     } else if (err.status === 400) {
                       message.error("激活码已被设备绑定，达到最大绑定数量");
+                    } else if (err.status === 403) {
+                      message.error("激活码已过期");
                     } else {
                       message.error(err.body.message);
                     }
