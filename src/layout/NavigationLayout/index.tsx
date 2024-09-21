@@ -26,7 +26,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
     }
   );
   useRequest(() => LicenseService.CheckLicense(license!), {
-    ready: !!license,
+    ready: !!license && !import.meta.env.DEV,
     onSuccess: (data) => {
       setLicense(data);
       setLicenseStatus("ACTIVE");

@@ -50,9 +50,12 @@ export default function ImportDataTable({
   const abortControllerRef = useRef<AbortController | null>(null);
   const isAbort = useRef<boolean>(false);
   const { tags } = useTagService();
+  const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
 
+  latestData.current = data ?? [];
   const batchAiProcess = async ({
     provider,
+
     model,
     apiKey,
     baseURL,
@@ -103,11 +106,50 @@ export default function ImportDataTable({
     }
     // Sort data to prioritize incomplete entries
     if (!isAbort.current) {
-      data.sort((a, b) => {
+      console.log(latestData.current);
+      latestData.current.sort((a, b) => {
+        const isValidAccount = (id: string) => {
+          return (
+            expenses?.some((e) => e.id === id) ||
+            incomes?.some((i) => i.id === id) ||
+            liabilities?.some((l) => l.id === id) ||
+            assets?.some((a) => a.id === id)
+          );
+        };
+
         const aIncomplete =
-          !a.source_account_id || !a.destination_account_id || !a.type;
+          !a.source_account_id ||
+          !a.destination_account_id ||
+          !a.type ||
+          !isValidAccount(a.source_account_id) ||
+          !isValidAccount(a.destination_account_id);
         const bIncomplete =
-          !b.source_account_id || !b.destination_account_id || !b.type;
+          !b.source_account_id ||
+          !b.destination_account_id ||
+          !b.type ||
+          !isValidAccount(b.source_account_id) ||
+          !isValidAccount(b.destination_account_id);
+
+        if (aIncomplete) {
+          a.source_account_id = isValidAccount(a.source_account_id ?? "")
+            ? a.source_account_id
+            : "";
+          a.destination_account_id = isValidAccount(
+            a.destination_account_id ?? ""
+          )
+            ? a.destination_account_id
+            : "";
+        }
+        if (bIncomplete) {
+          b.source_account_id = isValidAccount(b.source_account_id ?? "")
+            ? b.source_account_id
+            : "";
+          b.destination_account_id = isValidAccount(
+            b.destination_account_id ?? ""
+          )
+            ? b.destination_account_id
+            : "";
+        }
 
         if (aIncomplete && !bIncomplete) return -1;
         if (!aIncomplete && bIncomplete) return 1;
@@ -120,12 +162,12 @@ export default function ImportDataTable({
       });
     }
     isAbort.current = false;
-    data.forEach((v) => {
+    latestData.current.forEach((v) => {
       v.status = false;
     });
 
     // Update the sorted data
-    onDataChange?.([...data]);
+    onDataChange?.([...latestData.current]);
     setProcessLoading(false);
   };
   const aiProcess = async (
@@ -168,7 +210,6 @@ export default function ImportDataTable({
     let rawText = "";
     for await (const chunk of stream) {
       rawText += chunk.choices[0].delta.content;
-      // console.log(rawText);
       const regex =
         /\{[\s\S]*?"type":\s*"([^"]*)"[\s\S]*?"source_account_id":\s*"([^"]*)"[\s\S]*?"destination_account_id":\s*"([^"]*)"[\s\S]*?"transactionTags":\s*(\[[\s\S]*?\])[\s\S]*?\}/g;
 
@@ -184,10 +225,6 @@ export default function ImportDataTable({
             destinationAccountId,
             transactionTags,
           ] = match;
-          // const transactionTagsMatches = Array.from(
-          //   rawText.matchAll(transactionTagsRegex)
-          // );
-          //       console.log(transactionTagsMatches);
           data[dataIndex] = {
             ...data[dataIndex],
             type,
@@ -208,7 +245,8 @@ export default function ImportDataTable({
           dataIndex++;
           setProcessedCount(dataIndex);
         }
-        onDataChange?.([...data]);
+        const res = [...data];
+        onDataChange?.(res);
       }
     }
 
