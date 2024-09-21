@@ -401,7 +401,6 @@ const Side: FC<SideProps> = () => {
   const [showBookPopover, setShowBookPopover] = useState(false);
   const [editBook, setEditBook] = useState<Book>();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
-  const { tags } = useTagService();
   const [loading, setLoading] = useState(false);
   const [appPath] = useAtom(AppPathAtom);
   const iconSrc = "/icon-side.png";

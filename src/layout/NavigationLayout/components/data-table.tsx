@@ -20,6 +20,8 @@ import TitleComponent from "./TitleComponent"; // Add this import
 import { Button } from "@nextui-org/react";
 import PopoverConfirm from "@/components/PopoverConfirm";
 import { useTagService } from "@/api/hooks/tag";
+import { useAtomValue } from "jotai";
+import { LicenseAtom } from "@/globals";
 
 export interface TransactionsTableProps {
   data?: Array<
@@ -51,7 +53,6 @@ export default function ImportDataTable({
   const isAbort = useRef<boolean>(false);
   const { tags } = useTagService();
   const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
-
   latestData.current = data ?? [];
   const batchAiProcess = async ({
     provider,

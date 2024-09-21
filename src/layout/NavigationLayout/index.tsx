@@ -1,6 +1,6 @@
 import DragTitle from "@/components/DragTitle";
 import { NextUIProvider } from "@nextui-org/react";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import TrafficLight from "@/components/TrafficLight";
 import Side from "./components/side";

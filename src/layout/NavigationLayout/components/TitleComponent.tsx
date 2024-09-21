@@ -4,6 +4,10 @@ import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider, Model } from "@db/schema";
 import { AIServiceParams } from "@/api/services/AIService";
+import { useAtomValue } from "jotai";
+import { LicenseAtom } from "@/globals";
+import { useLocalStorageState } from "ahooks";
+import { License } from "@/api/models/license";
 
 interface TitleComponentProps {
   totalCount: number;
@@ -75,6 +79,9 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
   );
   const selectModelItem = models?.find((model) => model.id === selectedModel);
 
+  const [License] = useLocalStorageState<License | null>("license", {
+    defaultValue: null,
+  });
   return (
     <div className="flex justify-between items-center">
       <div>
@@ -143,7 +150,9 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
             isDisabled={
               !totalCount ||
               !selectProviderItem?.apiKey ||
-              !selectProviderItem?.baseUrl
+              !selectProviderItem?.baseUrl ||
+              !License ||
+              License?.status !== "ACTIVE"
             }
             size="sm"
             isLoading={processLoading}
