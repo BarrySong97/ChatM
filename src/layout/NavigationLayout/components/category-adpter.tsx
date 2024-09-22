@@ -88,8 +88,8 @@ function getTemplateData(data: string[][]) {
       result.push({
         id: uuidv4(),
         transaction_date: item[0],
-        amount: Number(item[1]),
-        content: item[2],
+        amount: Number(item[2]),
+        content: item[1],
       });
     }
   }
