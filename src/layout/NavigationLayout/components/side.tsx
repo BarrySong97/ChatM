@@ -92,13 +92,15 @@ const Side: FC<SideProps> = () => {
       title: "设置",
       icon: <TablerSettings />,
     },
-    {
+  ];
+  if (import.meta.env.DEV) {
+    menuList.push({
       key: "devtool",
       href: "/devtool",
       title: "开发者工具",
       icon: <MaterialSymbolsToolsWrench />,
-    },
-  ];
+    });
+  }
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();

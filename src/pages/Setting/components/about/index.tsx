@@ -196,6 +196,12 @@ const About: FC<AboutProps> = () => {
             </Button>
           </div>
         </div>
+        <div className="mt-4 text-sm text-gray-500">
+          如何获得激活码? 请联系作者获取
+        </div>
+        <div className="mt-1 text-sm text-gray-500">
+          X(twitter)搜索@BarrySong97，小红书搜BarrySong4Real
+        </div>
       </div>
     </SettingWrapper>
   );

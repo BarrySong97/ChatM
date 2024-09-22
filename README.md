@@ -1,6 +1,7 @@
 ## 目录
 
-_🚨 默认情况下, `electron` 文件夹下的文件将会被构建到 `dist-electron`_
+rm -rf node*modules/electron/dist && node node_modules/electron/install.js
+*🚨 默认情况下, `electron` 文件夹下的文件将会被构建到 `dist-electron`\_
 
 ```tree
 ├── electron                                 Electron 源码文件夹

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Select, SelectItem } from "@nextui-org/react";
+import { Button, Select, SelectItem, Tooltip } from "@nextui-org/react";
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider, Model } from "@db/schema";
@@ -8,6 +8,7 @@ import { useAtomValue } from "jotai";
 import { LicenseAtom } from "@/globals";
 import { useLocalStorageState } from "ahooks";
 import { License } from "@/api/models/license";
+import { MaterialSymbolsContactSupportOutline } from "./icon";
 
 interface TitleComponentProps {
   totalCount: number;
@@ -137,29 +138,36 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
             停止
           </Button>
         ) : (
-          <Button
-            onClick={() =>
-              onAIProcess({
-                provider: selectedProvider,
-                model: selectModelItem?.name ?? "",
-                apiKey: selectProviderItem?.apiKey ?? "",
-                baseURL: selectProviderItem?.baseUrl ?? "",
-              })
-            }
-            radius="sm"
-            isDisabled={
-              !totalCount ||
-              !selectProviderItem?.apiKey ||
-              !selectProviderItem?.baseUrl ||
-              !License ||
-              License?.status !== "ACTIVE"
-            }
-            size="sm"
-            isLoading={processLoading}
-            color="primary"
-          >
-            一键AI处理
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() =>
+                onAIProcess({
+                  provider: selectedProvider,
+                  model: selectModelItem?.name ?? "",
+                  apiKey: selectProviderItem?.apiKey ?? "",
+                  baseURL: selectProviderItem?.baseUrl ?? "",
+                })
+              }
+              radius="sm"
+              isDisabled={
+                !totalCount ||
+                !selectProviderItem?.apiKey ||
+                !selectProviderItem?.baseUrl ||
+                !License ||
+                License?.status !== "ACTIVE"
+              }
+              size="sm"
+              isLoading={processLoading}
+              color="primary"
+            >
+              一键AI处理
+            </Button>
+            <Tooltip content="AI处理需要软件激活码和AI API key，请先在设置中配置">
+              <div className="cursor-pointer">
+                <MaterialSymbolsContactSupportOutline className="text-xl" />
+              </div>
+            </Tooltip>
+          </div>
         )}
       </div>
     </div>
