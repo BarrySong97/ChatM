@@ -53,10 +53,11 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
             ...v,
             transaction_date: dayjs(v.transaction_date).toDate().getTime(),
             amount: new Decimal(v.amount ?? 0).mul(100).toNumber(),
-            tags:
-              typeof v.transactionTags?.[0] === "string"
+            tags: v.transactionTags
+              ? typeof v.transactionTags?.[0] === "string"
                 ? v.transactionTags
-                : v.transactionTags.map((v) => v.tag.id),
+                : v.transactionTags.map((v) => v.tag.id)
+              : undefined,
             book_id: book!.id,
           })) as unknown as Array<EditTransaction & { book_id: string }>
         )
@@ -65,10 +66,11 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
         console.error(err);
         message.error("导入失败");
       } else {
-        onClose();
         message.success("导入成功");
       }
       queryClient.invalidateQueries({ refetchActive: true });
+      onOpenChange(false);
+      onClose();
     } catch (error) {
       console.error(error);
       message.error("导入失败");
@@ -78,12 +80,7 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
   };
 
   return (
-    <Modal
-      className="z-[99999]"
-      scrollBehavior="inside"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-    >
+    <Modal scrollBehavior="inside" isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>
@@ -97,7 +94,7 @@ const ConfirmImportModal: React.FC<ConfirmImportModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                // isLoading={importLoading}
+                isLoading={importLoading}
                 onPress={handleConfirmImport}
               >
                 确认导入

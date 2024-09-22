@@ -44,6 +44,7 @@ interface TableContentProps {
   totalCount: number;
   onSelectionChanged: (rows: Transaction[]) => void;
   transactionListParams?: TransactionListParams;
+  onRowEdit?: (row: any, rowIndex: number) => void;
   selectedTransactions: Transaction[];
   importTable?: boolean;
 }
@@ -58,6 +59,7 @@ const TableContent: React.FC<TableContentProps> = ({
   onSelectionChanged,
   selectedTransactions,
   importTable = false,
+  onRowEdit,
 }) => {
   const asssetsRef = useRef<Asset[]>([]);
   const liabilitiesRef = useRef<Liability[]>([]);
@@ -447,6 +449,7 @@ const TableContent: React.FC<TableContentProps> = ({
         ref={gridRef}
         onCellValueChanged={(e) => {
           if (importTable) {
+            onRowEdit?.(e.data, e.rowIndex!);
             return;
           }
           const editBody = {

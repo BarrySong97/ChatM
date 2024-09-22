@@ -280,6 +280,10 @@ export default function ImportDataTable({
         />
         <TableContent
           transactions={data ?? []}
+          onRowEdit={(row, rowIndex) => {
+            latestData.current[rowIndex] = row;
+            onDataChange?.([...latestData.current]);
+          }}
           assets={assets ?? []}
           liabilities={liabilities ?? []}
           incomes={incomes ?? []}
@@ -297,8 +301,8 @@ export default function ImportDataTable({
           style={{
             transform:
               selectedRows.length > 0
-                ? "translateY(-10px)"
-                : "translateY(100%)",
+                ? "translateY(0)"
+                : "translateY(calc(100% - 20px))",
             opacity: selectedRows.length > 0 ? 1 : 0,
             transition: "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
           }}
