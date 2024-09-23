@@ -10,6 +10,9 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import type { ProgressInfo } from "electron-updater";
+import { useLocation } from "react-router-dom";
+import { useAtomValue } from "jotai";
+import { isSettingOpenAtom } from "@/globals";
 
 interface VersionInfo {
   update: boolean;
@@ -74,7 +77,7 @@ const AutoCheckUpdate = () => {
       setUpdateError(result?.error);
     }
   };
-
+  const isSettingOpen = useAtomValue(isSettingOpenAtom);
   const onUpdateCanAvailable = useCallback(
     (_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
       setVersionInfo(arg1);
@@ -87,7 +90,9 @@ const AutoCheckUpdate = () => {
           onOk: () => window.ipcRenderer.invoke("start-download"),
         }));
         setUpdateAvailable(true);
-        onOpen(); // Open the modal when an update is available
+        if (!isSettingOpen) {
+          onOpen(); // Open the modal when an update is available
+        }
       } else {
         setUpdateAvailable(false);
       }

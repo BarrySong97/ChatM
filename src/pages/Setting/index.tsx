@@ -1,9 +1,9 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Modal, ModalContent, ModalBody, Button } from "@nextui-org/react";
 import { cn } from "@/lib/utils";
 import { MdiRobotOutline, PhCreditCardLight, PhQuestion } from "./icon";
-import { BookAtom } from "@/globals";
-import { useAtom } from "jotai";
+import { BookAtom, isSettingOpenAtom } from "@/globals";
+import { useAtom, useSetAtom } from "jotai";
 import { useBookService } from "@/api/hooks/book";
 import AccountIconRender from "@/components/AccountIconRender";
 import Pricing from "./components/pricing";
@@ -16,6 +16,10 @@ export interface SettingProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
+  const setIsSettingOpen = useSetAtom(isSettingOpenAtom);
+  useEffect(() => {
+    setIsSettingOpen(isOpen);
+  }, [isOpen]);
   const menus = [
     {
       key: "about",
