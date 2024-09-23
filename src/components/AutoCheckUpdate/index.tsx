@@ -170,11 +170,7 @@ const AutoCheckUpdate = () => {
                   >
                     {modalBtn.cancelText || "取消"}
                   </Button>
-                  <Button
-                    isLoading={progressInfo && progressInfo?.percent !== 100}
-                    color="primary"
-                    onPress={modalBtn.onOk}
-                  >
+                  <Button color="primary" onPress={modalBtn.onOk}>
                     {modalBtn.okText || "更新"}
                   </Button>
                 </>
