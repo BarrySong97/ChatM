@@ -16,18 +16,16 @@ const queryClient = new QueryClient();
 window.global = globalThis;
 // seed();
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <DarkModeProvider>
-    <NextUIProvider>
-      <QueryClientProvider client={queryClient}>
-        <ModalProvider>
-          <RouterProvider
-            router={router}
-            fallbackElement={<p>Initial Load...</p>}
-          />
-        </ModalProvider>
-      </QueryClientProvider>
-    </NextUIProvider>
-  </DarkModeProvider>
+  <NextUIProvider>
+    <QueryClientProvider client={queryClient}>
+      <ModalProvider>
+        <RouterProvider
+          router={router}
+          fallbackElement={<p>Initial Load...</p>}
+        />
+      </ModalProvider>
+    </QueryClientProvider>
+  </NextUIProvider>
 );
 
 postMessage({ payload: "removeLoading" }, "*");
