@@ -33,6 +33,7 @@ export interface TransactionsTableProps {
   >;
   pureData?: Array<Array<string>>;
   onDataChange?: (data: Array<Transaction & { status: boolean }>) => void;
+  isContentWrap: boolean;
   importSource: string;
   provider: string;
   model: string;
@@ -42,6 +43,7 @@ export default function ImportDataTable({
   pureData,
   importSource,
   onDataChange,
+  isContentWrap,
 }: TransactionsTableProps) {
   const { incomes } = useIncomeService();
   const { expenses } = useExpenseService();
@@ -297,6 +299,7 @@ export default function ImportDataTable({
           incomes={incomes ?? []}
           expenses={expenses ?? []}
           pageSize={10}
+          isContentWrap={isContentWrap}
           onPageSizeChange={() => {}}
           totalPages={0}
           totalCount={0}

@@ -47,6 +47,7 @@ interface TableContentProps {
   onRowEdit?: (row: any, rowIndex: number) => void;
   selectedTransactions: Transaction[];
   importTable?: boolean;
+  isContentWrap?: boolean;
 }
 
 const TableContent: React.FC<TableContentProps> = ({
@@ -60,6 +61,7 @@ const TableContent: React.FC<TableContentProps> = ({
   selectedTransactions,
   importTable = false,
   onRowEdit,
+  isContentWrap = false,
 }) => {
   const asssetsRef = useRef<Asset[]>([]);
   const liabilitiesRef = useRef<Liability[]>([]);
@@ -114,6 +116,11 @@ const TableContent: React.FC<TableContentProps> = ({
     }
   };
 
+  const contentWrap = {
+    autoHeight: true,
+    wrapText: true,
+    cellStyle: { whiteSpace: "normal", lineHeight: "24px" },
+  };
   const { tags } = useTagService();
   const queryClient = useQueryClient();
   const [colDefs, setColDefs] = useState<
@@ -161,9 +168,10 @@ const TableContent: React.FC<TableContentProps> = ({
     },
     {
       field: "content",
-      width: 200,
+      width: 400,
       editable: true,
       headerName: "交易内容",
+      ...(isContentWrap ? contentWrap : {}),
     },
     {
       field: "amount",
@@ -431,6 +439,19 @@ const TableContent: React.FC<TableContentProps> = ({
       editable: true,
     },
   ]);
+  useEffect(() => {
+    setColDefs((prevColDefs) => {
+      const updatedColDefs = [...prevColDefs];
+      updatedColDefs[2] = {
+        field: "content",
+        width: 400,
+        editable: true,
+        headerName: "交易内容",
+        ...(isContentWrap ? contentWrap : {}),
+      };
+      return updatedColDefs;
+    });
+  }, [isContentWrap]);
 
   const { editTransaction } = useTransactionService(transactionListParams);
   const gridRef = useRef<AgGridReact>(null);

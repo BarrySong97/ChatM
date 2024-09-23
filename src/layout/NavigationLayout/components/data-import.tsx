@@ -6,6 +6,7 @@ import {
   ModalBody,
   ModalFooter,
   Button,
+  Switch,
 } from "@nextui-org/react";
 import { InputCategoryList } from "./import-category";
 import FileUploader from "./FileUploader";
@@ -28,6 +29,7 @@ import { useAtomValue } from "jotai";
 import { BookAtom } from "@/globals";
 import { useQueryClient } from "react-query";
 import { ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
+import { useLocalStorageState } from "ahooks";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -93,6 +95,12 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
     setSteps(1);
   };
 
+  const [isContentWrap, setIsContentWrap] = useLocalStorageState(
+    "isContentWrap",
+    {
+      defaultValue: true,
+    }
+  );
   const renderStep = () => {
     switch (steps) {
       case 0:
@@ -103,6 +111,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
         return (
           <ImportDataTable
             onDataChange={setFileData}
+            isContentWrap={isContentWrap ?? true}
             importSource={fileSource}
             data={fileData}
             pureData={pureData}
@@ -132,6 +141,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       <Modal
         size={steps == 2 ? "5xl" : "xl"} // Changed from 3 to 2
         scrollBehavior="inside"
+        className={steps == 2 ? "max-w-[1400px]" : ""}
         isDismissable={false}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
@@ -174,6 +184,18 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                     >
                       下载模板文件
                     </Button>
+                  ) : null}
+                  {steps === 2 ? (
+                    <Switch
+                      defaultSelected={isContentWrap}
+                      isSelected={isContentWrap}
+                      aria-label="Automatic updates"
+                      onValueChange={(e) => {
+                        setIsContentWrap(e);
+                      }}
+                    >
+                      交易内容是否换行
+                    </Switch>
                   ) : null}
                 </div>
                 <div className="flex gap-2">

@@ -126,9 +126,10 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
             wrapper: "flex-col-reverse",
           }}
           name={renderLicenseStatus()}
-          className="cursor-pointer"
           avatarProps={{
             isBordered: true,
+            className: "cursor-pointer",
+            title: "点击更换头像",
             radius: "sm",
             src: imageSrc,
           }}
