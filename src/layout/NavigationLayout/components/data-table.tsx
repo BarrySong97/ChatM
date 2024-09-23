@@ -281,7 +281,15 @@ export default function ImportDataTable({
         <TableContent
           transactions={data ?? []}
           onRowEdit={(row, rowIndex) => {
-            latestData.current[rowIndex] = row;
+            latestData.current[rowIndex] = {
+              ...row,
+              transactionTags: row.transactionTags.map((tag: string) => ({
+                tag: {
+                  name: tags?.find((t) => t.id === tag)?.name ?? "",
+                  id: tag,
+                },
+              })),
+            };
             onDataChange?.([...latestData.current]);
           }}
           assets={assets ?? []}

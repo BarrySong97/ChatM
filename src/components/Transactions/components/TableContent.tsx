@@ -396,6 +396,7 @@ const TableContent: React.FC<TableContentProps> = ({
             if (tag.tag) {
               return `#${tag.tag.name}`;
             }
+
             const name = tags?.find(
               (t) => t.id === (tag as unknown as string)
             )?.name;
