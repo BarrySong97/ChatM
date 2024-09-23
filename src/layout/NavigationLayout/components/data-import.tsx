@@ -58,8 +58,10 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       let results: Array<Array<string>> = [];
 
       const lines = csvData.split("\n");
+      console.log(lines);
+
       results = lines.map((line) =>
-        line.split(",").map((value) => value.trim())
+        line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map((value) => value.trim())
       );
 
       setSteps(2);
