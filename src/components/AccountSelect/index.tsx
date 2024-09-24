@@ -83,7 +83,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
       listboxProps={{
         topContent: (
           <Input
-            placeholder="搜索账户"
+            placeholder="搜索或输入创建账户"
             id="account-search"
             size="sm"
             radius="sm"
@@ -97,7 +97,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
       popoverProps={{
         ref: ref,
         classNames: {
-          content: table ? "w-[180px]" : "",
+          content: table ? "w-[180px]" : "w-[350px]",
         },
       }}
       renderValue={() => {

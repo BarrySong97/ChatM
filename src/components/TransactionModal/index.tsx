@@ -25,7 +25,6 @@ import { FinancialOperation } from "@/api/db/manager";
 import { useTransactionService } from "@/api/hooks/transaction";
 import Decimal from "decimal.js";
 import AccountSelect from "../AccountSelect";
-import { liability } from "@db/schema";
 import { useQueryClient } from "react-query";
 import {
   operationColors,

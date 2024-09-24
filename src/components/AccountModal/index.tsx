@@ -39,7 +39,6 @@ import AccountIconRender from "../AccountIconRender";
 import { useAtomValue } from "jotai";
 import { BookAtom } from "@/globals";
 import { useQueryClient } from "react-query";
-import { useLocation, useNavigate } from "react-router-dom";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: (value: boolean) => void;
