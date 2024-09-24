@@ -1,5 +1,5 @@
 import { useBookService } from "@/api/hooks/book";
-import { AppPathAtom, BookAtom } from "@/globals";
+import { AppPathAtom, AvatarAtom, BookAtom } from "@/globals";
 import {
   Button,
   Chip,
@@ -26,6 +26,9 @@ import { useLocalStorageState, useRequest } from "ahooks";
 import { LicenseService } from "@/api/services/LicenseService";
 import { License } from "@/api/models/license";
 import { ApiError } from "@/api/core/ApiError";
+import { IPC_EVENT_KEYS } from "@/constant";
+import { indexDB } from "@/lib/indexdb";
+import { useLiveQuery } from "dexie-react-hooks";
 
 export interface BookListProps {
   onClose: () => void;
@@ -117,6 +120,8 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
       </Chip>
     );
   };
+  const users = useLiveQuery(() => indexDB.users.toArray());
+  const avatarSrc = users?.[0]?.avatar;
   return (
     <>
       <div className="w-[280px] py-2">
@@ -130,8 +135,27 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
             isBordered: true,
             className: "cursor-pointer",
             title: "点击更换头像",
+
+            onClick: async () => {
+              const base64Image = await window.ipcRenderer.invoke(
+                IPC_EVENT_KEYS.OPEN_FILE
+              );
+              if (base64Image) {
+                // Store the image in IndexedDB
+                const existingUser = await indexDB.users.toArray();
+                if (existingUser.length === 0) {
+                  await indexDB.users.add({
+                    avatar: base64Image,
+                  });
+                } else {
+                  await indexDB.users.update(existingUser[0].id, {
+                    avatar: base64Image,
+                  });
+                }
+              }
+            },
             radius: "sm",
-            src: imageSrc,
+            src: avatarSrc || imageSrc,
           }}
         />
         <Divider className="my-2" />

@@ -53,6 +53,12 @@ dependencies:
   decimal.js:
     specifier: ^10.4.3
     version: 10.4.3
+  dexie:
+    specifier: ^4.0.8
+    version: 4.0.8
+  dexie-react-hooks:
+    specifier: ^1.1.7
+    version: 1.1.7(@types/react@18.3.5)(dexie@4.0.8)(react@18.3.1)
   drizzle-orm:
     specifier: ^0.30.10
     version: 0.30.10(@electric-sql/pglite@0.2.7)(@types/react@18.3.5)(better-sqlite3@9.6.0)(react@18.3.1)
@@ -9446,6 +9452,22 @@ packages:
     dependencies:
       dequal: 2.0.3
     dev: true
+
+  /dexie-react-hooks@1.1.7(@types/react@18.3.5)(dexie@4.0.8)(react@18.3.1):
+    resolution: {integrity: sha512-Lwv5W0Hk+uOW3kGnsU9GZoR1er1B7WQ5DSdonoNG+focTNeJbHW6vi6nBoX534VKI3/uwHebYzSw1fwY6a7mTw==}
+    peerDependencies:
+      '@types/react': '>=16'
+      dexie: ^3.2 || ^4.0.1-alpha
+      react: '>=16'
+    dependencies:
+      '@types/react': 18.3.5
+      dexie: 4.0.8
+      react: 18.3.1
+    dev: false
+
+  /dexie@4.0.8:
+    resolution: {integrity: sha512-1G6cJevS17KMDK847V3OHvK2zei899GwpDiqfEXHP1ASvme6eWJmAp9AU4s1son2TeGkWmC0g3y8ezOBPnalgQ==}
+    dev: false
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}

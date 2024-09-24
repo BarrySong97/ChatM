@@ -6,6 +6,7 @@ export enum IPC_EVENT_KEYS {
   OPEN_PROJECT = "open_project",
   WINDOW_RESIZE = "window_resize",
   OPEN_FOLDER = "open_folder",
+  OPEN_FILE = "open_file",
   SAVE_CSV_FILE = "save_csv_file",
 }
 export enum MAIN_SEND_RENDER_KEYS {

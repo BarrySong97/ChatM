@@ -38,6 +38,8 @@
     "csv-writer": "^1.6.0",
     "dayjs": "^1.11.12",
     "decimal.js": "^10.4.3",
+    "dexie": "^4.0.8",
+    "dexie-react-hooks": "^1.1.7",
     "drizzle-orm": "^0.30.10",
     "drizzle-zod": "^0.5.1",
     "electron-updater": "^6.1.1",

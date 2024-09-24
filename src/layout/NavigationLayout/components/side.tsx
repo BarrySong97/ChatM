@@ -10,6 +10,7 @@ import {
   SolarHashtagBold,
   TablerTransactionDollar,
 } from "@/assets/icon";
+import { useLiveQuery } from "dexie-react-hooks";
 import { cn } from "@/lib/utils";
 
 import { ConfigProvider, Menu, message, type MenuProps } from "antd";
@@ -46,7 +47,7 @@ import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
 import BookList from "./book-list";
-import { AppPathAtom, BookAtom, LicenseAtom } from "@/globals";
+import { AppPathAtom, AvatarAtom, BookAtom, LicenseAtom } from "@/globals";
 import { useAtom, useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import { Book } from "@db/schema";
@@ -56,6 +57,7 @@ import dayjs from "dayjs";
 import { useTagService } from "@/api/hooks/tag";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationTranslations } from "@/components/Transactions/contant";
+import { indexDB } from "@/lib/indexdb";
 export interface SideProps {}
 const now = new Date();
 const Side: FC<SideProps> = () => {
@@ -408,6 +410,9 @@ const Side: FC<SideProps> = () => {
   const iconSrc = "/icon-side.png";
   const license = useAtomValue(LicenseAtom);
   const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
+
+  const users = useLiveQuery(() => indexDB.users.toArray());
+  const avatarSrc = users?.[0]?.avatar;
   return (
     <ConfigProvider
       theme={{
@@ -455,10 +460,8 @@ const Side: FC<SideProps> = () => {
                   className="cursor-pointer"
                   avatarProps={{
                     radius: "sm",
-                    size: "sm",
                     isBordered: true,
-                    name: "B",
-                    src: imageSrc,
+                    src: avatarSrc || imageSrc,
                   }}
                 />
               </PopoverTrigger>

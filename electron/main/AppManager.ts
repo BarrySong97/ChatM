@@ -5,7 +5,7 @@ import {
   TRAFFIC_LIGHT,
 } from "../../src/constant";
 import { BrowserWindow, dialog, ipcMain } from "electron";
-import fs from "fs";
+import fs from "fs/promises";
 const isMac = process.platform === "darwin";
 function resizeWindow(action: TRAFFIC_LIGHT) {
   const win = BrowserWindow.getFocusedWindow();
@@ -159,6 +159,35 @@ export class AppManager {
       }
     }
   }
+  // 选择图像文件并转换为 base64
+  async [IPC_EVENT_KEYS.OPEN_FILE]() {
+    const projectWindow = BrowserWindow.getFocusedWindow();
+    if (projectWindow) {
+      try {
+        const res = await dialog.showOpenDialog(projectWindow, {
+          properties: ["openFile"],
+          filters: [
+            {
+              name: "Images",
+              extensions: ["jpg", "png", "jpeg", "webp", "gif"],
+            },
+          ],
+        });
+
+        if (!res.canceled && res.filePaths.length > 0) {
+          const filePath = res.filePaths[0];
+          const fileData = await fs.readFile(filePath);
+          const base64Data = fileData.toString("base64");
+          const mimeType = this.getMimeType(filePath);
+          return `data:${mimeType};base64,${base64Data}`;
+        }
+      } catch (error) {
+        console.error("Error reading file:", error);
+        throw error;
+      }
+    }
+    return null;
+  }
 
   // 根据数组对象生成csv文件
   async [IPC_EVENT_KEYS.SAVE_CSV_FILE](filePath: string, dataArray: any) {
@@ -180,6 +209,24 @@ export class AppManager {
         const res = (this[value] as (...aggs: any) => void)(...args);
         return res;
       });
+    }
+  }
+
+  // 辅助函数：根据文件扩展名获取 MIME 类型
+  private getMimeType(filePath: string): string {
+    const ext = filePath.split(".").pop()?.toLowerCase();
+    switch (ext) {
+      case "jpg":
+      case "jpeg":
+        return "image/jpeg";
+      case "png":
+        return "image/png";
+      case "webp":
+        return "image/webp";
+      case "gif":
+        return "image/gif";
+      default:
+        return "application/octet-stream";
     }
   }
 }
