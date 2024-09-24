@@ -71,7 +71,7 @@ export default function ImportDataTable({
     }
 
     const batchSize = 10;
-    const totalBatches = Math.ceil(pureData.length / batchSize);
+    const totalBatches = Math.ceil(latestData.current.length / batchSize);
     setProcessLoading(true);
     data.forEach((v, i) => {
       v.status = true;
@@ -283,14 +283,21 @@ export default function ImportDataTable({
         <TableContent
           transactions={data ?? []}
           onRowEdit={(row, rowIndex) => {
+            console.log(row);
             latestData.current[rowIndex] = {
               ...row,
-              transactionTags: row.transactionTags.map((tag: string) => ({
-                tag: {
-                  name: tags?.find((t) => t.id === tag)?.name ?? "",
-                  id: tag,
-                },
-              })),
+              transactionTags: row.transactionTags.map((tag: string) => {
+                const tagId =
+                  typeof tag === "string"
+                    ? tag
+                    : (tag as { tag: { id: string } }).tag.id;
+                return {
+                  tag: {
+                    name: tags?.find((t) => t.id === tagId)?.name ?? "",
+                    id: tagId,
+                  },
+                };
+              }),
             };
             onDataChange?.([...latestData.current]);
           }}

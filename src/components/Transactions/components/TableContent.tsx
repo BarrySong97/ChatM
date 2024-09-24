@@ -194,7 +194,11 @@ const TableContent: React.FC<TableContentProps> = ({
       },
       headerName: "金额",
       cellRenderer: (params: any) => {
-        return <div>{params.value?.toFixed(2)}</div>;
+        return (
+          <div className="flex items-center justify-end h-full">
+            <div>{params.value?.toFixed(2)}</div>
+          </div>
+        );
       },
     },
     {
@@ -247,26 +251,32 @@ const TableContent: React.FC<TableContentProps> = ({
         const color = operationColors[params?.value as FinancialOperation];
         const text = operationTranslations[params?.value as FinancialOperation];
         if (params?.data?.status) {
-          return <Spinner size="sm" />;
+          return (
+            <div className="flex items-center  h-full">
+              <Spinner size="sm" />
+            </div>
+          );
         }
 
         return text ? (
-          <Chip
-            radius="sm"
-            size="sm"
-            variant="flat"
-            // color={}
-          >
-            <div className="flex items-center gap-1 ">
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{
-                  backgroundColor: color,
-                }}
-              ></div>
-              <div>{text}</div>
-            </div>
-          </Chip>
+          <div className="flex items-center  h-full">
+            <Chip
+              radius="sm"
+              size="sm"
+              variant="flat"
+              // color={}
+            >
+              <div className="flex items-center gap-1 ">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: color,
+                  }}
+                ></div>
+                <div>{text}</div>
+              </div>
+            </Chip>
+          </div>
         ) : (
           ""
         );
@@ -279,7 +289,11 @@ const TableContent: React.FC<TableContentProps> = ({
       editable: true,
       cellRenderer: (params: any) => {
         if (params?.data?.status) {
-          return <Spinner size="sm" />;
+          return (
+            <div className="flex items-center  h-full">
+              <Spinner size="sm" />
+            </div>
+          );
         }
         let source: any = asssetsRef.current?.find(
           (asset) => asset.id === params?.value
@@ -340,7 +354,11 @@ const TableContent: React.FC<TableContentProps> = ({
       width: 130,
       cellRenderer: (params: any) => {
         if (params?.data?.status) {
-          return <Spinner size="sm" />;
+          return (
+            <div className="flex items-center  h-full">
+              <Spinner size="sm" />
+            </div>
+          );
         }
         let destination: any = expensesRef.current?.find(
           (expense) => expense.id === params?.value
@@ -399,7 +417,7 @@ const TableContent: React.FC<TableContentProps> = ({
       headerName: "标签",
       editable: true,
       cellRenderer: (params: any) => {
-        return params?.value
+        const tagstring = params?.value
           ?.map((tag: { tag: { name: string; id: string } }) => {
             if (tag.tag) {
               return `#${tag.tag.name}`;
@@ -411,6 +429,7 @@ const TableContent: React.FC<TableContentProps> = ({
             return name ? `#${name}` : "";
           })
           .join(" ");
+        return <div className="flex items-center  h-full">{tagstring}</div>;
       },
       cellEditor: ({ value, onValueChange, api }) => {
         const ids = value?.map((v: { tag: { id: string } }) => {
