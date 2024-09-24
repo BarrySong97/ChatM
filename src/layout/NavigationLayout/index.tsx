@@ -10,6 +10,8 @@ import { LicenseService } from "@/api/services/LicenseService";
 import { License } from "@/api/models/license";
 import { message } from "antd";
 import { ApiError } from "@/api/core/ApiError";
+import { useAtomValue } from "jotai";
+import { isSettingOpenAtom } from "@/globals";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();

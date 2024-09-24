@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Progress,
   Modal,
@@ -84,6 +84,7 @@ const AutoCheckUpdate = () => {
     }
   };
   const isSettingOpen = useAtomValue(isSettingOpenAtom);
+  const isSettingOpenRef = useRef(isSettingOpen);
   const onUpdateCanAvailable = useCallback(
     (_event: Electron.IpcRendererEvent, arg1: VersionInfo) => {
       setVersionInfo(arg1);
@@ -96,7 +97,7 @@ const AutoCheckUpdate = () => {
           onOk: () => window.ipcRenderer.invoke("start-download"),
         }));
         setUpdateAvailable(true);
-        if (!isSettingOpen) {
+        if (!isSettingOpenRef.current) {
           onOpen(); // Open the modal when an update is available
         }
       } else {

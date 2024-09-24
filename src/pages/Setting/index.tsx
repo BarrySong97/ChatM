@@ -1,11 +1,10 @@
-import React, { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Modal, ModalContent, ModalBody, Button } from "@nextui-org/react";
 import { cn } from "@/lib/utils";
 import { MdiRobotOutline, PhCreditCardLight, PhQuestion } from "./icon";
 import { BookAtom, isSettingOpenAtom } from "@/globals";
 import { useAtom, useSetAtom } from "jotai";
 import { useBookService } from "@/api/hooks/book";
-import AccountIconRender from "@/components/AccountIconRender";
 import Pricing from "./components/pricing";
 import About from "./components/about";
 import { Book } from "@db/schema";
