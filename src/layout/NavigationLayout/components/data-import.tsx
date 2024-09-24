@@ -153,7 +153,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                 {titles[steps]}
               </ModalHeader>
               <ModalBody>{renderStep()}</ModalBody>
-              <ModalFooter className="justify-between">
+              <ModalFooter className="justify-between items-center">
                 <div>
                   {steps == 0 ? (
                     <Button
