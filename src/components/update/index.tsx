@@ -18,6 +18,7 @@ const Update = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [versionInfo, setVersionInfo] = useState<VersionInfo>();
   const [updateError, setUpdateError] = useState<ErrorType>();
+  const [isDownloading, setIsDownloading] = useState(false);
   const [progressInfo, setProgressInfo] = useState<Partial<ProgressInfo>>();
   const [modalBtn, setModalBtn] = useState<{
     cancelText?: string;
@@ -26,7 +27,10 @@ const Update = () => {
     onOk?: () => void;
   }>({
     onCancel: () => onClose(),
-    onOk: () => window.ipcRenderer.invoke("start-download"),
+    onOk: () => {
+      setIsDownloading(true);
+      window.ipcRenderer.invoke("start-download");
+    },
   });
 
   const checkUpdate = async () => {
@@ -67,6 +71,7 @@ const Update = () => {
   const onUpdateError = useCallback(
     (_event: Electron.IpcRendererEvent, arg1: ErrorType) => {
       setUpdateAvailable(false);
+      setIsDownloading(false);
       setUpdateError(arg1);
     },
     []
@@ -82,10 +87,11 @@ const Update = () => {
   const onUpdateDownloaded = useCallback(
     (_event: Electron.IpcRendererEvent, ...args: any[]) => {
       setProgressInfo({ percent: 100 });
+      setIsDownloading(false);
       setModalBtn((state) => ({
         ...state,
-        cancelText: "Later",
-        okText: "Install now",
+        cancelText: "稍后安装",
+        okText: "立即安装",
         onOk: () => window.ipcRenderer.invoke("quit-and-install"),
       }));
     },
@@ -161,7 +167,11 @@ const Update = () => {
                     >
                       {modalBtn.cancelText || "取消"}
                     </Button>
-                    <Button color="primary" onPress={modalBtn.onOk}>
+                    <Button
+                      isDisabled={isDownloading}
+                      color="primary"
+                      onPress={modalBtn.onOk}
+                    >
                       {modalBtn.okText || "更新"}
                     </Button>
                   </>
