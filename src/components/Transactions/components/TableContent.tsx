@@ -63,14 +63,17 @@ const TableContent: React.FC<TableContentProps> = ({
   onRowEdit,
   isContentWrap = false,
 }) => {
+  const { tags } = useTagService();
   const asssetsRef = useRef<Asset[]>([]);
   const liabilitiesRef = useRef<Liability[]>([]);
   const incomesRef = useRef<Income[]>([]);
   const expensesRef = useRef<Expense[]>([]);
+  const tagsRef = useRef<Tags>([]);
   asssetsRef.current = assets;
   expensesRef.current = expenses;
   incomesRef.current = incomes;
   liabilitiesRef.current = liabilities;
+  tagsRef.current = tags ?? [];
   const renderSource = (type: FinancialOperation) => {
     switch (type) {
       case FinancialOperation.RepayLoan:
@@ -121,7 +124,6 @@ const TableContent: React.FC<TableContentProps> = ({
     wrapText: true,
     cellStyle: { whiteSpace: "normal", lineHeight: "24px" },
   };
-  const { tags } = useTagService();
   const queryClient = useQueryClient();
   const [colDefs, setColDefs] = useState<
     ColDef<
@@ -423,12 +425,13 @@ const TableContent: React.FC<TableContentProps> = ({
               return `#${tag.tag.name}`;
             }
 
-            const name = tags?.find(
+            const name = tagsRef.current?.find(
               (t) => t.id === (tag as unknown as string)
             )?.name;
             return name ? `#${name}` : "";
           })
           .join(" ");
+
         return <div className="flex items-center  h-full">{tagstring}</div>;
       },
       cellEditor: ({ value, onValueChange, api }) => {

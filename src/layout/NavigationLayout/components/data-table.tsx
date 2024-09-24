@@ -109,7 +109,6 @@ export default function ImportDataTable({
     }
     // Sort data to prioritize incomplete entries
     if (!isAbort.current) {
-      console.log(latestData.current);
       latestData.current.sort((a, b) => {
         const isValidAccount = (id: string) => {
           return (
@@ -283,10 +282,9 @@ export default function ImportDataTable({
         <TableContent
           transactions={data ?? []}
           onRowEdit={(row, rowIndex) => {
-            console.log(row);
             latestData.current[rowIndex] = {
               ...row,
-              transactionTags: row.transactionTags.map((tag: string) => {
+              transactionTags: row.transactionTags?.map((tag: string) => {
                 const tagId =
                   typeof tag === "string"
                     ? tag
@@ -299,7 +297,7 @@ export default function ImportDataTable({
                 };
               }),
             };
-            onDataChange?.([...latestData.current]);
+            // onDataChange?.([...latestData.current]);
           }}
           assets={assets ?? []}
           liabilities={liabilities ?? []}
