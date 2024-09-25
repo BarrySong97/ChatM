@@ -74,8 +74,8 @@ const AutoCheckUpdate = () => {
       setIsDownloading(false);
       setModalBtn((state) => ({
         ...state,
-        cancelText: "Later",
-        okText: "Install now",
+        cancelText: "稍后更新",
+        okText: "立即更新",
         onOk: () => window.ipcRenderer.invoke("quit-and-install"),
       }));
     },
@@ -99,8 +99,13 @@ const AutoCheckUpdate = () => {
         setModalBtn((state) => ({
           ...state,
           cancelText: "稍后更新",
-          okText: "立即更新",
-          onOk: () => window.ipcRenderer.invoke("start-download"),
+          okText: "正在更新",
+          onOk: () => {
+            onClose();
+            setIsShowUpdateModal(true);
+            setIsDownloading(true);
+            window.ipcRenderer.invoke("start-download");
+          },
         }));
         setUpdateAvailable(true);
         if (!isSettingOpenRef.current) {
@@ -170,7 +175,6 @@ const AutoCheckUpdate = () => {
             <Button
               onClick={() => {
                 onClose();
-                setIsShowUpdateModal(true);
                 modalBtn.onOk?.();
               }}
               size="sm"
@@ -192,7 +196,9 @@ const AutoCheckUpdate = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <div className="text-lg font-bold">正在更新</div>
+                <div className="text-lg font-bold">
+                  正在更新: v{versionInfo?.newVersion}
+                </div>
               </ModalHeader>
               <ModalBody>
                 {updateError ? (
@@ -202,23 +208,16 @@ const AutoCheckUpdate = () => {
                   </div>
                 ) : updateAvailable ? (
                   <div>
-                    <div>最新版本: v{versionInfo?.newVersion}</div>
-                    <div className="new-version__target">
-                      v{versionInfo?.version} -&gt; v{versionInfo?.newVersion}
+                    <div className="update__progress">
+                      <Progress
+                        aria-label="Update progress"
+                        size="md"
+                        value={progressInfo?.percent || 0}
+                        color="primary"
+                        showValueLabel={true}
+                        className="max-w-md"
+                      />
                     </div>
-                    {progressInfo?.percent ? (
-                      <div className="update__progress">
-                        <div className="progress__title">更新进度:</div>
-                        <Progress
-                          aria-label="Update progress"
-                          size="md"
-                          value={progressInfo?.percent}
-                          color="primary"
-                          showValueLabel={true}
-                          className="max-w-md"
-                        />
-                      </div>
-                    ) : null}
                   </div>
                 ) : (
                   <div className="can-not-available">
@@ -239,8 +238,12 @@ const AutoCheckUpdate = () => {
                     >
                       取消
                     </Button>
-                    <Button isDisabled={isDownloading} color="primary">
-                      更新中
+                    <Button
+                      onPress={modalBtn.onOk}
+                      isLoading={isDownloading}
+                      color="primary"
+                    >
+                      {modalBtn.okText || "更新中"}
                     </Button>
                   </>
                 )}

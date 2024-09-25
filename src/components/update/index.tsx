@@ -9,6 +9,7 @@ import {
   ModalFooter,
   Button,
   useDisclosure,
+  Link,
 } from "@nextui-org/react";
 import "./update.css";
 
@@ -28,7 +29,6 @@ const Update = () => {
   }>({
     onCancel: () => onClose(),
     onOk: () => {
-      setIsDownloading(true);
       window.ipcRenderer.invoke("start-download");
     },
   });
@@ -56,9 +56,12 @@ const Update = () => {
       if (arg1.update) {
         setModalBtn((state) => ({
           ...state,
-          cancelText: "Cancel",
-          okText: "Update",
-          onOk: () => window.ipcRenderer.invoke("start-download"),
+          cancelText: "稍后更新",
+          okText: "立即更新",
+          onOk: () => {
+            window.ipcRenderer.invoke("start-download");
+            setIsDownloading(true);
+          },
         }));
         setUpdateAvailable(true);
       } else {
@@ -120,9 +123,7 @@ const Update = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <div className="text-lg font-bold">
-                  最新版本：{versionInfo?.newVersion}
-                </div>
+                <div className="text-lg font-bold">检查更新</div>
               </ModalHeader>
               <ModalBody>
                 {updateError ? (
@@ -143,7 +144,22 @@ const Update = () => {
                           className="max-w-md"
                         />
                       </div>
-                    ) : null}
+                    ) : (
+                      <div className="text-sm">
+                        发现新版本v{versionInfo?.newVersion}
+                        ，请及时更新，以获得更好的使用体验，访问
+                        <Link
+                          size="sm"
+                          color="primary"
+                          underline="always"
+                          target="_blank"
+                          href="https://changelog.flowm.cc"
+                        >
+                          更新日志
+                        </Link>
+                        查看更多
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="can-not-available">
@@ -169,10 +185,7 @@ const Update = () => {
                       color="primary"
                       onPress={modalBtn.onOk}
                     >
-                      {modalBtn.okText ||
-                        `${
-                          isDownloading ? `${progressInfo?.percent}%` : "更新"
-                        }`}
+                      {modalBtn.okText || "立即更新"}
                     </Button>
                   </>
                 )}
