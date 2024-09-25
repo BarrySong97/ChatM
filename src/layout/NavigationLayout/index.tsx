@@ -1,5 +1,13 @@
 import DragTitle from "@/components/DragTitle";
-import { NextUIProvider } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Link,
+  NextUIProvider,
+} from "@nextui-org/react";
 import { FC, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import TrafficLight from "@/components/TrafficLight";
