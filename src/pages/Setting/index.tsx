@@ -56,6 +56,8 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
       size="4xl"
       isOpen={isOpen}
       onOpenChange={setIsOpen}
+      isDismissable={false}
+      isKeyboardDismissDisabled
       scrollBehavior="inside"
     >
       <ModalContent>

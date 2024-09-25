@@ -141,6 +141,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
         size={steps == 2 ? "5xl" : "xl"} // Changed from 3 to 2
         scrollBehavior="inside"
         className={steps == 2 ? "max-w-[1400px]" : ""}
+        isKeyboardDismissDisabled
         isDismissable={false}
         isOpen={isOpen}
         onOpenChange={onOpenChange}

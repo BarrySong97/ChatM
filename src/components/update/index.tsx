@@ -120,7 +120,9 @@ const Update = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                <div className="text-lg font-bold">软件更新</div>
+                <div className="text-lg font-bold">
+                  最新版本：{versionInfo?.newVersion}
+                </div>
               </ModalHeader>
               <ModalBody>
                 {updateError ? (
@@ -130,13 +132,8 @@ const Update = () => {
                   </div>
                 ) : updateAvailable ? (
                   <div>
-                    <div>最新版本: v{versionInfo?.newVersion}</div>
-                    <div className="new-version__target">
-                      v{versionInfo?.version} -&gt; v{versionInfo?.newVersion}
-                    </div>
                     {progressInfo?.percent ? (
                       <div className="update__progress">
-                        <div className="progress__title">更新进度:</div>
                         <Progress
                           aria-label="Update progress"
                           size="md"
@@ -168,11 +165,14 @@ const Update = () => {
                       {modalBtn.cancelText || "取消"}
                     </Button>
                     <Button
-                      isDisabled={isDownloading}
+                      isLoading={isDownloading}
                       color="primary"
                       onPress={modalBtn.onOk}
                     >
-                      {modalBtn.okText || "更新"}
+                      {modalBtn.okText ||
+                        `${
+                          isDownloading ? `${progressInfo?.percent}%` : "更新"
+                        }`}
                     </Button>
                   </>
                 )}
