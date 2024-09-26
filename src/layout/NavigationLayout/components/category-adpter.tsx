@@ -1,9 +1,12 @@
 import { ImportCategory } from "./import-category";
 import yinlian from "./icon/union.png";
 import Wechat from "./icon/wechat.png";
+import Pixiu from "./icon/pixiu.png";
 import { PhBank, TablerTemplate } from "@/assets/icon";
 import { v4 as uuidv4 } from "uuid";
 import Alipay from "./icon/zhifubao.webp";
+import { FinancialOperation } from "@/api/db/manager";
+import { Asset, Expense, Income } from "@db/schema";
 export const CategoryTypes: ImportCategory[] = [
   {
     name: "微信",
@@ -14,6 +17,11 @@ export const CategoryTypes: ImportCategory[] = [
     name: "支付宝",
     key: "alipay",
     icon: <img src={Alipay} alt="" className="w-16 h-16" />,
+  },
+  {
+    name: "貔貅",
+    key: "pixiu",
+    icon: <img src={Pixiu} alt="" className="w-16 h-16" />,
   },
   {
     name: "模板导入",
@@ -95,12 +103,54 @@ function getTemplateData(data: string[][]) {
   }
   return result;
 }
+
+function getPixiuData(
+  data: string[][],
+  income?: Income[],
+  asset?: Asset[],
+  expenditure?: Expense[]
+) {
+  const result = [];
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (item[0]) {
+      const type = item[2].includes("收入")
+        ? FinancialOperation.Income
+        : FinancialOperation.Expenditure;
+      let destination_account_id = "";
+      let source_account_id = "";
+      if (type === FinancialOperation.Income) {
+        source_account_id =
+          income?.find((account) => account.name === item[2])?.id ?? "";
+        destination_account_id =
+          asset?.find((account) => account.name === item[7])?.id ?? "";
+      } else {
+        source_account_id =
+          asset?.find((account) => account.name === item[7])?.id ?? "";
+        destination_account_id =
+          expenditure?.find((account) => account.name === item[2])?.id ?? "";
+        console.log(item[2], item[7]);
+      }
+      result.push({
+        id: uuidv4(),
+        transaction_date: item[0],
+        amount: Number(item[4] === "0" ? item[5] : item[4]),
+        type: type,
+        content: item[9],
+        destination_account_id: destination_account_id,
+        source_account_id: source_account_id,
+      });
+    }
+  }
+  return result;
+}
+
 function china_bank(data: string[][], column: string[]) {}
 
-const categoryAdapter = {
-  getAlipayData,
+export {
   getWechatData,
+  getAlipayData,
   china_bank,
+  getTemplateData,
+  getPixiuData,
 };
-
-export { getWechatData, getAlipayData, china_bank, getTemplateData };

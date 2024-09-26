@@ -17,6 +17,7 @@ import {
   getWechatData,
   getAlipayData,
   getTemplateData,
+  getPixiuData,
 } from "./category-adpter";
 import { message } from "antd";
 import { TransactionService } from "@/api/services/TransactionService";
@@ -30,6 +31,10 @@ import { BookAtom } from "@/globals";
 import { useQueryClient } from "react-query";
 import { ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
 import { useLocalStorageState } from "ahooks";
+import { useIncomeService } from "@/api/hooks/income";
+import { useExpenseService } from "@/api/hooks/expense";
+import { useAssetsService } from "@/api/hooks/assets";
+import { useLiabilityService } from "@/api/hooks/liability";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -51,6 +56,10 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
 
   const titles = ["选择数据来源", "文件上传", "AI分类", "导入数据"];
 
+  const { incomes } = useIncomeService();
+  const { expenses } = useExpenseService();
+  const { assets } = useAssetsService();
+  const { liabilities } = useLiabilityService();
   const handleFileChange = (info: UploadChangeParam<UploadFile<any>>) => {
     const file = info.file.originFileObj as File;
     setFile(file);
@@ -83,6 +92,20 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
           const wechatData = results.slice(17);
           setPureData(wechatData);
           setFileData(getWechatData(wechatData) as unknown as Transaction[]);
+          break;
+        case "pixiu":
+          const pixiuData = results.slice(1);
+
+          setPureData(pixiuData);
+
+          setFileData(
+            getPixiuData(
+              pixiuData,
+              incomes,
+              assets,
+              expenses
+            ) as unknown as Transaction[]
+          );
           break;
       }
     };
