@@ -194,7 +194,7 @@ export class AppManager {
     const projectWindow = BrowserWindow.getFocusedWindow();
     if (projectWindow) {
       if (filePath) {
-        fs.writeFileSync(filePath, Buffer.from(dataArray));
+        fs.writeFile(filePath, Buffer.from(dataArray));
         return filePath;
       }
     }
