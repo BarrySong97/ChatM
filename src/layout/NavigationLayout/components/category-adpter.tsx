@@ -129,7 +129,6 @@ function getPixiuData(
           asset?.find((account) => account.name === item[7])?.id ?? "";
         destination_account_id =
           expenditure?.find((account) => account.name === item[2])?.id ?? "";
-        console.log(item[2], item[7]);
       }
       result.push({
         id: uuidv4(),
