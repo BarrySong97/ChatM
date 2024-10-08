@@ -6,7 +6,15 @@ import { PhBank, TablerTemplate } from "@/assets/icon";
 import { v4 as uuidv4 } from "uuid";
 import Alipay from "./icon/zhifubao.webp";
 import { FinancialOperation } from "@/api/db/manager";
-import { Asset, Expense, Income } from "@db/schema";
+import {
+  Asset,
+  Assets,
+  Expense,
+  Expenses,
+  Income,
+  Incomes,
+  Liabilities,
+} from "@db/schema";
 export const CategoryTypes: ImportCategory[] = [
   {
     name: "微信",
@@ -88,16 +96,35 @@ function getAlipayData(data: string[][]) {
   }
   return result;
 }
-function getTemplateData(data: string[][]) {
+function getTemplateData(
+  data: string[][],
+  income?: Incomes,
+  asset?: Assets,
+  expenditure?: Expenses,
+  liabilities?: Liabilities
+) {
   const result = [];
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
+    const source_account_id = [
+      ...(income ?? []),
+      ...(asset ?? []),
+      ...(expenditure ?? []),
+      ...(liabilities ?? []),
+    ].find((account) => account.name === item[4])?.id;
+    const destination_account_id = [
+      ...(asset ?? []),
+      ...(expenditure ?? []),
+      ...(liabilities ?? []),
+    ].find((account) => account.name === item[5])?.id;
     if (item[0]) {
       result.push({
         id: uuidv4(),
         transaction_date: item[0],
         amount: Number(item[2]),
         content: item[1],
+        source_account_id: source_account_id,
+        destination_account_id: destination_account_id,
       });
     }
   }

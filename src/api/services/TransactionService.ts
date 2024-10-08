@@ -3,15 +3,40 @@ import { Transaction, transaction, transactionTags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
 import { EditTransaction, TransactionListParams } from "../hooks/transaction";
-import { Page } from "../models/Page";
 import Decimal from "decimal.js";
 import dayjs from "dayjs";
+import type { Page } from "../models/Page";
 
 export class TransactionService {
   // get all
-  public static async getAllTransactions(book_id: string) {
+  public static async getAllTransactions(
+    book_id: string,
+    transactionListParams?: TransactionListParams
+  ) {
+    const condition = [];
+    if (book_id) {
+      condition.push(eq(transaction.book_id, book_id));
+    }
+    if (transactionListParams?.startDate) {
+      const startDate = dayjs(
+        dayjs(transactionListParams?.startDate).format("YYYY-MM-DD")
+      )
+        .subtract(1, "day")
+        .toDate()
+        .getTime();
+      condition.push(gt(transaction.transaction_date, startDate));
+    }
+    if (transactionListParams?.endDate) {
+      const endDate = dayjs(
+        dayjs(transactionListParams?.endDate).format("YYYY-MM-DD")
+      )
+        .add(1, "day")
+        .toDate()
+        .getTime();
+      condition.push(lt(transaction.transaction_date, endDate));
+    }
     const res = await db.query.transaction.findMany({
-      where: eq(transaction.book_id, book_id),
+      where: and(...condition),
       with: {
         transactionTags: {
           with: {

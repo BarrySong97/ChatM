@@ -58,6 +58,7 @@ import { useTagService } from "@/api/hooks/tag";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationTranslations } from "@/components/Transactions/contant";
 import { indexDB } from "@/lib/indexdb";
+import ExportModal from "@/components/ExportModal";
 export interface SideProps {}
 const now = new Date();
 const Side: FC<SideProps> = () => {
@@ -413,6 +414,89 @@ const Side: FC<SideProps> = () => {
 
   const users = useLiveQuery(() => indexDB.users.toArray());
   const avatarSrc = users?.[0]?.avatar;
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const handleExport = async (startDate: Date, endDate: Date) => {
+    try {
+      const headers = [
+        "日期",
+        "描述",
+        "金额",
+        "类型",
+        "来源账户",
+        "目标账户",
+        "标签",
+        "备注",
+      ];
+      const transactions = await TransactionService.getAllTransactions(
+        book?.id ?? "",
+        {
+          startDate: startDate.getTime(),
+          endDate: endDate.getTime(),
+        }
+      );
+      if (transactions.length === 0) {
+        message.warning("没有数据可以导出");
+        return;
+      }
+      const res = await ipcOpenFolder();
+      if (!res) {
+        message.error("打开文件夹失败");
+        return;
+      }
+      const filePath = `${res}/流记数据导出-${dayjs(startDate).format(
+        "YYYY-MM-DD"
+      )}-${dayjs(endDate).format("YYYY-MM-DD")}.csv`;
+      const csvData = [headers.join(",")];
+      setLoading(true);
+      transactions.forEach((t) => {
+        const sourceAccount =
+          [
+            ...(assets || []),
+            ...(liabilities || []),
+            ...(incomes || []),
+            ...(expenses || []),
+          ].find((a) => a.id === t.source_account_id)?.name || "";
+        const destAccount =
+          [
+            ...(assets || []),
+            ...(liabilities || []),
+            ...(incomes || []),
+            ...(expenses || []),
+          ].find((a) => a.id === t.destination_account_id)?.name || "";
+        const tagNames = t.transactionTags
+          ?.map((tt) => {
+            if (tt.tag) {
+              return `#${tt.tag.name}`;
+            }
+          })
+          .join(" ");
+
+        const type =
+          operationTranslations[t.type as unknown as FinancialOperation];
+
+        const row = [
+          dayjs(t.transaction_date).format("YYYY-MM-DD HH:mm:ss"),
+          t.content || "",
+          new Decimal(t.amount || 0).dividedBy(100).toString(),
+          type || "",
+          sourceAccount,
+          destAccount,
+          tagNames,
+          t.remark || "",
+        ];
+
+        csvData.push(row.join(","));
+      });
+      const csvString = csvData.join("\n");
+      await ipcExportCsv(filePath, csvString);
+      setLoading(false);
+      message.success("导出成功");
+      setShowExportModal(false);
+    } catch (error) {
+      message.error("导出失败");
+    }
+  };
   return (
     <ConfigProvider
       theme={{
@@ -659,74 +743,7 @@ const Side: FC<SideProps> = () => {
               isLoading={loading}
               color="default"
               variant="shadow"
-              onClick={async () => {
-                const res = await ipcOpenFolder();
-                if (res) {
-                  const headers = [
-                    "日期",
-                    "描述",
-                    "金额",
-                    "类型",
-                    "来源账户",
-                    "目标账户",
-                    "标签",
-                    "备注",
-                  ];
-                  const filePath = `${res}/流记数据导出-${dayjs(
-                    month[0]
-                  ).format("YYYY-MM-DD")}.csv`;
-                  const transactions =
-                    await TransactionService.getAllTransactions(book?.id ?? "");
-                  const csvData = [headers.join(",")];
-                  setLoading(true);
-                  transactions.forEach((t) => {
-                    const sourceAccount =
-                      [
-                        ...(assets || []),
-                        ...(liabilities || []),
-                        ...(incomes || []),
-                        ...(expenses || []),
-                      ].find((a) => a.id === t.source_account_id)?.name || "";
-                    const destAccount =
-                      [
-                        ...(assets || []),
-                        ...(liabilities || []),
-                        ...(incomes || []),
-                        ...(expenses || []),
-                      ].find((a) => a.id === t.destination_account_id)?.name ||
-                      "";
-                    const tagNames = t.transactionTags
-                      ?.map((tt) => {
-                        if (tt.tag) {
-                          return `#${tt.tag.name}`;
-                        }
-                      })
-                      .join(" ");
-
-                    const type =
-                      operationTranslations[
-                        t.type as unknown as FinancialOperation
-                      ];
-
-                    const row = [
-                      dayjs(t.transaction_date).format("YYYY-MM-DD HH:mm:ss"),
-                      t.content || "",
-                      new Decimal(t.amount || 0).dividedBy(100).toString(),
-                      type || "",
-                      sourceAccount,
-                      destAccount,
-                      tagNames,
-                      t.remark || "",
-                    ];
-
-                    csvData.push(row.join(","));
-                  });
-                  const csvString = csvData.join("\n");
-                  await ipcExportCsv(filePath, csvString);
-                  setLoading(false);
-                  message.success("导出成功");
-                }
-              }}
+              onClick={() => setShowExportModal(true)}
             >
               导出流水数据
             </Button>
@@ -767,6 +784,12 @@ const Side: FC<SideProps> = () => {
         book={editBook}
         isOpen={isShowBookModal}
         onOpenChange={setIsShowBookModal}
+      />
+      <ExportModal
+        isOpen={showExportModal}
+        isLoading={loading}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
       />
     </ConfigProvider>
   );

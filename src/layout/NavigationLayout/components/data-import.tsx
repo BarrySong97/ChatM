@@ -85,7 +85,13 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
           const templateData = results.slice(1);
           setPureData(templateData);
           setFileData(
-            getTemplateData(templateData) as unknown as Transaction[]
+            getTemplateData(
+              templateData,
+              incomes,
+              assets,
+              expenses,
+              liabilities
+            ) as unknown as Transaction[]
           );
           break;
         case "wechat":
