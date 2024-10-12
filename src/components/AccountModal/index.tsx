@@ -167,6 +167,9 @@ const AccountModal: FC<AccountModalProps> = ({
               liability: {
                 name: account.name,
                 icon,
+                initial_balance: account.initial_balance
+                  ? new Decimal(account.initial_balance).mul(100).toNumber()
+                  : 0,
               },
             });
           }
