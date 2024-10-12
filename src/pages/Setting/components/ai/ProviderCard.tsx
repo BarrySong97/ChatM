@@ -13,6 +13,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Link,
 } from "@nextui-org/react";
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
@@ -23,6 +24,11 @@ import {
   MaterialSymbolsAddRounded,
 } from "@/assets/icon";
 import { PlusIcon } from "@/components/Transactions/icon";
+import {
+  LLMIconMap,
+  LLMProviderApiKeyGetUrl,
+  LLMProviderGetPlatformUrl,
+} from "./logos";
 
 interface ProviderCardProps {
   provider: Provider;
@@ -82,20 +88,36 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
   const [isVisible, setIsVisible] = React.useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+  const apikeyUrl =
+    LLMProviderApiKeyGetUrl[
+      provider.name as keyof typeof LLMProviderApiKeyGetUrl
+    ];
+  const platformUrl =
+    LLMProviderGetPlatformUrl[
+      provider.name as keyof typeof LLMProviderGetPlatformUrl
+    ];
+  const llmIcon = LLMIconMap[provider.name as keyof typeof LLMIconMap];
 
   return (
     <Card className="w-full" shadow="sm">
       <CardHeader className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">{provider.name}</h3>
+        <a href={platformUrl} target="_blank" className="text-lg font-semibold">
+          {llmIcon}
+        </a>
+        <div>
+          <Link size="sm" target="_blank" href={apikeyUrl}>
+            获取API Key
+          </Link>
+        </div>
       </CardHeader>
       <CardBody>
         <Form form={form} onFinish={handleSave} layout="vertical">
-          <Form.Item name="baseUrl" label="Proxy URL">
-            <Input placeholder="Enter proxy URL (optional)" />
+          <Form.Item name="baseUrl" label="代理URL">
+            <Input placeholder="输入代理URL（可选）" />
           </Form.Item>
           <Form.Item name="apiKey" label="API Key">
             <Input
-              placeholder="Enter your API key"
+              placeholder="输入您的API Key"
               endContent={
                 <button
                   className="focus:outline-none"
@@ -115,12 +137,12 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
           </Form.Item>
           <Form.Item
             name="defaultModel"
-            label="Default Model"
+            label="默认模型"
             valuePropName="selectedKeys"
             trigger="onSelectionChange"
           >
             <Select
-              placeholder="Select a default model"
+              placeholder="选择默认模型"
               startContent={
                 <Button
                   isIconOnly
@@ -142,7 +164,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
           </Form.Item>
           <Form.Item>
             <Button type="submit" color="primary">
-              Save
+              保存
             </Button>
           </Form.Item>
         </Form>

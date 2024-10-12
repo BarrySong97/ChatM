@@ -200,7 +200,7 @@ const About: FC<AboutProps> = () => {
           如何获得激活码? 请联系作者获取。
         </div>
         <div className="mt-1 text-sm text-gray-500">
-          X(twitter)搜索@BarrySong97，小红书搜BarrySong4Real
+          X(twitter)搜索@BarrySong97，小红书搜全栈工程师BarrySong
         </div>
       </div>
     </SettingWrapper>
