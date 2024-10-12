@@ -1,0 +1,1 @@
+ALTER TABLE liability ADD `initial_balance` integer DEFAULT 0;

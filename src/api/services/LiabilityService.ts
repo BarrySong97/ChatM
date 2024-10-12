@@ -63,12 +63,12 @@ export class LiabilityService {
       .select()
       .from(transaction)
       .where(and(...conditions));
-
     let totalLiabilityAmount = new Decimal(0);
 
     const liabilitiesData = new Map<string, string>();
     for (const liab of liabilityResults) {
-      let liabilityAmount = new Decimal(0);
+      const initialBalance = liab.initial_balance ?? 0;
+      let liabilityAmount = new Decimal(initialBalance);
 
       // Calculate inflows (asset to liability, liability to liability transfers)
       const inflows = transactionResults.filter(
@@ -146,12 +146,13 @@ export class LiabilityService {
     // Create a map to store daily totals
     const dailyTotals = new Map<string, Decimal>();
 
-    // Process transactions
-    const liabilityIds = new Set(
-      await this.listLiability(book_id).then((liabilities) =>
-        liabilities.map((l) => l.id)
-      )
+    const listLiability = await this.listLiability(book_id);
+    const liabilityInitialBalances = listLiability.reduce(
+      (acc, curr) => acc + (curr.initial_balance ?? 0),
+      0
     );
+    // Process transactions
+    const liabilityIds = new Set(listLiability.map((l) => l.id));
     transactions.forEach((t) => {
       const date = dayjs(t.transaction_date).format("YYYY-MM-DD");
       const amount = new Decimal(t.amount || 0);
@@ -184,7 +185,10 @@ export class LiabilityService {
       }
       trendData.push({
         label: dateString,
-        amount: runningTotal.div(100).toFixed(2),
+        amount: runningTotal
+          .add(new Decimal(liabilityInitialBalances))
+          .div(100)
+          .toFixed(2),
       });
       currentDate = currentDate.add(1, "day");
     }
@@ -244,15 +248,23 @@ export class LiabilityService {
         );
       }
     });
+    liabilityAccounts.forEach((liability) => {
+      categoryTotals.set(
+        liability.id,
+        new Decimal(liability.initial_balance || "0")
+      );
+    });
     // Convert the grouped data to the required format
     const categoryData = Array.from(
       categoryTotals,
-      ([accountId, totalAmount]) => ({
-        content: accountNameMap.get(accountId)?.name || "Unknown",
-        amount: totalAmount.toNumber(),
-        icon: accountNameMap.get(accountId)?.icon ?? "",
-        color: accountNameMap.get(accountId)?.color ?? "",
-      })
+      ([accountId, totalAmount]) => {
+        return {
+          content: accountNameMap.get(accountId)?.name || "Unknown",
+          amount: totalAmount.toNumber(),
+          icon: accountNameMap.get(accountId)?.icon ?? "",
+          color: accountNameMap.get(accountId)?.color ?? "",
+        };
+      }
     );
 
     // Sort the categoryData by amount in descending order

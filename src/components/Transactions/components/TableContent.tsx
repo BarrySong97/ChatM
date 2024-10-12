@@ -525,6 +525,7 @@ const TableContent: React.FC<TableContentProps> = ({
         suppressScrollOnNewData
         columnDefs={colDefs}
         rowSelection="multiple"
+        overlayNoRowsTemplate="暂无数据"
         suppressRowClickSelection={true}
       />
     </div>

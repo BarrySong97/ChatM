@@ -155,6 +155,9 @@ const AccountModal: FC<AccountModalProps> = ({
               liability: {
                 name: account.name,
                 icon,
+                initial_balance: account.initial_balance
+                  ? new Decimal(account.initial_balance).mul(100).toNumber()
+                  : 0,
               },
               liabilityId: data.id,
             });
@@ -454,7 +457,7 @@ const AccountModal: FC<AccountModalProps> = ({
           </Form.Item>
         </div>
 
-        {type === "asset" && (
+        {(type === "asset" || type === "liability") && (
           <Form.Item {...field} name={[field.name, "initial_balance"]}>
             <Input radius="sm" type="number" placeholder="请输入账户初始金额" />
           </Form.Item>

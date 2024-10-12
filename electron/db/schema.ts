@@ -96,6 +96,7 @@ export const assetsRelations = relations(assets, ({ many }) => ({
 export const liability = sqliteTable("liability", {
   id: text("id").primaryKey(),
   created_at: integer("created_at"),
+  initial_balance: integer("initial_balance").default(0),
   name: text("name"),
   color: text("color"),
   icon: text("icon"),

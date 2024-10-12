@@ -359,8 +359,7 @@ const TopContent: React.FC<TopContentProps> = ({
         <div className="flex gap-3">
           <Button
             onClick={() => setShowTransactionModal(true)}
-            className="bg-foreground text-background"
-            endContent={<PlusIcon />}
+            color="primary"
             size="sm"
           >
             添加流水

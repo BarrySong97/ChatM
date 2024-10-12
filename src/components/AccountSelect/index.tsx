@@ -130,7 +130,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
                 break;
               case "liability":
                 res = await createLiability({
-                  liability: newAccount,
+                  liability: { ...newAccount, initial_balance: 0 },
                 });
                 break;
               case "expense":

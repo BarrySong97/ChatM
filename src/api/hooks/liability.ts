@@ -11,6 +11,7 @@ import { BookAtom } from "@/globals";
 export type EditLiability = {
   name: string;
   icon?: string;
+  initial_balance?: number;
 };
 
 export function useLiabilityService() {
