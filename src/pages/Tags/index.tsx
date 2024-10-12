@@ -64,7 +64,9 @@ const Tags: FC<TagsProps> = () => {
               [e.colDef.field as string]: e.newValue,
             };
             if (e.colDef.field === "name") {
-              const [err, res] = await to(TagService.checkTagName(e.newValue));
+              const [err, res] = await to(
+                TagService.checkTagName(e.newValue, e.data.book_id)
+              );
 
               if (res) {
                 e.data.name = e.oldValue;

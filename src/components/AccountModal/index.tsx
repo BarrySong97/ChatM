@@ -39,6 +39,7 @@ import AccountIconRender from "../AccountIconRender";
 import { useAtomValue } from "jotai";
 import { BookAtom } from "@/globals";
 import { useQueryClient } from "react-query";
+import { useFormError } from "@/hooks/useFormError";
 export interface AccountModalProps {
   isOpen: boolean;
   onOpenChange: (value: boolean) => void;
@@ -379,6 +380,12 @@ const AccountModal: FC<AccountModalProps> = ({
                   if (!value || value === data?.name) {
                     return Promise.resolve(); // 让 required 规则处理空值
                   }
+                  if (
+                    accounts?.filter((v: { name: string }) => v?.name === value)
+                      .length > 1
+                  ) {
+                    return Promise.reject("账户名称已存在");
+                  }
                   let res = false;
 
                   switch (type) {
@@ -459,12 +466,19 @@ const AccountModal: FC<AccountModalProps> = ({
 
         {(type === "asset" || type === "liability") && (
           <Form.Item {...field} name={[field.name, "initial_balance"]}>
-            <Input radius="sm" type="number" placeholder="请输入账户初始金额" />
+            <Input
+              placeholder="请输入账户初始金额(默认为0可不填)"
+              radius="sm"
+              type="number"
+            />
           </Form.Item>
         )}
       </div>
     );
   };
+
+  const accounts = Form.useWatch("accounts", form);
+  const { isSubmitDisabled } = useFormError(form);
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -508,6 +522,11 @@ const AccountModal: FC<AccountModalProps> = ({
               </Button>
               <Button
                 color="primary"
+                isDisabled={
+                  !accounts?.some(
+                    (account: { name: string }) => account?.name
+                  ) || isSubmitDisabled
+                }
                 isLoading={submitLoading}
                 onPress={async () => {
                   await onCreate();
