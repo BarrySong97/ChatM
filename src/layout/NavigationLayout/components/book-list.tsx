@@ -17,7 +17,7 @@ import BookModal from "@/components/BookModal";
 import AccountIconRender from "@/components/AccountIconRender";
 import { BookService } from "@/api/services/BookService";
 import { useModal } from "@/components/GlobalConfirmModal";
-import { Book } from "@db/schema";
+import { book, Book } from "@db/schema";
 import { message } from "antd";
 import { AnimatePresence, motion } from "framer-motion";
 import { IonMdMore } from "@/components/ExpandTreeMenu/icon";
@@ -125,71 +125,36 @@ const BookList: FC<BookListProps> = ({ onClose, onShowBookModal }) => {
   return (
     <>
       <div className="w-[280px] py-2">
-        <User
-          description={license?.email ?? "探索宇宙，永葆青春"}
-          classNames={{
-            wrapper: "flex-col-reverse",
-          }}
-          name={renderLicenseStatus()}
-          avatarProps={{
-            isBordered: true,
-            className: "cursor-pointer",
-            title: "点击更换头像",
-
-            onClick: async () => {
-              const base64Image = await window.ipcRenderer.invoke(
-                IPC_EVENT_KEYS.OPEN_FILE
-              );
-              if (base64Image) {
-                // Store the image in IndexedDB
-                const existingUser = await indexDB.users.toArray();
-                if (existingUser.length === 0) {
-                  await indexDB.users.add({
-                    avatar: base64Image,
-                  });
-                } else {
-                  await indexDB.users.update(existingUser[0].id, {
-                    avatar: base64Image,
-                  });
-                }
-              }
-            },
-            radius: "sm",
-            src: avatarSrc || imageSrc,
-          }}
-        />
-        <Divider className="my-2" />
-        <div className="flex flex-col gap-2 px-2">
-          {books?.map((book) => (
-            <BookItem
-              key={book.id}
-              book={book}
-              isActive={SelectedBook?.id === book.id}
-              onSelect={async () => {
-                await BookService.editBook(book.id, {
-                  isCurrent: 1,
-                });
-                setSelectedBook(book);
-                onClose();
-              }}
-              onEdit={() => {
-                onShowBookModal(book);
-              }}
-              onDelete={() => onDelete(book)}
-            />
-          ))}
+        <div
+          className="inline-flex items-start justify-start gap-3 rounded-small outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 z-10 aria-expanded:scale-[0.97] aria-expanded:opacity-70 subpixel-antialiased cursor-pointer"
+          data-slot="trigger"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+        >
+          <div className="inline-flex items-center gap-0.5">
+            <div
+              className={cn(
+                "shadow-lg   w-[40px] h-[40px] flex items-center justify-center  text-lg rounded-lg",
+                "transition-colors transition-background-color duration-300"
+              )}
+            >
+              {SelectedBook?.icon ? (
+                <AccountIconRender icon={SelectedBook?.icon} />
+              ) : (
+                SelectedBook?.name?.[0]
+              )}
+            </div>
+          </div>
         </div>
         <Divider className="my-2" />
         <Button
-          color="primary"
+          color="danger"
           className="w-full"
           size="sm"
           radius="sm"
-          onClick={() => {
-            onShowBookModal(undefined);
-          }}
+          onClick={() => {}}
         >
-          创建账本
+          删除账本
         </Button>
       </div>
     </>

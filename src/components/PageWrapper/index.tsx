@@ -7,7 +7,7 @@ export function PageWrapper({ className, ...props }: ContainerProps) {
   return (
     <div
       className={cn(
-        "px-12 py-8 overflow-auto scrollbar h-full mx-auto",
+        "px-6 py-6 overflow-auto scrollbar h-full mx-auto",
         className
       )}
       {...props}

@@ -28,7 +28,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 export interface BookModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  book?: Book;
+  book: Book | null;
 }
 const currencyOptions = [
   { label: "人民币", value: "CNY" },
@@ -81,7 +81,12 @@ const BookModal: FC<BookModalProps> = ({ isOpen, onOpenChange, book }) => {
           icon: iconId || null,
         });
       } else {
-        await createBook({ book: values });
+        await createBook({
+          book: {
+            ...values,
+            icon: iconId,
+          },
+        });
       }
       onOpenChange(false);
       form.resetFields();

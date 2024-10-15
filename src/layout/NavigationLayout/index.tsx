@@ -1,14 +1,6 @@
 import DragTitle from "@/components/DragTitle";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Link,
-  NextUIProvider,
-} from "@nextui-org/react";
-import { FC, useEffect } from "react";
+import { cn, Divider, NextUIProvider } from "@nextui-org/react";
+import { FC } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import TrafficLight from "@/components/TrafficLight";
 import Side from "./components/side";
@@ -18,8 +10,7 @@ import { LicenseService } from "@/api/services/LicenseService";
 import { License } from "@/api/models/license";
 import { message } from "antd";
 import { ApiError } from "@/api/core/ApiError";
-import { useAtomValue } from "jotai";
-import { isSettingOpenAtom } from "@/globals";
+import ActionList from "./components/action-list";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
@@ -64,25 +55,50 @@ const AppLayout: FC<AppLayoutProps> = () => {
       }
     },
   });
+  const isMac = window.platform.getOS() === "darwin";
   return (
     <NextUIProvider navigate={navigate}>
-      <div className="flex h-screen overflow-hidden ">
-        <aside className="dark:bg-default-100 bg-white   h-screen w-[308px]  ">
-          <Side />
+      <div
+        className="flex h-screen overflow-hidden "
+        style={{
+          // background: `radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%)`,
+          // background: `linear-gradient(to top, #dfe9f3 0%, white 100%)`,
+          background: `radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%)`,
+        }}
+      >
+        <aside className="my-2.5 w-[70px]  ">
+          <ActionList />
         </aside>
-        <div className="flex-1 bg-[#ECECEC]  ">
+        <div className="flex-1   ">
           <div
             style={{
               width: "100%",
             }}
-            className="relative dark:bg-transparent h-[28px]"
+            className="absolute left-0 right-0 dark:bg-transparent h-[28px]"
           >
-            <DragTitle className="absolute bg-[#ECECEC] dark:bg-transparent   top-0 w-full  py-3.5 flex justify-end  ">
+            <DragTitle className="absolute  dark:bg-transparent   top-0 w-full  py-3.5 flex justify-end  ">
               <TrafficLight isDev={false} />
             </DragTitle>
           </div>
-          <div className="absolute top-6 bottom-2 bg-white rounded-large overflow-hidden left-[308px] right-2 dark:bg-transparent">
-            <Outlet />
+          <div
+            className={cn(
+              "absolute top-2.5 flex shadow-lg bottom-2.5 bg-white rounded-large overflow-hidden left-[70px] right-2.5 dark:bg-transparent",
+              {
+                "top-6": !isMac,
+              }
+            )}
+          >
+            <aside className="my-2.5  w-[308px]  rounded-r-large  ">
+              <div className=" flex  h-full  rounded-r-large">
+                <Side />
+                <div className="py-2 bg-white">
+                  <Divider className="bg-[#F0F0F0]" orientation="vertical" />
+                </div>
+              </div>
+            </aside>
+            <div className="flex-1">
+              <Outlet />
+            </div>
           </div>
         </div>
         {import.meta.env.DEV ? null : <AutoCheckUpdate />}

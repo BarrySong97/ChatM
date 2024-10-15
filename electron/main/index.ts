@@ -92,7 +92,10 @@ async function createWindow() {
     title: "Main window",
     icon: join(process.env.VITE_PUBLIC, "favicon.ico"),
     titleBarStyle: "hidden",
-    transparent: true,
+    trafficLightPosition: {
+      x: 10,
+      y: 10,
+    },
     frame: false,
     ...MainWindowSize,
     webPreferences: {

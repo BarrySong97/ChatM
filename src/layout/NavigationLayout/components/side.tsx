@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { ConfigProvider, Menu, message, type MenuProps } from "antd";
 import {
   Button,
+  Card,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -31,6 +32,8 @@ import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { ipcDevtoolMain, ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
 import {
+  IcBaselineModeEdit,
+  MaterialSymbolsBook4,
   MaterialSymbolsEditDocumentOutlineRounded,
   MaterialSymbolsHelpOutline,
   SelectorIcon,
@@ -46,15 +49,12 @@ import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon
 import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
-import BookList from "./book-list";
 import { AppPathAtom, AvatarAtom, BookAtom, LicenseAtom } from "@/globals";
 import { useAtom, useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
-import { Book } from "@db/schema";
 import BookModal from "@/components/BookModal";
 import { TransactionService } from "@/api/services/TransactionService";
 import dayjs from "dayjs";
-import { useTagService } from "@/api/hooks/tag";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationTranslations } from "@/components/Transactions/contant";
 import { indexDB } from "@/lib/indexdb";
@@ -90,20 +90,26 @@ const Side: FC<SideProps> = () => {
     },
 
     {
+      key: "books",
+      href: "/books",
+      title: "账本",
+      icon: <MaterialSymbolsBook4 />,
+    },
+    {
       key: "settings",
       href: "/settings",
       title: "设置",
       icon: <TablerSettings />,
     },
   ];
-  if (import.meta.env.DEV) {
-    menuList.push({
-      key: "devtool",
-      href: "/devtool",
-      title: "开发者工具",
-      icon: <MaterialSymbolsToolsWrench />,
-    });
-  }
+  // if (import.meta.env.DEV) {
+  //   menuList.push({
+  //     key: "devtool",
+  //     href: "/devtool",
+  //     title: "开发者工具",
+  //     icon: <MaterialSymbolsToolsWrench />,
+  //   });
+  // }
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
@@ -403,17 +409,8 @@ const Side: FC<SideProps> = () => {
     }
   }, [pathname]);
   const book = useAtomValue(BookAtom);
-  const [showBookPopover, setShowBookPopover] = useState(false);
-  const [editBook, setEditBook] = useState<Book>();
-  const [isShowBookModal, setIsShowBookModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [appPath] = useAtom(AppPathAtom);
-  const iconSrc = "/icon-side.png";
-  const license = useAtomValue(LicenseAtom);
-  const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
 
-  const users = useLiveQuery(() => indexDB.users.toArray());
-  const avatarSrc = users?.[0]?.avatar;
   const [showExportModal, setShowExportModal] = useState(false);
 
   const handleExport = async (startDate: Date, endDate: Date) => {
@@ -497,6 +494,8 @@ const Side: FC<SideProps> = () => {
       message.error("导出失败");
     }
   };
+  const isMac = window.platform.getOS() === "darwin";
+  const [isShowBookModal, setIsShowBookModal] = useState(false);
   return (
     <ConfigProvider
       theme={{
@@ -511,244 +510,229 @@ const Side: FC<SideProps> = () => {
         },
       }}
     >
-      <div className="dark:bg-default-100 bg-default/40 bg-[#ECECEC] h-screen   py-6  w-full  app-draggable">
-        <div className="no-drag">
-          <div className="flex items-center justify-between px-4 ">
-            <Popover
-              radius="sm"
-              isOpen={showBookPopover}
-              shouldCloseOnBlur={false}
-              onOpenChange={setShowBookPopover}
-            >
-              <PopoverTrigger>
-                <User
-                  description={license?.email ?? "探索宇宙，永葆青春"}
-                  classNames={{
-                    wrapper: "flex-col-reverse",
-                  }}
-                  name={
-                    <div className="flex items-center gap-1 ">
-                      <AccountIconRender
-                        emojiSize="0.80em"
-                        icon={
-                          book?.icon ?? "emoji:stuck_out_tongue_winking_eye"
-                        }
-                      />
-                      <div className="mt-0.5">{book?.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {book?.currency}
-                      </div>
-                      <SelectorIcon />
+      <div className="h-full pb-3 pt-0 bg-white   w-full  app-draggable rounded-l-large">
+        <div className="no-drag flex flex-col  h-full">
+          <div
+            className={cn("mt-4  ", {
+              "mt-0": isMac,
+            })}
+          >
+            <div className="mx-4 border border-[#F0F0F0] default-200 mb-2  rounded-md">
+              <div className="w-full justify-between flex ">
+                <div className="py-1 px-2 w-full flex items-center justify-start  mb-0">
+                  <div
+                    className="inline-flex items-start justify-start gap-3 rounded-small outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 z-10 aria-expanded:scale-[0.97] aria-expanded:opacity-70 subpixel-antialiased "
+                    data-slot="trigger"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
+                  >
+                    <div className="inline-flex items-center gap-0.5">
+                      {book?.icon ? (
+                        <AccountIconRender icon={book?.icon} />
+                      ) : (
+                        <MaterialSymbolsBook4 className="text-lg" />
+                      )}
+                      <span className="text-small text-inherit">
+                        {book?.name}
+                      </span>
                     </div>
-                  }
-                  className="cursor-pointer"
-                  avatarProps={{
-                    radius: "sm",
-                    isBordered: true,
-                    src: avatarSrc || imageSrc,
-                  }}
-                />
-              </PopoverTrigger>
-              <PopoverContent>
-                <BookList
-                  onClose={() => setShowBookPopover(false)}
-                  onShowBookModal={(book) => {
-                    setIsShowBookModal(true);
-                    setEditBook(book);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-            <div>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setIsShowBookModal(true)}
+                  isIconOnly
+                  variant="light"
+                  size="sm"
+                  radius="sm"
+                >
+                  <IcBaselineModeEdit className="text-base" />
+                </Button>
+              </div>
+            </div>
+            <div className="mb-4 text-sm text-default-600 flex items-center  px-4">
               <Button
-                isIconOnly
-                variant="flat"
+                variant="light"
+                radius="sm"
                 size="sm"
-                className="bg-white"
-                onClick={() => {
-                  setShowTransactionModal(true);
-                }}
+                isIconOnly
+                onClick={() => changeMonth("prev")}
               >
-                <MaterialSymbolsEditDocumentOutlineRounded className="text-lg" />
+                <MaterialSymbolsArrowBackIosNewRounded />
+              </Button>
+              <Popover
+                isOpen={showPopover}
+                onOpenChange={setShowPopover}
+                placement="bottom"
+                showArrow
+              >
+                <PopoverTrigger>
+                  <Button
+                    startContent={
+                      <MaterialSymbolsCalendarMonth className="text-base" />
+                    }
+                    size="sm"
+                    variant="light"
+                    radius="sm"
+                  >
+                    {formatDateRange(month[0], month[1])}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0">
+                  <CommonDateRangeFilter
+                    onReset={() => {
+                      const start = new Date(
+                        now.getFullYear(),
+                        now.getMonth(),
+                        1
+                      );
+                      const end = new Date(
+                        now.getFullYear(),
+                        now.getMonth() + 1,
+                        0
+                      );
+                      setShowPopover(false);
+                      setMonth([start, end]);
+                    }}
+                    onChange={(value) => {
+                      setMonth([value.start, value.end]);
+                      setShowPopover(false);
+                    }}
+                    value={{
+                      start: month[0],
+                      end: month[1],
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+              <Button
+                variant="light"
+                radius="sm"
+                size="sm"
+                isIconOnly
+                onClick={() => changeMonth("next")}
+              >
+                <MaterialSymbolsArrowForwardIosRounded />
               </Button>
             </div>
-          </div>
-          <div className="flex flex-col gap-2 mt-4 justify-start px-4 mb-4">
-            {menuList.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Button
-                  key={item.key}
-                  className={cn("justify-start", {
-                    "font-semibold": isActive,
-                  })}
-                  onClick={() => {
-                    switch (item.key) {
-                      case "settings":
-                        setShowSettingModal(true);
-                        break;
-                      case "devtool":
-                        ipcDevtoolMain();
-                        break;
-                      default:
-                        navigate(item.href);
-                        break;
-                    }
-                  }}
-                  startContent={
-                    <span className="text-lg text-[#575859]">{item.icon}</span>
-                  }
-                  variant={isActive ? "flat" : "light"}
-                  size="sm"
-                  radius="sm"
-                  // color={pathname === item.href ? "primary" : "default"}
-                >
-                  {item.title}
-                </Button>
-              );
-            })}
-          </div>
-          <div className="mb-4 text-sm text-default-600 flex items-center justify-between px-4">
-            <Button
-              variant="light"
-              radius="sm"
-              size="sm"
-              isIconOnly
-              onClick={() => changeMonth("prev")}
+            <div
+              className="mt-4 overflow-auto scrollbar  "
+              style={{
+                height: `calc(100vh - 316px)`,
+              }}
             >
-              <MaterialSymbolsArrowBackIosNewRounded />
-            </Button>
-            <Popover
-              isOpen={showPopover}
-              onOpenChange={setShowPopover}
-              placement="bottom"
-              showArrow
-            >
-              <PopoverTrigger>
-                <Button
-                  startContent={
-                    <MaterialSymbolsCalendarMonth className="text-base" />
-                  }
-                  size="sm"
-                  variant="light"
-                  radius="sm"
-                >
-                  {formatDateRange(month[0], month[1])}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0">
-                <CommonDateRangeFilter
-                  onReset={() => {
-                    const start = new Date(
-                      now.getFullYear(),
-                      now.getMonth(),
-                      1
-                    );
-                    const end = new Date(
-                      now.getFullYear(),
-                      now.getMonth() + 1,
-                      0
-                    );
-                    setShowPopover(false);
-                    setMonth([start, end]);
-                  }}
-                  onChange={(value) => {
-                    setMonth([value.start, value.end]);
-                    setShowPopover(false);
-                  }}
-                  value={{
-                    start: month[0],
-                    end: month[1],
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-            <Button
-              variant="light"
-              radius="sm"
-              size="sm"
-              isIconOnly
-              onClick={() => changeMonth("next")}
-            >
-              <MaterialSymbolsArrowForwardIosRounded />
-            </Button>
-          </div>
-          <div
-            className="mt-4 overflow-auto scrollbar  "
-            style={{
-              height: `calc(100vh - ${menuList.length * 40 + 180}px)`,
-            }}
-          >
-            <div className="mb-4">
-              <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
-                <div className="">资产/负债</div>
-                <div className=" pr-3 ">
-                  <Tooltip
-                    content={`截止${month[1].getFullYear()}/${
-                      month[1].getMonth() + 1
-                    }的净资产`}
-                  >
-                    <div className="flex items-center gap-1">
-                      <MaterialSymbolsHelpOutline />
-                      <div>净资产: {netWorth.toFixed(2)}</div>
-                    </div>
-                  </Tooltip>
+              <div className="mb-4">
+                <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
+                  <div className="">资产/负债</div>
+                  <div className=" pr-3 ">
+                    <Tooltip
+                      content={`截止${month[1].getFullYear()}/${
+                        month[1].getMonth() + 1
+                      }的净资产`}
+                    >
+                      <div className="flex items-center gap-1">
+                        <MaterialSymbolsHelpOutline />
+                        <div>净资产: {netWorth.toFixed(2)}</div>
+                      </div>
+                    </Tooltip>
+                  </div>
+                </div>
+                <div className="px-4 pr-2">
+                  <ExpandTreeMenu
+                    data={items1}
+                    selectedKey={selectedKey}
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                    onSelectionChange={setSelectedKey}
+                  />
                 </div>
               </div>
-              <div className="px-4 pr-2">
-                <ExpandTreeMenu
-                  data={items1}
-                  selectedKey={selectedKey}
-                  onDelete={onDelete}
-                  onEdit={onEdit}
-                  onSelectionChange={setSelectedKey}
-                />
+              <div>
+                <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
+                  <div className="">支出/收入</div>
+                  <div className=" pr-3 ">
+                    <Tooltip
+                      content={`${month[0].getFullYear()}/${
+                        month[0].getMonth() + 1
+                      } - ${month[1].getFullYear()}/${
+                        month[1].getMonth() + 1
+                      }结余`}
+                    >
+                      <div className="flex items-center gap-1">
+                        <MaterialSymbolsHelpOutline />
+                        <div>结余: {balance.toFixed(2)}</div>
+                      </div>
+                    </Tooltip>
+                  </div>
+                </div>
+
+                <div className="px-4 pr-2">
+                  <ExpandTreeMenu
+                    data={items2}
+                    selectedKey={selectedKey}
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                    onSelectionChange={setSelectedKey}
+                  />
+                </div>
               </div>
             </div>
             <div>
-              <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
-                <div className="">支出/收入</div>
-                <div className=" pr-3 ">
-                  <Tooltip
-                    content={`${month[0].getFullYear()}/${
-                      month[0].getMonth() + 1
-                    } - ${month[1].getFullYear()}/${
-                      month[1].getMonth() + 1
-                    }结余`}
-                  >
-                    <div className="flex items-center gap-1">
-                      <MaterialSymbolsHelpOutline />
-                      <div>结余: {balance.toFixed(2)}</div>
-                    </div>
-                  </Tooltip>
-                </div>
-              </div>
-
-              <div className="px-4 pr-2">
-                <ExpandTreeMenu
-                  data={items2}
-                  selectedKey={selectedKey}
-                  onDelete={onDelete}
-                  onEdit={onEdit}
-                  onSelectionChange={setSelectedKey}
-                />
+              <div className="grid grid-cols-3 grid-rows-2 gap-2 mt-4 justify-start px-4 mb-4">
+                {menuList.map((item, index) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Button
+                      key={item.key}
+                      className={cn("justify-start h-full py-2 items-center", {
+                        "font-semibold": isActive,
+                        // "row-span-2 flex-col ": index === 0,
+                      })}
+                      onClick={() => {
+                        if (item.key === "books") {
+                          message.info("开发中");
+                        } else {
+                          switch (item.key) {
+                            case "settings":
+                              setShowSettingModal(true);
+                              break;
+                            case "devtool":
+                              ipcDevtoolMain();
+                              break;
+                            default:
+                              navigate(item.href);
+                              break;
+                          }
+                        }
+                      }}
+                      startContent={
+                        <span className="text-lg text-[#575859]">
+                          {item.icon}
+                        </span>
+                      }
+                      variant={isActive ? "flat" : "light"}
+                      size="sm"
+                      radius="sm"
+                      // color={pathname === item.href ? "primary" : "default"}
+                    >
+                      {item.title}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           </div>
-          <div className="flex justify-center mx-4 gap-4">
+          <div className="flex flex-col  mx-4 gap-2">
             <Button
-              className="flex-1"
               size="sm"
               radius="sm"
               isLoading={loading}
               color="default"
-              variant="shadow"
+              variant="flat"
               onClick={() => setShowExportModal(true)}
             >
               导出流水数据
             </Button>
             <Button
-              className="flex-1"
               size="sm"
               radius="sm"
               variant="shadow"
@@ -781,7 +765,7 @@ const Side: FC<SideProps> = () => {
       </div>
       <Setting isOpen={showSettingModal} setIsOpen={setShowSettingModal} />
       <BookModal
-        book={editBook}
+        book={book}
         isOpen={isShowBookModal}
         onOpenChange={setIsShowBookModal}
       />

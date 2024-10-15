@@ -104,7 +104,7 @@ const Index: FC<IndexProps> = () => {
           <DateDisplay />
         </div>
       </div>
-      <Divider className="my-8" />
+      <Divider className="my-8 bg-[#F0F0F0]" />
       <div className="flex gap-4 ">
         <div className="flex-1">
           <FinancialItem
