@@ -1,5 +1,5 @@
 import PaperParse from "papaparse";
-import { Divider } from "@nextui-org/react";
+import { Button, Divider } from "@nextui-org/react";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { useQuery } from "react-query";
@@ -16,6 +16,7 @@ import FinancialItem from "./components/metic-card";
 import { seed } from "@/seed";
 import { AppPathAtom, BookAtom } from "@/globals";
 import { BookService } from "@/api/services/BookService";
+import TransactionModal from "@/components/TransactionModal";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -96,6 +97,7 @@ const Index: FC<IndexProps> = () => {
       }
     });
   }, []);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
@@ -103,6 +105,15 @@ const Index: FC<IndexProps> = () => {
           <Greeting />
           <DateDisplay />
         </div>
+        <Button
+          color="primary"
+          size="sm"
+          radius="sm"
+          variant="shadow"
+          onClick={() => setShowTransactionModal(true)}
+        >
+          添加流水
+        </Button>
       </div>
       <Divider className="my-8 bg-[#F0F0F0]" />
       <div className="flex gap-4 ">
@@ -153,6 +164,10 @@ const Index: FC<IndexProps> = () => {
       <div className="mt-8">
         <Tabs defaultActiveKey="1" items={items} />
       </div>
+      <TransactionModal
+        isOpen={showTransactionModal}
+        onChange={(value) => setShowTransactionModal(value)}
+      />
     </PageWrapper>
   );
 };

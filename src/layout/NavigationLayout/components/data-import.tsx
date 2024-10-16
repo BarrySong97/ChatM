@@ -115,7 +115,11 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
           break;
       }
     };
-    reader.readAsText(file);
+    if (fileSource === "alipay") {
+      reader.readAsText(file, "GBK");
+    } else {
+      reader.readAsText(file);
+    }
   };
 
   const handleCategoryChange = (key: string) => {

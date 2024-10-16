@@ -34,14 +34,6 @@ const Tags: FC<TagsProps> = () => {
         return <div>#{params.value}</div>;
       },
     },
-    {
-      field: "transactionCount",
-      headerName: "流水数量",
-      editable: false,
-      cellStyle: { textAlign: "right" },
-      headerClass: "ag-right-aligned-header",
-      resizable: false,
-    },
   ]);
   const [showModal, setShowModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Tag[]>([]);
