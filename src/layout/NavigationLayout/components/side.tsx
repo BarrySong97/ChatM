@@ -455,11 +455,7 @@ const Side: FC<SideProps> = () => {
     >
       <div className="h-full pb-3 pt-0 bg-white   w-full  app-draggable rounded-l-large">
         <div className="no-drag flex flex-col  h-full">
-          <div
-            className={cn("mt-4  ", {
-              "mt-0": isMac,
-            })}
-          >
+          <div className={cn("mt-0 ")}>
             <BookSelector onEditClick={() => setIsShowBookModal(true)} />
             <div className="mb-4 text-sm text-default-600 flex items-center justify-between px-2">
               <Button
@@ -529,7 +525,7 @@ const Side: FC<SideProps> = () => {
             <div
               className="mt-4 overflow-auto scrollbar  "
               style={{
-                height: `calc(100vh - 326px)`,
+                height: `calc(100vh - ${isMac ? "326px" : "340px"})`,
               }}
             >
               <AccountTreeMenu

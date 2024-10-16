@@ -13,6 +13,7 @@ import { useAtom } from "jotai";
 import React, { FC, useState } from "react";
 import SideMenuList from "./SideMenuList";
 import { BookService } from "@/api/services/BookService";
+import { IPC_EVENT_KEYS } from "@/constant";
 export interface ActionListProps {}
 const ActionList: FC<ActionListProps> = () => {
   const { books } = useBookService();
@@ -25,9 +26,16 @@ const ActionList: FC<ActionListProps> = () => {
   const avatarSrc = users?.[0]?.avatar;
   const [editBook, setEditBook] = useState<Book>();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
-  const [showSettingModal, setShowSettingModal] = useState(false);
+  const isMac = window.platform.getOS() === "darwin";
   return (
-    <div className="pt-8 pb-2 h-full px-2 flex flex-col justify-between items-center">
+    <div
+      className={cn(
+        "pt-8 pb-2 h-full px-2 flex flex-col justify-between items-center",
+        {
+          "pt-6": !isMac,
+        }
+      )}
+    >
       {/* <SideMenuList setShowSettingModal={setShowSettingModal} /> */}
       <div className="flex flex-col gap-3">
         {books?.map((book) => {
@@ -89,11 +97,31 @@ const ActionList: FC<ActionListProps> = () => {
         </Button>
       </div>
       <div className="">
-        <Avatar
-          src={imageSrc}
-          alt=""
-          className="w-[40px] h-[40px] rounded-full"
-        />
+        <Tooltip content="修改头像">
+          <Avatar
+            src={avatarSrc}
+            onClick={async () => {
+              const base64Image = await window.ipcRenderer.invoke(
+                IPC_EVENT_KEYS.OPEN_FILE
+              );
+              if (base64Image) {
+                // Store the image in IndexedDB
+                const existingUser = await indexDB.users.toArray();
+                if (existingUser.length === 0) {
+                  await indexDB.users.add({
+                    avatar: base64Image,
+                  });
+                } else {
+                  await indexDB.users.update(existingUser[0].id, {
+                    avatar: base64Image,
+                  });
+                }
+              }
+            }}
+            alt=""
+            className="w-[40px] h-[40px] rounded-full object-cover cursor-pointer"
+          />
+        </Tooltip>
       </div>
       <BookModal
         book={editBook}

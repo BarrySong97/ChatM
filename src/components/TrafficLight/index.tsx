@@ -54,7 +54,7 @@ const TrafficLight: FC<TrafficLightProps> = ({
           variant="light"
           isIconOnly
           size="sm"
-          className="dark:text-foreground"
+          className="dark:text-foreground justify-center items-center"
           radius="sm"
         >
           <MaterialSymbolsToolsWrench className="text-lg text-zinc-500" />
@@ -69,7 +69,7 @@ const TrafficLight: FC<TrafficLightProps> = ({
           isIconOnly
           className="dark:text-foreground"
           size="sm"
-          radius="sm"
+          radius="none"
         >
           <MingcuteMinimizeLine className="text-lg mb-1" />
         </Button>
@@ -87,7 +87,7 @@ const TrafficLight: FC<TrafficLightProps> = ({
           className="dark:text-foreground"
           isIconOnly
           size="sm"
-          radius="sm"
+          radius="none"
         >
           {!maximize ? (
             <ClarityWindowMaxLine className="text-lg mb-1" />
@@ -102,9 +102,10 @@ const TrafficLight: FC<TrafficLightProps> = ({
           variant="light"
           isIconOnly
           size="sm"
-          radius="sm"
+          className="mr-3"
+          radius="none"
         >
-          <ClarityWindowCloseLine className="text-lg dark:text-foreground mb-1" />
+          <ClarityWindowCloseLine className="text-lg dark:text-foreground mb-1 " />
         </Button>
       ) : null}
     </div>

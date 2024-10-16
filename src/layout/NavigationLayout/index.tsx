@@ -84,7 +84,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
             className={cn(
               "absolute flex top-2.5 flex shadow-lg bottom-2.5 bg-white rounded-large overflow-hidden left-[70px] right-2.5 dark:bg-transparent",
               {
-                "top-6": !isMac,
+                "top-8": !isMac,
               }
             )}
           >
