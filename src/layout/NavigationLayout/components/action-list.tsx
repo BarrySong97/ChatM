@@ -11,6 +11,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAtom } from "jotai";
 import React, { FC, useState } from "react";
+import SideMenuList from "./SideMenuList";
+import { BookService } from "@/api/services/BookService";
 export interface ActionListProps {}
 const ActionList: FC<ActionListProps> = () => {
   const { books } = useBookService();
@@ -23,12 +25,13 @@ const ActionList: FC<ActionListProps> = () => {
   const avatarSrc = users?.[0]?.avatar;
   const [editBook, setEditBook] = useState<Book>();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
+  const [showSettingModal, setShowSettingModal] = useState(false);
   return (
     <div className="pt-8 pb-2 h-full px-2 flex flex-col justify-between items-center">
+      {/* <SideMenuList setShowSettingModal={setShowSettingModal} /> */}
       <div className="flex flex-col gap-3">
         {books?.map((book) => {
           const isActive = book.id === SelectedBook?.id;
-          console.log(book.icon);
           return (
             <div key={book.id} className="relative">
               <AnimatePresence>
@@ -48,7 +51,10 @@ const ActionList: FC<ActionListProps> = () => {
               <Tooltip content={book.name} placement="right">
                 <Card
                   isPressable
-                  onClick={() => {
+                  onClick={async () => {
+                    await BookService.editBook(book.id, {
+                      isCurrent: 1,
+                    });
                     setSelectedBook(book);
                   }}
                   className={cn(

@@ -82,13 +82,13 @@ const AppLayout: FC<AppLayoutProps> = () => {
           </div>
           <div
             className={cn(
-              "absolute top-2.5 flex shadow-lg bottom-2.5 bg-white rounded-large overflow-hidden left-[70px] right-2.5 dark:bg-transparent",
+              "absolute flex top-2.5 flex shadow-lg bottom-2.5 bg-white rounded-large overflow-hidden left-[70px] right-2.5 dark:bg-transparent",
               {
                 "top-6": !isMac,
               }
             )}
           >
-            <aside className="my-2.5  w-[308px]  rounded-r-large  ">
+            <aside className="my-2.5  min-w-[308px]  rounded-r-large  ">
               <div className=" flex  h-full  rounded-r-large">
                 <Side />
                 <div className="py-2 bg-white">

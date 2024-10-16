@@ -3,25 +3,18 @@ import {
   MaterialSymbolsAddRounded,
   MaterialSymbolsArrowBackIosNewRounded,
   MaterialSymbolsArrowForwardIosRounded,
-  MaterialSymbolsToolsWrench,
   MdiArrowDownCircle,
   MdiArrowUpCircle,
   SolarCardBoldDuotone,
-  SolarHashtagBold,
-  TablerTransactionDollar,
 } from "@/assets/icon";
-import { useLiveQuery } from "dexie-react-hooks";
 import { cn } from "@/lib/utils";
 
-import { ConfigProvider, Menu, message, type MenuProps } from "antd";
+import { ConfigProvider, message } from "antd";
 import {
   Button,
-  Card,
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Tooltip,
-  User,
 } from "@nextui-org/react";
 import { FC, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -30,86 +23,36 @@ import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
-import { ipcDevtoolMain, ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
-import {
-  IcBaselineModeEdit,
-  MaterialSymbolsBook4,
-  MaterialSymbolsEditDocumentOutlineRounded,
-  MaterialSymbolsHelpOutline,
-  SelectorIcon,
-  TablerSettings,
-  UimGraphBar,
-} from "./icon";
+import { ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
+import { RiMore2Fill } from "./icon";
 import TransactionModal from "@/components/TransactionModal";
 import { useSideData } from "@/api/hooks/side";
 import Decimal from "decimal.js";
 import DataImportModal from "./data-import";
-import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
-import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
-import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
-import { AppPathAtom, AvatarAtom, BookAtom, LicenseAtom } from "@/globals";
-import { useAtom, useAtomValue } from "jotai";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import BookModal from "@/components/BookModal";
 import { TransactionService } from "@/api/services/TransactionService";
 import dayjs from "dayjs";
 import { FinancialOperation } from "@/api/db/manager";
 import { operationTranslations } from "@/components/Transactions/contant";
-import { indexDB } from "@/lib/indexdb";
 import ExportModal from "@/components/ExportModal";
+import SideActions from "./SideActions";
+import AccountTreeMenu from "./AccountTreeMenu";
+import IncomeExpenseTreeMenu from "./IncomeExpenseTreeMenu";
+import SideMenuList from "./SideMenuList";
+import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
+import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
+import BookSelector from "./BookSelector";
+import { TreeNode } from "@/components/ExpandTreeMenu";
+
 export interface SideProps {}
 const now = new Date();
 const Side: FC<SideProps> = () => {
   const [showSettingModal, setShowSettingModal] = useState(false);
-  const menuList = [
-    {
-      key: "home",
-      href: "/",
-      title: "首页",
-      icon: <UimGraphBar />,
-    },
-    {
-      key: "transactions",
-      href: "/transactions",
-      title: "流水",
-      icon: <TablerTransactionDollar />,
-    },
-    {
-      key: "calendar",
-      href: "/calendar",
-      title: "日历",
-      icon: <MaterialSymbolsCalendarMonth />,
-    },
-    {
-      key: "tags",
-      href: "/tags",
-      title: "标签",
-      icon: <SolarHashtagBold />,
-    },
-
-    {
-      key: "books",
-      href: "/books",
-      title: "账本",
-      icon: <MaterialSymbolsBook4 />,
-    },
-    {
-      key: "settings",
-      href: "/settings",
-      title: "设置",
-      icon: <TablerSettings />,
-    },
-  ];
-  // if (import.meta.env.DEV) {
-  //   menuList.push({
-  //     key: "devtool",
-  //     href: "/devtool",
-  //     title: "开发者工具",
-  //     icon: <MaterialSymbolsToolsWrench />,
-  //   });
-  // }
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
@@ -156,7 +99,7 @@ const Side: FC<SideProps> = () => {
       children: [
         {
           key: "new_assets",
-          label: "新增资产",
+          label: "新增资产账户",
           hasMore: false,
           onTitleClick: () => {
             setShowAccountModal(true);
@@ -200,7 +143,7 @@ const Side: FC<SideProps> = () => {
       children: [
         {
           key: "new_liability",
-          label: "新增负债",
+          label: "新增负债账户",
           hasMore: false,
           icon: <MaterialSymbolsAddRounded />,
           onTitleClick: () => {
@@ -252,7 +195,7 @@ const Side: FC<SideProps> = () => {
       children: [
         {
           key: "new_income",
-          label: "新增收入",
+          label: "新增收入账户",
           icon: <MaterialSymbolsAddRounded />,
           onTitleClick: () => {
             setShowAccountModal(true);
@@ -295,7 +238,7 @@ const Side: FC<SideProps> = () => {
       children: [
         {
           key: "new_expense",
-          label: "新增支出",
+          label: "新增支出账户",
           hasMore: false,
           icon: <MaterialSymbolsAddRounded />,
           onTitleClick: () => {
@@ -517,39 +460,8 @@ const Side: FC<SideProps> = () => {
               "mt-0": isMac,
             })}
           >
-            <div className="mx-4 border border-[#F0F0F0] default-200 mb-2  rounded-md">
-              <div className="w-full justify-between flex ">
-                <div className="py-1 px-2 w-full flex items-center justify-start  mb-0">
-                  <div
-                    className="inline-flex items-start justify-start gap-3 rounded-small outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 z-10 aria-expanded:scale-[0.97] aria-expanded:opacity-70 subpixel-antialiased "
-                    data-slot="trigger"
-                    aria-haspopup="dialog"
-                    aria-expanded="false"
-                  >
-                    <div className="inline-flex items-center gap-0.5">
-                      {book?.icon ? (
-                        <AccountIconRender icon={book?.icon} />
-                      ) : (
-                        <MaterialSymbolsBook4 className="text-lg" />
-                      )}
-                      <span className="text-small text-inherit">
-                        {book?.name}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => setIsShowBookModal(true)}
-                  isIconOnly
-                  variant="light"
-                  size="sm"
-                  radius="sm"
-                >
-                  <IcBaselineModeEdit className="text-base" />
-                </Button>
-              </div>
-            </div>
-            <div className="mb-4 text-sm text-default-600 flex items-center  px-4">
+            <BookSelector onEditClick={() => setIsShowBookModal(true)} />
+            <div className="mb-4 text-sm text-default-600 flex items-center justify-between px-2">
               <Button
                 variant="light"
                 radius="sm"
@@ -617,131 +529,37 @@ const Side: FC<SideProps> = () => {
             <div
               className="mt-4 overflow-auto scrollbar  "
               style={{
-                height: `calc(100vh - 316px)`,
+                height: `calc(100vh - 326px)`,
               }}
             >
-              <div className="mb-4">
-                <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
-                  <div className="">资产/负债</div>
-                  <div className=" pr-3 ">
-                    <Tooltip
-                      content={`截止${month[1].getFullYear()}/${
-                        month[1].getMonth() + 1
-                      }的净资产`}
-                    >
-                      <div className="flex items-center gap-1">
-                        <MaterialSymbolsHelpOutline />
-                        <div>净资产: {netWorth.toFixed(2)}</div>
-                      </div>
-                    </Tooltip>
-                  </div>
-                </div>
-                <div className="px-4 pr-2">
-                  <ExpandTreeMenu
-                    data={items1}
-                    selectedKey={selectedKey}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                    onSelectionChange={setSelectedKey}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
-                  <div className="">支出/收入</div>
-                  <div className=" pr-3 ">
-                    <Tooltip
-                      content={`${month[0].getFullYear()}/${
-                        month[0].getMonth() + 1
-                      } - ${month[1].getFullYear()}/${
-                        month[1].getMonth() + 1
-                      }结余`}
-                    >
-                      <div className="flex items-center gap-1">
-                        <MaterialSymbolsHelpOutline />
-                        <div>结余: {balance.toFixed(2)}</div>
-                      </div>
-                    </Tooltip>
-                  </div>
-                </div>
-
-                <div className="px-4 pr-2">
-                  <ExpandTreeMenu
-                    data={items2}
-                    selectedKey={selectedKey}
-                    onDelete={onDelete}
-                    onEdit={onEdit}
-                    onSelectionChange={setSelectedKey}
-                  />
-                </div>
-              </div>
+              <AccountTreeMenu
+                items={items1}
+                selectedKey={selectedKey}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                onSelectionChange={setSelectedKey}
+                netWorth={netWorth}
+                month={month}
+              />
+              <IncomeExpenseTreeMenu
+                items={items2}
+                selectedKey={selectedKey}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                onSelectionChange={setSelectedKey}
+                balance={balance}
+                month={month}
+              />
             </div>
             <div>
-              <div className="grid grid-cols-3 grid-rows-2 gap-2 mt-4 justify-start px-4 mb-4">
-                {menuList.map((item, index) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <Button
-                      key={item.key}
-                      className={cn("justify-start h-full py-2 items-center", {
-                        "font-semibold": isActive,
-                        // "row-span-2 flex-col ": index === 0,
-                      })}
-                      onClick={() => {
-                        if (item.key === "books") {
-                          message.info("开发中");
-                        } else {
-                          switch (item.key) {
-                            case "settings":
-                              setShowSettingModal(true);
-                              break;
-                            case "devtool":
-                              ipcDevtoolMain();
-                              break;
-                            default:
-                              navigate(item.href);
-                              break;
-                          }
-                        }
-                      }}
-                      startContent={
-                        <span className="text-lg text-[#575859]">
-                          {item.icon}
-                        </span>
-                      }
-                      variant={isActive ? "flat" : "light"}
-                      size="sm"
-                      radius="sm"
-                      // color={pathname === item.href ? "primary" : "default"}
-                    >
-                      {item.title}
-                    </Button>
-                  );
-                })}
-              </div>
+              <SideMenuList setShowSettingModal={setShowSettingModal} />
             </div>
           </div>
-          <div className="flex flex-col  mx-4 gap-2">
-            <Button
-              size="sm"
-              radius="sm"
-              isLoading={loading}
-              color="default"
-              variant="flat"
-              onClick={() => setShowExportModal(true)}
-            >
-              导出流水数据
-            </Button>
-            <Button
-              size="sm"
-              radius="sm"
-              variant="shadow"
-              color="primary"
-              onClick={handleClick}
-            >
-              导入CSV文件
-            </Button>
-          </div>
+          <SideActions
+            loading={loading}
+            onExport={() => setShowExportModal(true)}
+            onImport={handleClick}
+          />
           <DataImportModal
             isOpen={showDataImportModal}
             onOpenChange={() => setShowDataImportModal(false)}

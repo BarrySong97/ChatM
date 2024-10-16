@@ -59,7 +59,7 @@ const BookModal: FC<BookModalProps> = ({ isOpen, onOpenChange, book }) => {
     if (book?.icon) {
       setIconId(book.icon);
     }
-  }, [book]);
+  }, [book, isOpen]);
   useEffect(() => {
     if (!isOpen) {
       form.resetFields();
@@ -77,7 +77,8 @@ const BookModal: FC<BookModalProps> = ({ isOpen, onOpenChange, book }) => {
           },
         });
         setCurrentBook({
-          ...book,
+          id: book.id,
+          ...values,
           icon: iconId || null,
         });
       } else {

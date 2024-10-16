@@ -13,11 +13,7 @@ const Transactions: FC<TransactionsProps> = () => {
         </div>
       </div>
       <Divider className="my-6" />
-      <Card radius="sm" shadow="sm">
-        <CardBody>
-          <TransactionsTable />
-        </CardBody>
-      </Card>
+      <TransactionsTable />
     </PageWrapper>
   );
 };
