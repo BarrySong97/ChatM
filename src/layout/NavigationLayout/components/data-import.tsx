@@ -35,6 +35,7 @@ import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
+import { MaterialSymbolsContactSupportOutline } from "./icon";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -231,7 +232,12 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                     </Switch>
                   ) : null}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  {steps === 2 && !isAllDataComplete ? (
+                    <div className="text-sm text-danger">
+                      有数据没有设置类型或者来源账户和去向账户
+                    </div>
+                  ) : null}
                   {steps > 0 ? (
                     <Button
                       color="secondary"

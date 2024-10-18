@@ -152,9 +152,7 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
               isDisabled={
                 !totalCount ||
                 !selectProviderItem?.apiKey ||
-                !selectProviderItem?.baseUrl ||
-                !License ||
-                License?.status !== "ACTIVE"
+                !selectProviderItem?.baseUrl
               }
               size="sm"
               isLoading={processLoading}
@@ -162,7 +160,7 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
             >
               一键AI处理
             </Button>
-            <Tooltip content="AI处理需要软件激活码和AI API key，请先在设置中配置">
+            <Tooltip content="AI处理需要AI API key，请先在设置中配置">
               <div className="cursor-pointer">
                 <MaterialSymbolsContactSupportOutline className="text-xl" />
               </div>
