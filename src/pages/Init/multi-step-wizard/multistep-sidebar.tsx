@@ -113,7 +113,7 @@ const MultiStepSidebar = React.forwardRef<
           />
           <SupportCard className="w-full backdrop-blur-lg lg:bg-white/40 lg:shadow-none dark:lg:bg-white/20" />
         </div>
-        <div className="flex h-full w-full flex-col items-center gap-4 md:p-4">
+        <div className="flex h-full w-full flex-col  gap-4 md:p-4">
           <div className="sticky top-0 z-10 w-full rounded-large bg-gradient-to-r from-default-100 via-danger-100 to-secondary-100 py-4 shadow-small md:max-w-xl lg:hidden">
             <div className="flex justify-center">
               {/* Mobile Steps */}
@@ -138,7 +138,7 @@ const MultiStepSidebar = React.forwardRef<
               />
             </div>
           </div>
-          <div className="h-full w-full p-4 sm:max-w-md md:max-w-lg">
+          <div className="h-full w-full p-4 ">
             {children}
             <MultistepNavigationButtons
               backButtonProps={{ isDisabled: currentPage === 0 }}

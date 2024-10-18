@@ -30,10 +30,10 @@ export const ButtonWithBorderGradient = ({
   return (
     <Button
       {...props}
-      style={{
-        ...style,
-        ...styleProp,
-      }}
+      // style={{
+      //   ...style,
+      //   ...styleProp,
+      // }}
       type="submit"
     >
       {children}

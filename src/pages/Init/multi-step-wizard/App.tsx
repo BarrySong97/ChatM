@@ -109,12 +109,7 @@ export default function InitMultiStepWizard() {
           backButtonProps={{ isDisabled: page === 0 }}
           className="hidden justify-start lg:flex"
           nextButtonProps={{
-            children:
-              page === 0
-                ? "Sign Up for Free"
-                : page === 3
-                ? "Go to Payment"
-                : "Continue",
+            children: "继续",
           }}
           onBack={onBack}
           onNext={onNext}
