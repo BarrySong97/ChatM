@@ -10,6 +10,9 @@ export class BookService {
     const res = await db.select().from(book).where(eq(book.isCurrent, 1));
     return res[0];
   }
+  public static async initBook(book_id: string) {
+    await db.update(book).set({ isInitialized: 1 }).where(eq(book.id, book_id));
+  }
   // Create book
   public static async createBook(body: EditBook) {
     // const existingBook = await db

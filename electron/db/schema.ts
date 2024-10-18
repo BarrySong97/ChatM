@@ -6,6 +6,7 @@ export const book = sqliteTable("book", {
   icon: text("icon"),
   isCurrent: integer("is_current"),
   isDefault: integer("is_default"),
+  isInitialized: integer("is_initialized"),
   currency: text("currency").default("CNY"),
   created_at: integer("created_at"),
   updated_at: integer("updated_at"),

@@ -99,7 +99,7 @@ const AutoCheckUpdate = () => {
         setModalBtn((state) => ({
           ...state,
           cancelText: "稍后更新",
-          okText: "正在更新",
+          okText: "正在下载更新包",
           onOk: () => {
             onClose();
             setIsShowUpdateModal(true);

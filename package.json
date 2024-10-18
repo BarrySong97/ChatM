@@ -25,6 +25,7 @@
     "@azure/openai": "2.0.0-beta.1",
     "@electric-sql/pglite-react": "^0.2.0",
     "@glideapps/glide-data-grid": "^6.0.3",
+    "@iconify/react": "^5.0.2",
     "@internationalized/date": "^3.5.5",
     "@kbox-labs/react-echarts": "^1.2.1",
     "@nextui-org/react": "^2.4.6",

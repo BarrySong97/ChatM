@@ -56,9 +56,9 @@ const LoginWindowSize = {
 };
 const MainWindowSize = {
   width: 1155,
-  height: 710,
-  minWidth: 981,
-  minHeight: 710,
+  height: 740,
+  minWidth: 1024,
+  minHeight: 740,
 };
 type LiveWindow = {
   main: BrowserWindow | null; // 登录，项目导航，设置界面都在这个里面

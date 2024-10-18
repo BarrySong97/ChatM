@@ -9,6 +9,7 @@ import Income from "./pages/Income";
 import Expense from "./pages/Expense";
 import Tags from "./pages/Tags";
 import Calendar from "./pages/Calendar";
+import InitMultiStepWizard from "./pages/Init/multi-step-wizard/App";
 
 const router = createHashRouter([
   // 导航界面路由
@@ -57,6 +58,10 @@ const router = createHashRouter([
         element: <Calendar />,
       },
     ],
+  },
+  {
+    path: "/init",
+    element: <InitMultiStepWizard />,
   },
   // 登录页面路由
 ]);

@@ -11,6 +11,7 @@ import { License } from "@/api/models/license";
 import { message } from "antd";
 import { ApiError } from "@/api/core/ApiError";
 import ActionList from "./components/action-list";
+import InitialModal from "./components/initial-modal";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
@@ -103,6 +104,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
         </div>
         {import.meta.env.DEV ? null : <AutoCheckUpdate />}
       </div>
+      <InitialModal />
     </NextUIProvider>
   );
 };
