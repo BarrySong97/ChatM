@@ -39,7 +39,7 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
         />
       </AvatarGroup>
       <div className="line-clamp-2 text-left text-tiny font-medium text-default-700">
-        加入微信群，直接给作者反馈
+        直接给作者反馈
       </div>
       <Button
         isIconOnly

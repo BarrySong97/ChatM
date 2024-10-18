@@ -1,5 +1,5 @@
 import DragTitle from "@/components/DragTitle";
-import { cn, Divider, NextUIProvider } from "@nextui-org/react";
+import { Button, cn, Divider, NextUIProvider } from "@nextui-org/react";
 import { FC } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import TrafficLight from "@/components/TrafficLight";
@@ -12,6 +12,8 @@ import { message } from "antd";
 import { ApiError } from "@/api/core/ApiError";
 import ActionList from "./components/action-list";
 import InitialModal from "./components/initial-modal";
+import { MaterialSymbolsToolsWrench } from "@/assets/icon";
+import { ipcDevtoolMain } from "@/service/ipc";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
@@ -57,6 +59,7 @@ const AppLayout: FC<AppLayoutProps> = () => {
     },
   });
   const isMac = window.platform.getOS() === "darwin";
+
   return (
     <NextUIProvider navigate={navigate}>
       <div
