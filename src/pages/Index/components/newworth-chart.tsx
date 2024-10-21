@@ -49,10 +49,20 @@ export default function NewworthChart({ data }: TrendProps) {
 
   return (
     <div className="flex-1 mt-2 ">
-      <ChartContainer config={chartConfig} className="h-[80px] w-full">
+      <ChartContainer config={chartConfig} className="h-[90px] w-full">
         <AreaChart
           accessibilityLayer
-          data={data.length === 0 ? [] : [data[0], data[0], ...data]}
+          data={
+            data.length === 0
+              ? []
+              : [
+                  {
+                    label: "过去",
+                    data: data[0].data,
+                  },
+                  ...data,
+                ]
+          }
         >
           <XAxis
             dataKey="label"
