@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 import React from "react";
 import AccountIconRender from "../AccountIconRender";
+import { cn } from "@nextui-org/react";
 
 interface CategoryItem {
   color?: string;
@@ -49,7 +50,12 @@ const CategoryList: React.FC<CategoryListProps> = ({ items, type }) => {
               >
                 <div className="flex justify-between absolute left-3 right-3 items-center h-full ">
                   <span className="text-sm  truncate flex items-center gap-1 ">
-                    <AccountIconRender icon={item.icon ?? ""} /> {item.content}
+                    {item.icon ? <AccountIconRender icon={item.icon} /> : null}
+                    <span
+                      className={cn("truncate", !item.icon ? "ml-1.5" : "")}
+                    >
+                      {item.content}
+                    </span>
                   </span>
                   <span className="text-sm  ">
                     {item.amount} (
