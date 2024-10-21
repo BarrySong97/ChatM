@@ -2,7 +2,7 @@ import PaperParse from "papaparse";
 import { Button, Divider } from "@nextui-org/react";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { atom, useAtom, useSetAtom } from "jotai";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsProps } from "antd";
 import { useIndexData } from "@/api/hooks";
@@ -90,9 +90,11 @@ const Index: FC<IndexProps> = () => {
     liabilitiesData?.totalAmount ?? 0
   );
   const [book, setBook] = useAtom(BookAtom);
+  const queryClient = useQueryClient();
   useEffect(() => {
     seed().then(async () => {
       if (!book?.id) {
+        queryClient.invalidateQueries({ refetchActive: true });
         const book = await BookService.findDefault();
         setBook(book);
       }
