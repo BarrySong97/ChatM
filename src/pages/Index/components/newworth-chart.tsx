@@ -52,17 +52,7 @@ export default function NewworthChart({ data }: TrendProps) {
       <ChartContainer config={chartConfig} className="h-[80px] w-full">
         <AreaChart
           accessibilityLayer
-          data={
-            data.length === 0
-              ? []
-              : [
-                  {
-                    label: "",
-                    data: 0,
-                  },
-                  ...data,
-                ]
-          }
+          data={data.length === 0 ? [] : [data[0], data[0], ...data]}
         >
           <XAxis
             dataKey="label"

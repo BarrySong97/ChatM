@@ -48,6 +48,7 @@ import CommonDateRangeFilter from "@/components/CommonDateRangeFilter";
 import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
 import BookSelector from "./BookSelector";
 import { TreeNode } from "@/components/ExpandTreeMenu";
+import { useQueryClient } from "react-query";
 
 export interface SideProps {}
 const now = new Date();
@@ -310,26 +311,28 @@ const Side: FC<SideProps> = () => {
   const [showDataImportModal, setShowDataImportModal] = useState(false);
   const [selectedKey, setSelectedKey] = useState<string>();
   const modal = useModal();
+  const queryClient = useQueryClient();
   const onDelete = (key: string, type: string) => {
     modal.showModal({
       title: "删除",
       description: "确定删除吗？删除之后关联流水数据对应账户会被设置为空",
       onCancel: () => {},
-      onConfirm: () => {
+      onConfirm: async () => {
         switch (type) {
           case "asset":
-            deleteAsset(key);
+            await deleteAsset(key);
             break;
           case "liability":
-            deleteLiability(key);
+            await deleteLiability(key);
             break;
           case "income":
-            deleteIncome(key);
+            await deleteIncome(key);
             break;
           case "expense":
-            deleteExpense(key);
+            await deleteExpense(key);
             break;
         }
+        queryClient.invalidateQueries({ refetchActive: true });
       },
     });
   };

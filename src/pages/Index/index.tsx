@@ -17,6 +17,7 @@ import { seed } from "@/seed";
 import { AppPathAtom, BookAtom } from "@/globals";
 import { BookService } from "@/api/services/BookService";
 import TransactionModal from "@/components/TransactionModal";
+import dayjs from "dayjs";
 export const flowAtom = atom<"expense" | "income">("expense");
 export interface IndexProps {}
 const Greeting: React.FC = () => {
@@ -98,6 +99,7 @@ const Index: FC<IndexProps> = () => {
     });
   }, []);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
+
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
@@ -121,10 +123,17 @@ const Index: FC<IndexProps> = () => {
           <FinancialItem
             type="asset"
             chartData={
-              netWorthData?.map((item) => ({
-                label: item.date,
-                data: new Decimal(item.amount).toNumber(),
-              })) ?? []
+              netWorthData?.length
+                ? netWorthData.map((item) => ({
+                    label: item.date,
+                    data: new Decimal(item.amount).toNumber(),
+                  }))
+                : [
+                    {
+                      label: dayjs().format("YYYY-MM-DD"),
+                      data: netWorth.toNumber(),
+                    },
+                  ]
             }
             title="净资产"
             value={netWorth.toFixed(2)}
