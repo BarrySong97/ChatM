@@ -21,7 +21,7 @@ const InitExpense: FC<InitExpenseProps> = () => {
         <p>你可以在这里添加你的支出</p>
         <p>如吃饭，购物，娱乐，交通，医疗等</p>
       </div>
-      <div className="flex flex-wrap  gap-3 gap-y-4">
+      <div className="flex flex-wrap justify-center gap-3 gap-y-4">
         <Button
           onClick={() => {
             setIsOpen(true);

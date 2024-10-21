@@ -20,7 +20,7 @@ const InitIncome: FC<InitAssetsProps> = () => {
         <p>你可以在这里添加你的收入</p>
         <p>如工资，奖金，投资收益，租金收入等</p>
       </div>
-      <div className="flex flex-wrap  gap-3 gap-y-4">
+      <div className="flex flex-wrap justify-center gap-3 gap-y-4">
         <Button
           onClick={() => {
             setIsOpen(true);

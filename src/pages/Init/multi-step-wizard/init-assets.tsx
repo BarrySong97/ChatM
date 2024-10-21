@@ -19,7 +19,7 @@ const InitAssets: FC<InitAssetsProps> = () => {
         <p>你可以在这里添加你的资产</p>
         <p>如支付宝，微信，银行卡，固定资产等</p>
       </div>
-      <div className="flex flex-wrap  gap-3 gap-y-4">
+      <div className="flex flex-wrap justify-center gap-3 gap-y-4">
         <Button
           onClick={() => {
             setIsOpen(true);

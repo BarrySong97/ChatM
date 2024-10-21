@@ -19,7 +19,7 @@ const InitLiability: FC<InitAssetsProps> = () => {
         <p>你可以在这里添加你的负债</p>
         <p>如花呗，借呗，白条，贷款，房贷，车贷等</p>
       </div>
-      <div className="flex flex-wrap  gap-3 gap-y-4">
+      <div className="flex flex-wrap justify-center gap-3 gap-y-4">
         <Button
           onClick={() => {
             setIsOpen(true);
