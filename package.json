@@ -1,6 +1,6 @@
 {
   "name": "flowm",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "main": "dist-electron/main/index.js",
   "author": "Barry Song",
   "license": "MIT",

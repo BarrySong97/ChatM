@@ -95,6 +95,11 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
         ) : null}
       </div>
       <div className="flex items-center space-x-4">
+        {!selectProviderItem?.apiKey || !selectProviderItem?.baseUrl ? (
+          <div className="text-sm text-danger">
+            AI处理需要AI API key，请先在设置中配置
+          </div>
+        ) : null}
         <Select
           className="w-[200px]"
           size="sm"

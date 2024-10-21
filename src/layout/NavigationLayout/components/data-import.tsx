@@ -235,7 +235,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
                 <div className="flex gap-2 items-center">
                   {steps === 2 && !isAllDataComplete ? (
                     <div className="text-sm text-danger">
-                      有数据没有设置类型或者来源账户和去向账户
+                      每一条数据必须设置类型，来源账户，去向账户才能够导入
                     </div>
                   ) : null}
                   {steps > 0 ? (
