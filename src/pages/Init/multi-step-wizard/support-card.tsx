@@ -23,23 +23,11 @@ const SupportCard = React.forwardRef<HTMLDivElement, SupportCardProps>(
           classNames={{
             base: "ring-0 ring-offset-1 w-[25px] h-[25px]",
           }}
-          src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/d958cf406bb83c3c0a93e2f03fcb0bef.jpg"
-        />
-        <Avatar
-          classNames={{
-            base: "ring-0 ring-offset-1 w-[25px] h-[25px]",
-          }}
-          src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/3a906b3de8eaa53e14582edf5c918b5d.jpg"
-        />
-        <Avatar
-          classNames={{
-            base: "ring-0 ring-offset-1 w-[25px] h-[25px]",
-          }}
-          src="https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatars/f4d075c1fa8155478e5bb26aaae69fc1.jpg"
+          src="https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo3163sn2r8io005p04oqpqavue7t1d5e0?imageView2/2/w/540/format/webp|imageMogr2/strip2"
         />
       </AvatarGroup>
       <div className="line-clamp-2 text-left text-tiny font-medium text-default-700">
-        直接给作者反馈
+        加作者微信，直接反馈
       </div>
       <Button
         isIconOnly

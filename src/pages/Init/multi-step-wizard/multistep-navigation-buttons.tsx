@@ -26,7 +26,7 @@ const MultistepNavigationButtons = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "mx-auto my-6 flex w-full items-center justify-center gap-x-4 lg:mx-0",
+        "my-6 flex w-full items-center justify-center gap-x-4 lg:mx-0",
         className
       )}
       {...props}

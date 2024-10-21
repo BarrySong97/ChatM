@@ -469,11 +469,7 @@ const AccountModal: FC<AccountModalProps> = ({
 
         {(type === "asset" || type === "liability") && (
           <Form.Item {...field} name={[field.name, "initial_balance"]}>
-            <Input
-              placeholder="请输入账户初始金额(默认为0可不填)"
-              radius="sm"
-              type="number"
-            />
+            <Input label="初始金额(默认为0可不填)" radius="sm" type="number" />
           </Form.Item>
         )}
       </div>

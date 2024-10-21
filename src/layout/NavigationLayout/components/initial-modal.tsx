@@ -1,5 +1,8 @@
+import { useAssetsService } from "@/api/hooks/assets";
 import { useBookService } from "@/api/hooks/book";
+import { useUserService } from "@/api/hooks/user";
 import { BookService } from "@/api/services/BookService";
+import { UserService } from "@/api/services/user";
 import { BookAtom } from "@/globals";
 import {
   Button,
@@ -14,13 +17,13 @@ import { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 export interface InitialModalProps {}
 const InitialModal: FC<InitialModalProps> = () => {
-  const [isOpen, setIsOpen] = useState(true);
-  const book = useAtomValue(BookAtom);
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, editUser } = useUserService();
   useEffect(() => {
-    if (!book?.isInitialized) {
+    if (user && user.isInitialized === 0) {
       setIsOpen(true);
     }
-  }, [book]);
+  }, [user]);
   const navigate = useNavigate();
   return (
     <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -37,11 +40,16 @@ const InitialModal: FC<InitialModalProps> = () => {
                 color="default"
                 variant="light"
                 onPress={async () => {
-                  setIsOpen(false);
-                  if (!book?.id) {
+                  if (!user?.id) {
                     return;
                   }
-                  await BookService.initBook(book.id);
+                  await editUser({
+                    userId: user.id,
+                    userData: {
+                      isInitialized: 1,
+                    },
+                  });
+                  setIsOpen(false);
                 }}
               >
                 我是老用户，跳过

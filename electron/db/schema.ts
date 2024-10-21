@@ -11,6 +11,14 @@ export const book = sqliteTable("book", {
   created_at: integer("created_at"),
   updated_at: integer("updated_at"),
 });
+export const user = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name"),
+  avatar: text("avatar"),
+  email: text("email"),
+  isInitialized: integer("is_initialized"),
+  created_at: integer("created_at"),
+});
 
 export const transaction = sqliteTable("transactions", {
   id: text("id").primaryKey(),
@@ -127,7 +135,7 @@ export const income = sqliteTable("income", {
     .notNull()
     .references(() => book.id, { onDelete: "cascade" }),
 });
-
+export type User = InferSelectModel<typeof user>;
 export type Asset = InferSelectModel<typeof assets>;
 export type Assets = Asset[];
 export type Liability = InferSelectModel<typeof liability>;

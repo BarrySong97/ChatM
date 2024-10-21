@@ -99,28 +99,32 @@ const MultiStepSidebar = React.forwardRef<
               currentStep={currentPage}
               steps={[
                 {
+                  title: "欢迎来到流记",
+                  description: "填写基本信息",
+                },
+                {
+                  title: "选择你的大模型",
+                  description: "支持Openai、DeepSeek等",
+                },
+                {
                   title: "填写API key",
                   description: "用于连接大模型",
                 },
                 {
                   title: "创建资产账户",
-                  description: "用于记录资产",
+                  description: "用于分类资产",
                 },
                 {
                   title: "创建负债账户",
-                  description: "用于记录负债",
+                  description: "用于分类负债",
                 },
                 {
                   title: "创建收入账户",
-                  description: "用于记录收入",
+                  description: "用于分类收入",
                 },
                 {
                   title: "创建支出账户",
-                  description: "用于记录支出",
-                },
-                {
-                  title: "创建标签",
-                  description: "用于记录标签",
+                  description: "用于分类支出",
                 },
                 {
                   title: "完成",

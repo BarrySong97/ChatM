@@ -3,7 +3,6 @@
 import type { InputProps } from "@nextui-org/react";
 
 import React, { useEffect, useState } from "react";
-import { Input, Checkbox, Link, Chip, Button } from "@nextui-org/react";
 
 import { cn } from "./cn";
 import { useProviderService } from "@/api/hooks/provider";
@@ -20,6 +19,7 @@ type ProviderInfo = {
   baseUrl: string;
   id: string;
   isRecommended: boolean;
+  isDefault: boolean;
   apikey: string;
   llmIcon: React.ReactNode;
   name: string;
@@ -33,11 +33,20 @@ export const CustomRadio = (props: any) => {
       classNames={{
         base: cn(
           "inline-flex m-0  bg-content1 hover:bg-content2 items-center justify-between",
-          "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
+          "flex-row-reverse min-w-[270px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
           "data-[selected=true]:border-primary"
         ),
       }}
     >
+      {/* {isRecommended && (
+        <Chip
+          className="h-6 p-0  absolute -top-2 -right-16  text-tiny  "
+          color="success"
+          variant="flat"
+        >
+          推荐，综合价格和性能体验最好
+        </Chip>
+      )} */}
       <div className="flex w-full items-center gap-3">
         <div className="item-center flex rounded-small p-2">{icon}</div>
         <div className="flex w-full flex-col gap-1">
@@ -53,13 +62,20 @@ export const CustomRadio = (props: any) => {
 function ProviderRadioGroup({
   providers,
   onChange,
+  value,
 }: {
   providers: ProviderInfo[];
   onChange: (value: string) => void;
+  value: string;
 }) {
   return (
     <RadioGroup
       defaultValue="DeepSeek"
+      orientation="horizontal"
+      value={value}
+      classNames={{
+        wrapper: cn("gap-0 justify-center"),
+      }}
       onValueChange={(value) => {
         onChange(value);
       }}
@@ -79,7 +95,7 @@ function ProviderRadioGroup({
 }
 export type SignUpFormProps = React.HTMLAttributes<HTMLFormElement>;
 
-const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
+const SelectLlm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
   ({ className, ...props }, ref) => {
     const inputProps: Pick<InputProps, "labelPlacement" | "classNames"> = {
       labelPlacement: "outside",
@@ -89,7 +105,7 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
       },
     };
 
-    const { providers } = useProviderService();
+    const { providers, editProvider } = useProviderService();
     const getProviderInfo = (provider: Provider, index: number) => {
       const apikeyUrl =
         LLMProviderApiKeyGetUrl[
@@ -106,6 +122,7 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
         apikeyUrl,
         apikey: provider.apiKey,
         platformUrl,
+        isDefault: provider.is_default ?? false,
         isRecommended: index === 2,
         llmIcon,
         name: provider.name,
@@ -121,7 +138,8 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
     const [apiUrl, setApiUrl] = useState<string>();
     useEffect(() => {
       if (providersInfo?.length) {
-        setProvider(providersInfo[0]);
+        const defaultProvider = providersInfo.find((p) => p.isDefault);
+        setProvider(defaultProvider || providersInfo[0]);
       }
     }, [providers]);
     useEffect(() => {
@@ -133,7 +151,7 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
     return (
       <>
         <div className="text-3xl font-bold leading-9 text-default-foreground">
-          欢迎来到流记 👋
+          选择你的大模型
         </div>
         <div className="py-2 text-medium text-default-500 mb-8">
           <p>
@@ -143,12 +161,22 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
         </div>
         <div className="flex justify-between  gap-8">
           <ProviderRadioGroup
+            value={provider?.name || ""}
             onChange={(value) => {
-              setProvider(providersInfo?.find((p) => p.name === value) || null);
+              const selectedProvider = providersInfo?.find(
+                (p) => p.name === value
+              );
+              setProvider(selectedProvider || null);
+              if (selectedProvider?.id) {
+                editProvider({
+                  providerId: selectedProvider.id,
+                  provider: { is_default: 1 },
+                });
+              }
             }}
             providers={providersInfo || []}
           />
-          <div className="flex-1 flex flex-col justify-start">
+          {/* <div className="flex-1 flex flex-col justify-start">
             <div className="flex justify-between items-center mb-2">
               <a
                 target="_blank"
@@ -197,13 +225,13 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
                 </Chip>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </>
     );
   }
 );
 
-InitApiKey.displayName = "SignUpForm";
+SelectLlm.displayName = "SignUpForm";
 
-export default InitApiKey;
+export default SelectLlm;
