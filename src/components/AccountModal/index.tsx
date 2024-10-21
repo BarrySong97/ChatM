@@ -58,6 +58,7 @@ const AccountModal: FC<AccountModalProps> = ({
   data,
 }) => {
   const [form] = Form.useForm();
+  const accounts = Form.useWatch("accounts", form);
   const { createAsset, editAsset, isCreateLoading, isEditLoading } =
     useAssetsService();
   const {
@@ -86,14 +87,15 @@ const AccountModal: FC<AccountModalProps> = ({
         return data ? "编辑负债账户" : "添加负债账户";
     }
   };
-  const [iconId, setIconId] = useState<string | undefined>(undefined);
+  const [iconId, setIconId] = useState<string[]>([]);
+
   const [iconType, setIconType] = useState<"emoji" | "bank" | "wallet">(
     "emoji"
   );
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const [selectIconType, setSelectIconType] = useState<
-    "emoji" | "bank" | "wallet"
+    "emoji" | "bank" | "wallet" | undefined
   >("emoji");
   const book = useAtomValue(BookAtom);
   const queryClient = useQueryClient();
@@ -103,8 +105,9 @@ const AccountModal: FC<AccountModalProps> = ({
 
     const accounts = values.accounts;
     setSubmitLoading(true);
-    for (const account of accounts) {
-      const icon = iconId || account.icon; // 假设每个账户可以有自己的图标，否则使用全局的
+    for (let i = 0; i < accounts.length; i++) {
+      const account = accounts[i];
+      const icon = iconId[i] || account.icon; // 假设每个账户可以有自己的图标，否则使用全局的
       switch (type) {
         case "income":
           if (data) {
@@ -189,11 +192,11 @@ const AccountModal: FC<AccountModalProps> = ({
     if (data) {
       if (data.icon && data.icon.includes(":")) {
         const arr = data.icon.split(":");
-        setIconId(data.icon);
+        setIconId([data.icon]);
         setIconType(arr[0] as "emoji" | "bank");
         setSelectIconType(arr[0] as "emoji" | "bank");
       } else {
-        setIconId(data.icon);
+        setIconId([data.icon]);
         setIconType("emoji");
       }
       form.setFieldsValue({
@@ -208,16 +211,21 @@ const AccountModal: FC<AccountModalProps> = ({
       });
     }
   }, [data]);
-  const [iconOpen, setIconOpen] = useState(false);
+  const [iconOpen, setIconOpen] = useState<Array<boolean>>([false]);
 
-  const renderIconPicker = () => {
+  const renderIconPicker = (index: number) => {
     if (selectIconType === "bank") {
       return (
         <div>
           <BankIconPicker
             onChange={(v) => {
-              setIconId(`bank:${v}`);
-              setIconOpen(false);
+              setIconId((prev) => {
+                prev[index] = `bank:${v}`;
+                return [...prev];
+              });
+              setIconOpen((prev) => {
+                return prev.map((v) => false);
+              });
               setIconType("bank");
             }}
             title={
@@ -256,9 +264,14 @@ const AccountModal: FC<AccountModalProps> = ({
           <Picker
             data={emojiData}
             onEmojiSelect={(v: { id: string }) => {
-              setIconId(`emoji:${v.id}`);
+              setIconId((prev) => {
+                prev[index] = `emoji:${v.id}`;
+                return [...prev];
+              });
               setIconType("emoji");
-              setIconOpen(false);
+              setIconOpen((prev) => {
+                return prev.map((v) => false);
+              });
             }}
           />
         </div>
@@ -283,9 +296,14 @@ const AccountModal: FC<AccountModalProps> = ({
             <ListboxSection>
               <ListboxItem
                 onClick={() => {
-                  setIconId("wallet:alipay");
+                  setIconId((prev) => {
+                    prev[index] = "wallet:alipay";
+                    return prev.map((v) => "wallet:alipay");
+                  });
                   setIconType("wallet");
-                  setIconOpen(false);
+                  setIconOpen((prev) => {
+                    return prev.map((v) => false);
+                  });
                 }}
                 startContent={
                   <MingcuteAlipayFill className="text-xl  text-[#1677FF]" />
@@ -296,9 +314,14 @@ const AccountModal: FC<AccountModalProps> = ({
               </ListboxItem>
               <ListboxItem
                 onClick={() => {
-                  setIconId("wallet:wechat");
+                  setIconId((prev) => {
+                    prev[index] = "wallet:wechat";
+                    return [...prev];
+                  });
                   setIconType("wallet");
-                  setIconOpen(false);
+                  setIconOpen((prev) => {
+                    return prev.map((v) => false);
+                  });
                 }}
                 startContent={
                   <MingcuteWechatPayFill className="text-xl text-[#1AAD19]" />
@@ -347,6 +370,8 @@ const AccountModal: FC<AccountModalProps> = ({
   useEffect(() => {
     if (!isOpen) {
       form.resetFields();
+      setIconId([]);
+      setSelectIconType(undefined);
     }
   }, [isOpen]);
 
@@ -436,14 +461,25 @@ const AccountModal: FC<AccountModalProps> = ({
               isRequired
               startContent={
                 <Popover
-                  isOpen={iconOpen}
+                  isOpen={iconOpen[index] || false}
                   showArrow
                   placement="right"
-                  onOpenChange={setIconOpen}
+                  onOpenChange={(v) => {
+                    if (!v) {
+                      setIconOpen((prev) => {
+                        return prev.map((v) => false);
+                      });
+                    }
+                  }}
                 >
                   <PopoverTrigger>
                     <Button
-                      onClick={() => setIconOpen(true)}
+                      onClick={() =>
+                        setIconOpen((prev) => {
+                          prev[index] = true;
+                          return [...prev];
+                        })
+                      }
                       size="sm"
                       radius="sm"
                       isIconOnly
@@ -452,13 +488,15 @@ const AccountModal: FC<AccountModalProps> = ({
                     >
                       <AccountIconRender
                         icon={
-                          iconId ? iconId : "emoji:stuck_out_tongue_winking_eye"
+                          iconId[index]
+                            ? iconId[index]
+                            : "emoji:stuck_out_tongue_winking_eye"
                         }
                       />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="p-0">
-                    {renderIconPicker()}
+                    {renderIconPicker(index)}
                   </PopoverContent>
                 </Popover>
               }
@@ -468,15 +506,18 @@ const AccountModal: FC<AccountModalProps> = ({
         </div>
 
         {(type === "asset" || type === "liability") && (
-          <Form.Item {...field} name={[field.name, "initial_balance"]}>
-            <Input label="初始金额(默认为0可不填)" radius="sm" type="number" />
+          <Form.Item
+            initialValue={0}
+            {...field}
+            name={[field.name, "initial_balance"]}
+          >
+            <Input label="初始金额" radius="sm" type="number" />
           </Form.Item>
         )}
       </div>
     );
   };
 
-  const accounts = Form.useWatch("accounts", form);
   const { isSubmitDisabled } = useFormError(form);
 
   return (

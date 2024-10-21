@@ -14,6 +14,7 @@ import React, { FC, useState } from "react";
 import SideMenuList from "./SideMenuList";
 import { BookService } from "@/api/services/BookService";
 import { IPC_EVENT_KEYS } from "@/constant";
+import { useUserService } from "@/api/hooks/user";
 export interface ActionListProps {}
 const ActionList: FC<ActionListProps> = () => {
   const { books } = useBookService();
@@ -22,8 +23,8 @@ const ActionList: FC<ActionListProps> = () => {
   const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
 
   const [SelectedBook, setSelectedBook] = useAtom(BookAtom);
-  const users = useLiveQuery(() => indexDB.users.toArray());
-  const avatarSrc = users?.[0]?.avatar;
+  const { user, editUser } = useUserService();
+  const avatarSrc = user?.avatar ?? imageSrc;
   const [editBook, setEditBook] = useState<Book>();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
   const isMac = window.platform.getOS() === "darwin";
@@ -36,7 +37,7 @@ const ActionList: FC<ActionListProps> = () => {
         }
       )}
     >
-      {/* <SideMenuList setShowSettingModal={setShowSettingModal} /> */}
+      {/* <SideMenuList setShowSettingModal={() => {}} /> */}
       <div className="flex flex-col gap-3">
         {books?.map((book) => {
           const isActive = book.id === SelectedBook?.id;
@@ -99,21 +100,19 @@ const ActionList: FC<ActionListProps> = () => {
       <div className="">
         <Tooltip content="修改头像">
           <Avatar
-            src={avatarSrc}
+            src={avatarSrc ?? ""}
             onClick={async () => {
               const base64Image = await window.ipcRenderer.invoke(
                 IPC_EVENT_KEYS.OPEN_FILE
               );
               if (base64Image) {
                 // Store the image in IndexedDB
-                const existingUser = await indexDB.users.toArray();
-                if (existingUser.length === 0) {
-                  await indexDB.users.add({
-                    avatar: base64Image,
-                  });
-                } else {
-                  await indexDB.users.update(existingUser[0].id, {
-                    avatar: base64Image,
+                if (user) {
+                  editUser({
+                    userId: user.id,
+                    userData: {
+                      avatar: base64Image,
+                    },
                   });
                 }
               }

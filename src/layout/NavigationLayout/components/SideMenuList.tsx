@@ -14,9 +14,12 @@ const SideMenuList: React.FC<SideMenuListProps> = ({ setShowSettingModal }) => {
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
+  const gridLayout =
+    "grid grid-cols-3 grid-rows-2 gap-2 mt-4 justify-start px-4 mb-4";
+  const listLayout = "flex flex-col gap-3";
 
   return (
-    <div className="grid grid-cols-3 grid-rows-2 gap-2 mt-4 justify-start px-4 mb-4">
+    <div className={gridLayout}>
       {menuList.map((item: MenuItem, index: number) => {
         const isActive = pathname === item.href;
         return (

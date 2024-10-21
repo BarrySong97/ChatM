@@ -7,6 +7,7 @@ import { AssetsService } from "./api/services/AssetsSevice";
 import { LiabilityService } from "./api/services/LiabilityService";
 import { IncomeService } from "./api/services/IncomeService";
 import { ExpenseService } from "./api/services/ExpenseService";
+import { indexDB } from "./lib/indexdb";
 
 const initAssets = [
   {
@@ -106,14 +107,22 @@ export async function seed() {
   // Seed providers and models if not exists
   const providers = await ProviderService.listProviders();
   const user = await UserService.findDefault();
+
   if (!user) {
     const book = await BookService.createBook({
       name: "默认账本",
       isDefault: 1,
       isCurrent: 1,
     });
+    const assets = await AssetsService.listAssets(book.id);
+    const liabilities = await LiabilityService.listLiability(book.id);
+    const incomes = await IncomeService.listIncome(book.id);
+    const expenses = await ExpenseService.listExpense(book.id);
+
+    const existingUser = await indexDB.users.toArray();
     await UserService.initUser({
       name: "",
+      avatar: existingUser?.length ? existingUser[0].avatar : "",
     });
     if (!providers.length) {
       for (const providerData of DEFAULT_MODEL_PROVIDER_LIST) {
@@ -136,34 +145,42 @@ export async function seed() {
         }
       }
     }
-    for (const asset of initAssets) {
-      await AssetsService.createAsset({
-        name: asset.name,
-        icon: asset.icon,
-        book_id: book.id,
-        initial_balance: 0,
-      });
+    if (!assets.length) {
+      for (const asset of initAssets) {
+        await AssetsService.createAsset({
+          name: asset.name,
+          icon: asset.icon,
+          book_id: book.id,
+          initial_balance: 0,
+        });
+      }
     }
-    for (const liability of initLiabilities) {
-      await LiabilityService.createLiability(book.id, {
-        name: liability.name,
-        icon: liability.icon,
-        initial_balance: 0,
-      });
+    if (!liabilities.length) {
+      for (const liability of initLiabilities) {
+        await LiabilityService.createLiability(book.id, {
+          name: liability.name,
+          icon: liability.icon,
+          initial_balance: 0,
+        });
+      }
     }
-    for (const income of initIncomes) {
-      await IncomeService.createIncome({
-        name: income.name,
-        icon: income.icon,
-        book_id: book.id,
-      });
+    if (!incomes.length) {
+      for (const income of initIncomes) {
+        await IncomeService.createIncome({
+          name: income.name,
+          icon: income.icon,
+          book_id: book.id,
+        });
+      }
     }
-    for (const expense of initExpenses) {
-      await ExpenseService.createExpense({
-        name: expense.name,
-        icon: expense.icon,
-        book_id: book.id,
-      });
+    if (!expenses.length) {
+      for (const expense of initExpenses) {
+        await ExpenseService.createExpense({
+          name: expense.name,
+          icon: expense.icon,
+          book_id: book.id,
+        });
+      }
     }
   }
 }
