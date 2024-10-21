@@ -13,7 +13,7 @@ const InitAssets: FC<InitAssetsProps> = () => {
   return (
     <div className="max-auto">
       <div className="text-3xl font-bold leading-9  text-default-foreground">
-        添加你的资产
+        添加你的资产 🏦
       </div>
       <div className="py-2 text-medium text-default-500 mb-8">
         <p>你可以在这里添加你的资产</p>

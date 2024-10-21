@@ -3,11 +3,18 @@ import _ from "lodash";
 import { RefObject } from "react";
 
 import { useLocation, useParams } from "react-router-dom";
+import { useAtom } from "jotai";
+import { AppPathAtom } from "./globals";
 
 export function useRouteQuery() {
   const { search } = useLocation();
 
   return React.useMemo(() => new URLSearchParams(search), [search]);
+}
+export function usePublicPath(src: string) {
+  const [appPath] = useAtom(AppPathAtom);
+  const imageSrc = import.meta.env.DEV ? src : `${appPath}/dist${src}`;
+  return imageSrc;
 }
 
 export function useModuleInfo() {

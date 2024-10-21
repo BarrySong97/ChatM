@@ -10,7 +10,15 @@ import ChooseAddressForm from "./choose-address-form";
 import ReviewAndPaymentForm from "./review-and-payment-form";
 import MultistepNavigationButtons from "./multistep-navigation-buttons";
 import InitBasicInfo from "./init-basic-info";
-import { user } from "@nextui-org/react";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  user,
+} from "@nextui-org/react";
 import { useUserService } from "@/api/hooks/user";
 import InitApiKey from "./init-api-key";
 import InitAssets from "./init-assets";
@@ -20,6 +28,7 @@ import InitIncome from "./init-income";
 import Finish from "./finish";
 import { useNavigate } from "react-router-dom";
 import { UserService } from "@/api/services/user";
+import FloatingAtBottomAndCenteredBanner from "../floating-at-bottom-and-centered-banner/App";
 
 const variants = {
   enter: (direction: number) => ({
@@ -85,7 +94,7 @@ export default function InitMultiStepWizard() {
 
     switch (page) {
       case 1:
-        component = <SelectLlm />;
+        component = <SelectLlm onSkip={() => onChangePage(3)} />;
         break;
       case 2:
         component = <InitApiKey />;
@@ -130,6 +139,7 @@ export default function InitMultiStepWizard() {
       </LazyMotion>
     );
   }, [direction, page]);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <MultistepSidebar
@@ -139,6 +149,17 @@ export default function InitMultiStepWizard() {
       onNext={onNext}
     >
       <div className=" relative flex h-fit w-full flex-col pt-6 text-center lg:h-full justify-center lg:pt-0">
+        <div className="absolute top-2 right-0">
+          <Button
+            className=" text-small font-medium "
+            radius="full"
+            onPress={() => setIsOpen(true)}
+            color="default"
+            variant="flat"
+          >
+            跳过初始化
+          </Button>
+        </div>
         {content}
         <MultistepNavigationButtons
           backButtonProps={{ isDisabled: page === 0 }}
@@ -149,7 +170,53 @@ export default function InitMultiStepWizard() {
           onBack={onBack}
           onNext={onNext}
         />
+        {page === 1 && (
+          <div className="absolute bottom-0 w-full">
+            <FloatingAtBottomAndCenteredBanner onSkip={() => onChangePage(3)} />
+          </div>
+        )}
       </div>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+        <ModalContent>
+          {(onClose) => {
+            return (
+              <>
+                <ModalHeader>
+                  <h1>确认是否跳过初始化</h1>
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                    跳过初始化后，你需要自己配置相关设置，如果你是第一次
+                    使用流记，请不要跳过初始化
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button variant="flat" onPress={onClose}>
+                    取消
+                  </Button>
+                  <Button
+                    color="primary"
+                    onPress={async () => {
+                      if (user) {
+                        await editUser({
+                          userId: user.id,
+                          userData: {
+                            isInitialized: 1,
+                          },
+                        });
+                      }
+                      onClose();
+                      navigate("/");
+                    }}
+                  >
+                    跳过
+                  </Button>
+                </ModalFooter>
+              </>
+            );
+          }}
+        </ModalContent>
+      </Modal>
     </MultistepSidebar>
   );
 }

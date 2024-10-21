@@ -83,16 +83,18 @@ const MultiStepSidebar = React.forwardRef<
               }
             )}
           >
-            <Button
-              className="bg-default-50 text-small font-medium text-default-500 shadow-lg"
-              isDisabled={currentPage === 0}
-              radius="full"
-              variant="flat"
-              onPress={onBack}
-            >
-              <Icon icon="solar:arrow-left-outline" width={18} />
-              上一步
-            </Button>
+            <div className="flex justify-between w-full">
+              <Button
+                className="bg-default-50 text-small font-medium text-default-500 shadow-lg"
+                isDisabled={currentPage === 0}
+                radius="full"
+                variant="flat"
+                onPress={onBack}
+              >
+                <Icon icon="solar:arrow-left-outline" width={18} />
+                上一步
+              </Button>
+            </div>
             {/* Desktop Steps */}
             <VerticalSteps
               className={stepperClasses}

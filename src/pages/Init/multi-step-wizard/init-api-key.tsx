@@ -14,6 +14,7 @@ import { Provider } from "@db/schema";
 import { RadioGroup, Radio } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
 import { useDebounceFn } from "ahooks";
+import TextAnimate from "@/components/ui/text-animat";
 
 type ProviderInfo = {
   apikeyUrl: string;
@@ -168,7 +169,7 @@ const InitApiKey = React.forwardRef<HTMLFormElement, SignUpFormProps>(
     return (
       <>
         <div className="text-3xl font-bold leading-9 mb-8 text-default-foreground">
-          输入你的API Key
+          输入你的API Key 🔑
         </div>
         <div className="flex-1 max-w-lg flex flex-col mx-auto">
           <div className="flex justify-between items-center mb-2">

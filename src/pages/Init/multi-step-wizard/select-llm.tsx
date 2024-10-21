@@ -12,6 +12,8 @@ import { LLMProviderApiKeyGetUrl } from "@/pages/Setting/components/ai/logos";
 import { Provider } from "@db/schema";
 import { RadioGroup, Radio } from "@nextui-org/react";
 import { Icon } from "@iconify/react";
+import TextAnimate from "@/components/ui/text-animat";
+import FloatingAtBottomAndCenteredBanner from "../floating-at-bottom-and-centered-banner/App";
 
 type ProviderInfo = {
   apikeyUrl: string;
@@ -93,10 +95,12 @@ function ProviderRadioGroup({
     </RadioGroup>
   );
 }
-export type SignUpFormProps = React.HTMLAttributes<HTMLFormElement>;
+export type SignUpFormProps = React.HTMLAttributes<HTMLFormElement> & {
+  onSkip: () => void;
+};
 
 const SelectLlm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, onSkip, ...props }, ref) => {
     const inputProps: Pick<InputProps, "labelPlacement" | "classNames"> = {
       labelPlacement: "outside",
       classNames: {
@@ -151,7 +155,7 @@ const SelectLlm = React.forwardRef<HTMLFormElement, SignUpFormProps>(
     return (
       <>
         <div className="text-3xl font-bold leading-9 text-default-foreground">
-          选择你的大模型
+          选择你的大模型 🤖
         </div>
         <div className="py-2 text-medium text-default-500 mb-8">
           <p>

@@ -29,7 +29,7 @@ const InitBasicInfo: FC<InitBasicInfoProps> = () => {
         <div className="flex items-center gap-4 mb-4">
           <TextAnimate
             text="欢迎来到流记 👋"
-            className="text-2xl font-medium leading-9 text-default-foreground mt-0"
+            className="text-3xl font-bold leading-9 text-default-foreground mt-0"
             type="whipInUp"
           />
         </div>

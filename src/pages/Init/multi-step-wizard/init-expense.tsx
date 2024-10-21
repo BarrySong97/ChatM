@@ -15,7 +15,7 @@ const InitExpense: FC<InitExpenseProps> = () => {
   return (
     <div className="max-auto">
       <div className="text-3xl font-bold leading-9  text-default-foreground">
-        添加你的支出
+        添加你的支出 💸
       </div>
       <div className="py-2 text-medium text-default-500 mb-8">
         <p>你可以在这里添加你的支出</p>
@@ -37,7 +37,7 @@ const InitExpense: FC<InitExpenseProps> = () => {
           }
           variant="flat"
         >
-          新增收入
+          新增支出
         </Button>
         {expenses?.map((expense) => {
           return (
