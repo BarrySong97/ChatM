@@ -107,79 +107,81 @@ export async function seed() {
   const user = await UserService.findDefault();
 
   if (!user) {
+    let book;
     if (!books.length) {
-      const book = await BookService.createBook({
+      const bookRes = await BookService.createBook({
         name: "默认账本",
         isDefault: 1,
         isCurrent: 1,
       });
-      const assets = await AssetsService.listAssets(book.id);
-      const liabilities = await LiabilityService.listLiability(book.id);
-      const incomes = await IncomeService.listIncome(book.id);
-      const expenses = await ExpenseService.listExpense(book.id);
+      book = bookRes;
+    }
+    const assets = await AssetsService.listAssets(book?.id);
+    const liabilities = await LiabilityService.listLiability(book?.id);
+    const incomes = await IncomeService.listIncome(book?.id);
+    const expenses = await ExpenseService.listExpense(book?.id);
 
-      const existingUser = await indexDB.users.toArray();
-      await UserService.initUser({
-        name: "",
-        avatar: existingUser?.length ? existingUser[0].avatar : "",
-      });
-      if (!providers.length) {
-        for (const providerData of DEFAULT_MODEL_PROVIDER_LIST) {
-          const provider = await ProviderService.createProvider({
-            name: providerData.name,
-            baseUrl: providerData.baseURL || "", // Set default base URL
-            defaultModel: providerData.defaultModel || "", // Set default model
-            is_default: providerData.name === "DeepSeek" ? 1 : 0,
-            // Note: We're not setting apiKey here as it should be set by the user
-          });
+    const existingUser = await indexDB.users.toArray();
+    await UserService.initUser({
+      name: "",
+      avatar: existingUser?.length ? existingUser[0].avatar : "",
+    });
+    if (!providers.length && book?.id) {
+      for (const providerData of DEFAULT_MODEL_PROVIDER_LIST) {
+        const provider = await ProviderService.createProvider({
+          name: providerData.name,
+          baseUrl: providerData.baseURL || "", // Set default base URL
+          defaultModel: providerData.defaultModel || "", // Set default model
+          is_default: providerData.name === "DeepSeek" ? 1 : 0,
+          // Note: We're not setting apiKey here as it should be set by the user
+        });
 
-          for (const modelData of providerData.chatModels) {
-            if (modelData.id === "deepseek-chat") {
-              localStorage.setItem("selectedModel", modelData.id);
-            }
-            await ModelService.createModel({
-              name: modelData.id,
-              providerId: provider.id,
-            });
+        for (const modelData of providerData.chatModels) {
+          if (modelData.id === "deepseek-chat") {
+            localStorage.setItem("selectedModel", modelData.id);
           }
-        }
-      }
-      if (!assets.length) {
-        for (const asset of initAssets) {
-          await AssetsService.createAsset({
-            name: asset.name,
-            icon: asset.icon,
-            book_id: book.id,
-            initial_balance: 0,
+          await ModelService.createModel({
+            name: modelData.id,
+            providerId: provider.id,
           });
         }
       }
-      if (!liabilities.length) {
-        for (const liability of initLiabilities) {
-          await LiabilityService.createLiability(book.id, {
-            name: liability.name,
-            icon: liability.icon,
-            initial_balance: 0,
-          });
-        }
+    }
+    if (!assets.length && book?.id) {
+      for (const asset of initAssets) {
+        await AssetsService.createAsset({
+          name: asset.name,
+          icon: asset.icon,
+          book_id: book?.id,
+          initial_balance: 0,
+        });
       }
-      if (!incomes.length) {
-        for (const income of initIncomes) {
-          await IncomeService.createIncome({
-            name: income.name,
-            icon: income.icon,
-            book_id: book.id,
-          });
-        }
+    }
+    if (!liabilities.length && book?.id) {
+      for (const liability of initLiabilities) {
+        await LiabilityService.createLiability(book?.id, {
+          name: liability.name,
+          icon: liability.icon,
+          initial_balance: 0,
+        });
       }
-      if (!expenses.length) {
-        for (const expense of initExpenses) {
-          await ExpenseService.createExpense({
-            name: expense.name,
-            icon: expense.icon,
-            book_id: book.id,
-          });
-        }
+    }
+    if (!incomes.length && book?.id) {
+      for (const income of initIncomes) {
+        await IncomeService.createIncome({
+          name: income.name,
+          icon: income.icon,
+          book_id: book?.id,
+        });
+      }
+    }
+    if (!expenses.length && book?.id) {
+      for (const expense of initExpenses) {
+        await ExpenseService.createExpense({
+          name: expense.name,
+          icon: expense.icon,
+          book_id: book?.id,
+        });
       }
     }
   }
