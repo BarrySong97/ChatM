@@ -12,8 +12,8 @@ import {
 import { Form, message } from "antd";
 import { Tag } from "@db/schema";
 import { TagService } from "@/api/services/TagService";
-import { useAtomValue } from "jotai";
-import { BookAtom } from "@/globals";
+import { useAtom, useAtomValue } from "jotai";
+import { BookAtom, ShowTagEditModalAtom } from "@/globals";
 import { MaterialSymbolsDelete } from "../AccountModal/icon";
 import to from "await-to-js";
 import { useFormError } from "@/hooks/useFormError";
@@ -22,7 +22,7 @@ const TagEditModal: FC<TagEditModalProps> = () => {
   const { createTag, editTag, isCreateLoading, isEditLoading } =
     useTagService();
   const [form] = Form.useForm();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useAtom(ShowTagEditModalAtom);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
 
   const handleSubmit = async () => {

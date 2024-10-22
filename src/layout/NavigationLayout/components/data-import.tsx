@@ -20,22 +20,13 @@ import {
   getPixiuData,
 } from "./category-adpter";
 import { message } from "antd";
-import { TransactionService } from "@/api/services/TransactionService";
-import to from "await-to-js";
-import dayjs from "dayjs";
-import Decimal from "decimal.js";
-import { EditTransaction } from "@/api/hooks/transaction";
 import { UploadChangeParam, UploadFile } from "antd/es/upload";
-import { useAtomValue } from "jotai";
-import { BookAtom } from "@/globals";
-import { useQueryClient } from "react-query";
 import { ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
 import { useLocalStorageState } from "ahooks";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
-import { MaterialSymbolsContactSupportOutline } from "./icon";
 
 interface DataImportModalProps {
   isOpen: boolean;
@@ -71,8 +62,49 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
 
       const lines = csvData.split("\n");
 
+      // 这个正则表达式用于分割CSV文件的行，同时处理引号内的逗号和分号
+      // 解释如下：
+      // 1. ,(?=(?:(?:[^"]*"){2})*[^"]*$) 匹配逗号，但不匹配引号内的逗号
+      //    - (?=...) 是正向预查，确保后面的模式匹配，但不消耗字符
+      //    - (?:[^"]*"){2} 匹配偶数个引号之间的内容（包括引号）
+      //    - (?:...)*[^"]*$ 确保从当前位置到行尾有偶数个引号
+      // 2. |;(?=(?:(?:[^"]*"){2})*[^"]*$) 对分号进行相同的处理
+      // 3. 然后对每个分割后的值进行trim()和去除首尾引号的处理
+      // 分割CSV行的正则表达式
+      // 这个正则表达式能够处理以下情况：
+      // 1. 标准的逗号分隔
+      // 2. 分号分隔（某些地区使用）
+      // 3. 引号内的逗号和分号（不会被当作分隔符）
+      // 4. 连续的逗号或分号（会创建空字段）
+      // 5. 行末的逗号或分号（会创建一个额外的空字段）
+      //
+      // 注意：这个方法可能在处理非常大的文件时性能较低
+      // 对于大文件，考虑使用流式解析或专门的CSV解析库
+      const csvSplitRegex =
+        /,(?=(?:(?:[^"]*"){2})*[^"]*$)|;(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+
+      // 处理每一行
+      results = lines.map((line) => {
+        // 分割行并处理每个字段
+        return line.split(csvSplitRegex).map((value) => {
+          // 去除首尾空白字符
+          value = value.trim();
+          // 如果字段被引号包围，去除引号
+          if (value.startsWith('"') && value.endsWith('"')) {
+            value = value.slice(1, -1);
+          }
+          // 处理双引号转义（两个连续的双引号表示一个实际的双引号）
+          value = value.replace(/""/g, '"');
+          return value;
+        });
+      });
+
+      // 移除可能的空行（例如文件末尾的空行）
+      results = results.filter((row) => row.some((cell) => cell.length > 0));
       results = lines.map((line) =>
-        line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map((value) => value.trim())
+        line
+          .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)|;(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+          .map((value) => value.trim().replace(/^"|"$/g, ""))
       );
 
       setSteps(2);
@@ -175,7 +207,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
         size={steps == 2 ? "5xl" : "xl"} // Changed from 3 to 2
         scrollBehavior="inside"
         className={steps == 2 ? "max-w-[1400px]" : ""}
-        isKeyboardDismissDisabled
+        isKeyboardDismissDisabled={steps === 2}
         isDismissable={false}
         isOpen={isOpen}
         onOpenChange={onOpenChange}

@@ -1,6 +1,7 @@
 import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon";
 import { MaterialSymbolsBook4, TablerSettings, UimGraphBar } from "./icon";
 import { SolarHashtagBold, TablerTransactionDollar } from "@/assets/icon";
+import { Icon } from "@iconify/react";
 
 export interface MenuItem {
   key: string;
@@ -44,6 +45,6 @@ export const menuList: MenuItem[] = [
     key: "settings",
     href: "/settings",
     title: "设置",
-    icon: <TablerSettings />,
+    icon: <Icon icon={"tabler:settings"} />,
   },
 ];

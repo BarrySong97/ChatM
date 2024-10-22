@@ -118,7 +118,8 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
         <Select
           className="w-[200px]"
           size="sm"
-          selectedKeys={selectedModel ? [selectedModel] : []}
+          selectedKeys={selectedModel ? [selectedModel] : undefined}
+          placeholder="请选择模型"
           onSelectionChange={(keys) =>
             handleModelChange(Array.from(keys)[0] as string)
           }
@@ -157,7 +158,8 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
               isDisabled={
                 !totalCount ||
                 !selectProviderItem?.apiKey ||
-                !selectProviderItem?.baseUrl
+                !selectProviderItem?.baseUrl ||
+                !selectedModel
               }
               size="sm"
               isLoading={processLoading}

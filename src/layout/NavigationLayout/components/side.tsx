@@ -31,8 +31,16 @@ import Decimal from "decimal.js";
 import DataImportModal from "./data-import";
 import { useModal } from "@/components/GlobalConfirmModal";
 import AccountIconRender from "@/components/AccountIconRender";
-import { BookAtom } from "@/globals";
-import { useAtomValue } from "jotai";
+import {
+  BookAtom,
+  ShowDataImportModalAtom,
+  ShowExportModalAtom,
+  ShowTransactionModalAtom,
+  ShowAccountModalAtom,
+  AccountModalTypeAtom,
+  ShowSettingModalAtom,
+} from "@/globals";
+import { useAtom, useAtomValue } from "jotai";
 import Setting from "@/pages/Setting";
 import BookModal from "@/components/BookModal";
 import { TransactionService } from "@/api/services/TransactionService";
@@ -49,24 +57,23 @@ import { MaterialSymbolsCalendarMonth } from "@/components/IndexSectionCard/icon
 import BookSelector from "./BookSelector";
 import { TreeNode } from "@/components/ExpandTreeMenu";
 import { useQueryClient } from "react-query";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export interface SideProps {}
 const now = new Date();
 const Side: FC<SideProps> = () => {
-  const [showSettingModal, setShowSettingModal] = useState(false);
+  const [showSettingModal, setShowSettingModal] = useAtom(ShowSettingModalAtom);
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
 
-  const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showAccountModal, setShowAccountModal] = useAtom(ShowAccountModalAtom);
   const { assets, deleteAsset } = useAssetsService();
   const { liabilities, deleteLiability } = useLiabilityService();
   const { incomes, deleteIncome } = useIncomeService();
   const { expenses, deleteExpense } = useExpenseService();
   const [editData, setEditData] = useState<any>();
-  const [modalType, setModalType] = useState<
-    "income" | "expense" | "asset" | "liability"
-  >();
+  const [modalType, setModalType] = useAtom(AccountModalTypeAtom);
 
   const [month, setMonth] = useState<[Date, Date]>(() => {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -297,7 +304,11 @@ const Side: FC<SideProps> = () => {
     )}/${String(end.getDate()).padStart(2, "0")}`;
   };
   const [showPopover, setShowPopover] = useState(false);
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [showTransactionModal, setShowTransactionModal] = useAtom(
+    ShowTransactionModalAtom
+  );
+  const [showExportModal, setShowExportModal] = useAtom(ShowExportModalAtom);
+
   const netWorth = new Decimal(assetsData?.totalAmount || 0).sub(
     new Decimal(liabilitiesData?.totalAmount || 0)
   );
@@ -308,7 +319,10 @@ const Side: FC<SideProps> = () => {
   const handleClick = () => {
     setShowDataImportModal(true);
   };
-  const [showDataImportModal, setShowDataImportModal] = useState(false);
+  const [showDataImportModal, setShowDataImportModal] = useAtom(
+    ShowDataImportModalAtom
+  );
+
   const [selectedKey, setSelectedKey] = useState<string>();
   const modal = useModal();
   const queryClient = useQueryClient();
@@ -356,90 +370,6 @@ const Side: FC<SideProps> = () => {
   }, [pathname]);
   const book = useAtomValue(BookAtom);
   const [loading, setLoading] = useState(false);
-
-  const [showExportModal, setShowExportModal] = useState(false);
-
-  const handleExport = async (startDate: Date, endDate: Date) => {
-    try {
-      const headers = [
-        "日期",
-        "描述",
-        "金额",
-        "类型",
-        "来源账户",
-        "目标账户",
-        "标签",
-        "备注",
-      ];
-      const transactions = await TransactionService.getAllTransactions(
-        book?.id ?? "",
-        {
-          startDate: startDate.getTime(),
-          endDate: endDate.getTime(),
-        }
-      );
-      if (transactions.length === 0) {
-        message.warning("没有数据可以导出");
-        return;
-      }
-      const res = await ipcOpenFolder();
-      if (!res) {
-        message.error("打开文件夹失败");
-        return;
-      }
-      const filePath = `${res}/流记数据导出-${dayjs(startDate).format(
-        "YYYY-MM-DD"
-      )}-${dayjs(endDate).format("YYYY-MM-DD")}.csv`;
-      const csvData = [headers.join(",")];
-      setLoading(true);
-      transactions.forEach((t) => {
-        const sourceAccount =
-          [
-            ...(assets || []),
-            ...(liabilities || []),
-            ...(incomes || []),
-            ...(expenses || []),
-          ].find((a) => a.id === t.source_account_id)?.name || "";
-        const destAccount =
-          [
-            ...(assets || []),
-            ...(liabilities || []),
-            ...(incomes || []),
-            ...(expenses || []),
-          ].find((a) => a.id === t.destination_account_id)?.name || "";
-        const tagNames = t.transactionTags
-          ?.map((tt) => {
-            if (tt.tag) {
-              return `#${tt.tag.name}`;
-            }
-          })
-          .join(" ");
-
-        const type =
-          operationTranslations[t.type as unknown as FinancialOperation];
-
-        const row = [
-          dayjs(t.transaction_date).format("YYYY-MM-DD HH:mm:ss"),
-          t.content || "",
-          new Decimal(t.amount || 0).dividedBy(100).toString(),
-          type || "",
-          sourceAccount,
-          destAccount,
-          tagNames,
-          t.remark || "",
-        ];
-
-        csvData.push(row.join(","));
-      });
-      const csvString = csvData.join("\n");
-      await ipcExportCsv(filePath, csvString);
-      setLoading(false);
-      message.success("导出成功");
-      setShowExportModal(false);
-    } catch (error) {
-      message.error("导出失败");
-    }
-  };
   const isMac = window.platform.getOS() === "darwin";
   const [isShowBookModal, setIsShowBookModal] = useState(false);
   return (
@@ -585,12 +515,6 @@ const Side: FC<SideProps> = () => {
         book={book}
         isOpen={isShowBookModal}
         onOpenChange={setIsShowBookModal}
-      />
-      <ExportModal
-        isOpen={showExportModal}
-        isLoading={loading}
-        onClose={() => setShowExportModal(false)}
-        onExport={handleExport}
       />
     </ConfigProvider>
   );

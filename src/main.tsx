@@ -27,6 +27,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         />
       </ModalProvider>
     </QueryClientProvider>
+
     {import.meta.env.DEV && (
       <Button
         isIconOnly
