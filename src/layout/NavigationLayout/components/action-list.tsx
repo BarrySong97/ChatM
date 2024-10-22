@@ -98,7 +98,7 @@ const ActionList: FC<ActionListProps> = () => {
         </Button>
       </div>
       <div className="">
-        <Tooltip content="修改头像">
+        <Tooltip radius="sm" content="修改头像">
           <Avatar
             src={avatarSrc ?? ""}
             onClick={async () => {

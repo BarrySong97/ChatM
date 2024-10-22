@@ -108,7 +108,7 @@ const Index: FC<IndexProps> = () => {
           <Greeting />
           <DateDisplay />
         </div>
-        <Tooltip radius="sm" content="快捷键 C">
+        <Tooltip delay={300} radius="sm" content="快捷键 C">
           <Button
             color="primary"
             size="sm"

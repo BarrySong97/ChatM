@@ -46,7 +46,7 @@ const Page: FC<PageProps> = () => {
         <div>
           <h1 className="text-2xl font-bold">资产 </h1>
         </div>
-        <Tooltip content="快捷键 Shift + A 唤起">
+        <Tooltip delay={300} radius="sm" content="快捷键 Shift + A 唤起">
           <Button
             size="sm"
             color="primary"

@@ -23,7 +23,12 @@ const SideMenuList: React.FC<SideMenuListProps> = ({ setShowSettingModal }) => {
       {menuList.map((item: MenuItem, index: number) => {
         const isActive = pathname === item.href;
         return (
-          <Tooltip key={item.key} radius="sm" content={item.tooltip}>
+          <Tooltip
+            delay={300}
+            key={item.key}
+            radius="sm"
+            content={item.tooltip}
+          >
             <Button
               key={item.key}
               className={cn("justify-start h-full py-2 items-center", {

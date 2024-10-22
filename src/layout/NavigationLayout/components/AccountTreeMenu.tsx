@@ -29,6 +29,7 @@ const AccountTreeMenu: React.FC<AccountTreeMenuProps> = ({
         <div className="">资产/负债</div>
         <div className=" pr-3 ">
           <Tooltip
+            radius="sm"
             content={`截止${month[1].getFullYear()}/${
               month[1].getMonth() + 1
             }的净资产`}

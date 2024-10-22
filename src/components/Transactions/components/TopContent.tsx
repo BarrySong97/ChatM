@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { Input, Button, Listbox, ListboxItem } from "@nextui-org/react";
+import {
+  Input,
+  Button,
+  Listbox,
+  ListboxItem,
+  Tooltip,
+} from "@nextui-org/react";
 import { SearchIcon, PlusIcon } from "./PluseIcon";
 import { Tag, Popover as AntdPopover } from "antd";
 import { FinancialOperation } from "@/api/db/manager";
@@ -18,6 +24,8 @@ import {
 import AmountRangeFilter from "@/components/AmountRangeFilter";
 import AccountIconRender from "@/components/AccountIconRender";
 import TransactionModal from "@/components/TransactionModal";
+import { ShowTransactionModalAtom } from "@/globals";
+import { useSetAtom } from "jotai";
 
 export interface TopContentProps {
   filterValue: string;
@@ -151,7 +159,7 @@ const TopContent: React.FC<TopContentProps> = ({
       "0"
     )}/${String(end.getDate()).padStart(2, "0")}`;
   };
-  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const setShowTransactionModal = useSetAtom(ShowTransactionModalAtom);
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between gap-3 items-end">
@@ -357,13 +365,15 @@ const TopContent: React.FC<TopContentProps> = ({
           </div>
         </div>
         <div className="flex gap-3">
-          <Button
-            onClick={() => setShowTransactionModal(true)}
-            color="primary"
-            size="sm"
-          >
-            添加流水
-          </Button>
+          <Tooltip delay={300} radius="sm" content="快捷键 C 唤起">
+            <Button
+              onClick={() => setShowTransactionModal(true)}
+              color="primary"
+              size="sm"
+            >
+              添加流水
+            </Button>
+          </Tooltip>
         </div>
       </div>
       {renderFilterConditions()}
@@ -391,10 +401,6 @@ const TopContent: React.FC<TopContentProps> = ({
           </select>
         </label>
       </div>
-      <TransactionModal
-        isOpen={showTransactionModal}
-        onChange={(value) => setShowTransactionModal(value)}
-      />
     </div>
   );
 };

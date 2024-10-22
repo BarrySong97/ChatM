@@ -118,7 +118,12 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
           </motion.div>
         )}
         {hasChildren ? (
-          <Tooltip radius="sm" content={node.tooltip} placement="right">
+          <Tooltip
+            delay={300}
+            radius="sm"
+            content={node.tooltip}
+            placement="right"
+          >
             <div className="ml-1 flex items-center gap-1 flex-1">
               {node.icon ? (
                 <div

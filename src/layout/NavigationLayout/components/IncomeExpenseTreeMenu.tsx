@@ -29,6 +29,7 @@ const IncomeExpenseTreeMenu: React.FC<IncomeExpenseTreeMenuProps> = ({
         <div className="">支出/收入</div>
         <div className=" pr-3 ">
           <Tooltip
+            radius="sm"
             content={`${month[0].getFullYear()}/${
               month[0].getMonth() + 1
             } - ${month[1].getFullYear()}/${month[1].getMonth() + 1}结余`}

@@ -1,6 +1,6 @@
 import { PageWrapper } from "@/components/PageWrapper";
 import { ColDef } from "ag-grid-community";
-import { Button, Divider } from "@nextui-org/react";
+import { Button, Divider, Tooltip } from "@nextui-org/react";
 import { AgGridReact } from "ag-grid-react";
 import { FC, useState } from "react";
 import { Tag } from "@db/schema";
@@ -10,6 +10,8 @@ import SelectedRowsActions from "@/components/Transactions/components/SelectedRo
 import { TagService } from "@/api/services/TagService";
 import to from "await-to-js";
 import { message } from "antd";
+import { useAtom } from "jotai";
+import { ShowTagEditModalAtom } from "@/globals";
 export interface TagsProps {}
 const Tags: FC<TagsProps> = () => {
   const { tags, deleteTags, editTag } = useTagService();
@@ -35,17 +37,24 @@ const Tags: FC<TagsProps> = () => {
       },
     },
   ]);
-  const [showModal, setShowModal] = useState(false);
   const [selectedRows, setSelectedRows] = useState<Tag[]>([]);
+  const [isOpen, setIsOpen] = useAtom(ShowTagEditModalAtom);
   return (
     <PageWrapper title="标签">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold">标签</h1>
         </div>
-        <div>
-          <TagEditModal />
-        </div>
+        <Tooltip delay={300} content="快捷键 Shift + T 唤起">
+          <Button
+            size="sm"
+            radius="sm"
+            color="primary"
+            onPress={() => setIsOpen(true)}
+          >
+            创建标签
+          </Button>
+        </Tooltip>
       </div>
       <Divider className="my-6" />
       <div className="ag-theme-custom" style={{ width: 500, height: 500 }}>

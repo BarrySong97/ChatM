@@ -47,7 +47,7 @@ const Page: FC<PageProps> = () => {
             支出(总:{expenditureData?.totalAmount})
           </h1>
         </div>
-        <Tooltip content="快捷键 Shift + E 唤起">
+        <Tooltip delay={300} radius="sm" content="快捷键 Shift + E 唤起">
           <Button
             size="sm"
             color="primary"
