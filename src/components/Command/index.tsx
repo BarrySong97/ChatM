@@ -418,6 +418,9 @@ export function RaycastCMDK() {
   return (
     <div>
       <Modal
+        onClick={() => {
+          inputRef.current?.focus();
+        }}
         hideCloseButton
         className="raycast"
         isDismissable={false}
@@ -469,6 +472,9 @@ export function RaycastCMDK() {
                       <Item
                         key={item.value}
                         value={item.value}
+                        onSelect={() => {
+                          onKeyDown();
+                        }}
                         keywords={item.keywords}
                         command={item.command}
                       >
@@ -507,14 +513,22 @@ function Item({
   value,
   keywords,
   command,
+  onSelect,
 }: {
   children: React.ReactNode;
   value: string;
   keywords?: string[];
   command?: React.ReactNode;
+  onSelect: () => void;
 }) {
   return (
-    <Command.Item value={value} keywords={keywords} onSelect={() => {}}>
+    <Command.Item
+      value={value}
+      keywords={keywords}
+      onSelect={() => {
+        onSelect();
+      }}
+    >
       {children}
       <div className="flex-1 flex justify-end ">{command}</div>
     </Command.Item>
