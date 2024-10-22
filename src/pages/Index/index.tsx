@@ -1,5 +1,12 @@
 import PaperParse from "papaparse";
-import { Button, Divider, Tooltip } from "@nextui-org/react";
+import {
+  Button,
+  ButtonGroup,
+  Divider,
+  Input,
+  Kbd,
+  Tooltip,
+} from "@nextui-org/react";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { useQuery, useQueryClient } from "react-query";
@@ -14,7 +21,12 @@ import { LiabilitySectionCard } from "@/components/IndexSectionCard/LiabilitySec
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
 import FinancialItem from "./components/metic-card";
 import { seed } from "@/seed";
-import { AppPathAtom, BookAtom, ShowTransactionModalAtom } from "@/globals";
+import {
+  AppPathAtom,
+  BookAtom,
+  ShowCommandModalAtom,
+  ShowTransactionModalAtom,
+} from "@/globals";
 import { BookService } from "@/api/services/BookService";
 import TransactionModal from "@/components/TransactionModal";
 import dayjs from "dayjs";
@@ -101,6 +113,7 @@ const Index: FC<IndexProps> = () => {
     });
   }, []);
   const setShowTransactionModal = useSetAtom(ShowTransactionModalAtom);
+  const setShowCommandModal = useSetAtom(ShowCommandModalAtom);
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
@@ -108,17 +121,28 @@ const Index: FC<IndexProps> = () => {
           <Greeting />
           <DateDisplay />
         </div>
-        <Tooltip delay={300} radius="sm" content="快捷键 C">
+        <div className="flex gap-2 items-center">
           <Button
-            color="primary"
+            endContent={<Kbd keys={["command"]}>K</Kbd>}
             size="sm"
+            onClick={() => setShowCommandModal(true)}
             radius="sm"
-            variant="shadow"
-            onClick={() => setShowTransactionModal(true)}
+            variant="flat"
           >
-            添加流水
+            查看快捷命令
           </Button>
-        </Tooltip>
+          <Tooltip delay={300} radius="sm" content="快捷键 C">
+            <Button
+              color="primary"
+              size="sm"
+              radius="sm"
+              variant="shadow"
+              onClick={() => setShowTransactionModal(true)}
+            >
+              添加流水
+            </Button>
+          </Tooltip>
+        </div>
       </div>
       <Divider className="my-8 bg-[#F0F0F0]" />
       <div className="flex gap-4 ">

@@ -16,3 +16,4 @@ export const ShowTagEditModalAtom = atom(false);
 export const AccountModalTypeAtom = atom<
   "income" | "expense" | "asset" | "liability"
 >("income");
+export const ShowCommandModalAtom = atom(false);

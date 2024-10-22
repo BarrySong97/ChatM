@@ -11,6 +11,7 @@ import { message } from "antd";
 import {
   AccountModalTypeAtom,
   ShowAccountModalAtom,
+  ShowCommandModalAtom,
   ShowDataImportModalAtom,
   ShowExportModalAtom,
   ShowSettingModalAtom,
@@ -251,7 +252,7 @@ export function RaycastCMDK() {
   React.useEffect(() => {
     inputRef?.current?.focus();
   }, []);
-  const [isOpen, setOpen] = React.useState(false);
+  const [isOpen, setOpen] = useAtom(ShowCommandModalAtom);
 
   // Toggle the menu when ⌘K is pressed
   useHotkeys("meta+k, ctrl+k", (e) => {
