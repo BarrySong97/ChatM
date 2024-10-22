@@ -8,6 +8,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { NormalChartData } from "@/api/models/Chart";
+import dayjs from "dayjs";
+import { zhMap } from "../LineChart";
 
 const chartConfig = {
   views: {
@@ -27,6 +29,7 @@ export type props = {
   type: string;
 };
 export function Barchart({ chartData, type }: props) {
+  const title = zhMap[type as keyof typeof zhMap];
   const data = chartData.map((item) => ({
     label: item.label,
     amount: Number(item.amount),
@@ -62,28 +65,34 @@ export function Barchart({ chartData, type }: props) {
           minTickGap={32}
           tickFormatter={(value) => {
             const date = new Date(value);
-            return date.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            });
+            return dayjs(date).format("YYYY-MM-DD");
           }}
         />
         <ChartTooltip
-          content={
-            <ChartTooltipContent
-              className="w-[150px]"
-              nameKey="views"
-              labelFormatter={(value) => {
-                return new Date(value).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                });
-              }}
-            />
-          }
+          content={(props) => {
+            if (props.payload && props.payload.length > 0) {
+              const data = props.payload[0].payload;
+              return (
+                <div className="bg-white p-2  rounded shadow flex gap-2">
+                  <div className="flex items-center gap-1">
+                    <div
+                      className="w-1 h-full rounded-md"
+                      style={{
+                        backgroundColor: `hsl(var(--chart-${type}))`,
+                      }}
+                    ></div>
+                  </div>
+                  <div>
+                    <p>{`日期: ${props.label}`}</p>
+                    <p>{`${title}: ${data.amount.toFixed(2)}`}</p>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          }}
         />
-        <Bar dataKey="amount" fill={`var(--chart-${type}-color)`} />
+        <Bar dataKey="amount" fill={`hsl(var(--chart-${type}))`} />
       </BarChart>
     </ChartContainer>
   );

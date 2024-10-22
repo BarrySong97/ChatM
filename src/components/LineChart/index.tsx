@@ -22,7 +22,7 @@ const chartConfig = {
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
-const zhMap = {
+export const zhMap = {
   asset: "资产",
   expense: "支出",
   income: "收入",
