@@ -17,8 +17,10 @@ import { BookAtom, ShowTagEditModalAtom } from "@/globals";
 import { MaterialSymbolsDelete } from "../AccountModal/icon";
 import to from "await-to-js";
 import { useFormError } from "@/hooks/useFormError";
-export interface TagEditModalProps {}
-const TagEditModal: FC<TagEditModalProps> = () => {
+export interface TagEditModalProps {
+  isInCommand?: boolean;
+}
+const TagEditModal: FC<TagEditModalProps> = ({ isInCommand }) => {
   const { createTag, editTag, isCreateLoading, isEditLoading } =
     useTagService();
   const [form] = Form.useForm();
@@ -63,9 +65,16 @@ const TagEditModal: FC<TagEditModalProps> = () => {
   const { isSubmitDisabled } = useFormError(form);
   return (
     <>
-      <Button size="sm" radius="sm" color="primary" onPress={() => openModal()}>
-        创建标签
-      </Button>
+      {!isInCommand && (
+        <Button
+          size="sm"
+          radius="sm"
+          color="primary"
+          onPress={() => openModal()}
+        >
+          创建标签
+        </Button>
+      )}
       <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
         <ModalContent>
           {(onClose) => (

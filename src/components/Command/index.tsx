@@ -187,6 +187,58 @@ const commandGroups = [
           </div>
         ),
       },
+      {
+        icon: <Icon icon={"material-symbols:account-balance-wallet"} />,
+        value: "page_asset",
+        keywords: ["page", "asset", "资产"],
+        label: "资产",
+        command: (
+          <div className="flex items-center">
+            <Kbd className="min-w-4 text-xs">G</Kbd>
+            <span className="mx-2 text-xs">后按</span>
+            <Kbd className="min-w-4 text-xs">A</Kbd>
+          </div>
+        ),
+      },
+      {
+        icon: <Icon icon={"solar:card-bold-duotone"} />,
+        value: "page_liability",
+        keywords: ["page", "liability", "负债"],
+        label: "负债",
+        command: (
+          <div className="flex items-center">
+            <Kbd className="min-w-4 text-xs">G</Kbd>
+            <span className="mx-2 text-xs">后按</span>
+            <Kbd className="min-w-4 text-xs">L</Kbd>
+          </div>
+        ),
+      },
+      {
+        icon: <Icon icon={"mdi:arrow-up-circle"} />,
+        value: "page_income",
+        keywords: ["page", "income", "收入"],
+        label: "收入",
+        command: (
+          <div className="flex items-center">
+            <Kbd className="min-w-4 text-xs">G</Kbd>
+            <span className="mx-2 text-xs">后按</span>
+            <Kbd className="min-w-4 text-xs">I</Kbd>
+          </div>
+        ),
+      },
+      {
+        icon: <Icon icon={"mdi:arrow-down-circle"} />,
+        value: "new_expense",
+        keywords: ["new", "account", "expense", "创建", "支出"],
+        label: "支出",
+        command: (
+          <div className="flex items-center">
+            <Kbd className="min-w-4 text-xs">G</Kbd>
+            <span className="mx-2 text-xs">后按</span>
+            <Kbd className="min-w-4 text-xs">E</Kbd>
+          </div>
+        ),
+      },
     ],
   },
 ];
@@ -213,6 +265,8 @@ export function RaycastCMDK() {
   const setShowTagEditModal = useSetAtom(ShowTagEditModalAtom);
   const setModalType = useSetAtom(AccountModalTypeAtom);
   const [isGPressed, setIsGPressed] = useState(false);
+  const [isIPressed, setIsIPressed] = useState(false);
+  const [isEPressed, setIsEPressed] = useState(false);
   useHotkeys("g+h", () => {
     navigate("/");
   });
@@ -235,8 +289,31 @@ export function RaycastCMDK() {
   useHotkeys("g+s", () => {
     setShowSettingModal(true);
   });
+  useHotkeys("g+a", () => {
+    navigate("/assets");
+  });
+  useHotkeys("g+l", () => {
+    navigate("/liabilities");
+  });
+  useHotkeys("g+i", () => {
+    setIsIPressed(true);
+    navigate("/income");
+    setTimeout(() => {
+      setIsIPressed(false);
+    }, 0);
+  });
+  useHotkeys("g+e", () => {
+    setIsEPressed(true);
+    navigate("/expense");
+    setTimeout(() => {
+      setIsEPressed(false);
+    }, 0);
+  });
   useHotkeys("e", (e) => {
-    setShowExportModal(true);
+    if (!isEPressed) {
+      e.preventDefault();
+      setShowExportModal(true);
+    }
   });
   useHotkeys("c", (e, h) => {
     if (!isGPressed) {
@@ -244,8 +321,11 @@ export function RaycastCMDK() {
       setShowTransactionModal(true);
     }
   });
-  useHotkeys("i", () => {
-    setShowDataImportModal(true);
+  useHotkeys("i", (e) => {
+    if (!isIPressed) {
+      e.preventDefault();
+      setShowDataImportModal(true);
+    }
   });
   useHotkeys("shift+a", () => {
     setModalType("asset");
@@ -316,6 +396,18 @@ export function RaycastCMDK() {
         break;
       case "page_tags":
         navigate("/tags");
+        break;
+      case "page_asset":
+        navigate("/assets");
+        break;
+      case "page_liability":
+        navigate("/liabilities");
+        break;
+      case "page_income":
+        navigate("/income");
+        break;
+      case "page_expense":
+        navigate("/expense");
         break;
       default:
         break;
@@ -404,7 +496,7 @@ export function RaycastCMDK() {
           )}
         </ModalContent>
       </Modal>
-      <TagEditModal />
+      <TagEditModal isInCommand />
     </div>
   );
 }
