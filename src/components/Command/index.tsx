@@ -455,11 +455,11 @@ export function RaycastCMDK() {
               <div cmdk-raycast-top-shine="" />
               <Command.Input
                 ref={inputRef}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    onKeyDown();
-                  }
-                }}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter") {
+                //     onKeyDown();
+                //   }
+                // }}
                 autoFocus
                 placeholder="输入一个快捷命令或者搜索"
               />
