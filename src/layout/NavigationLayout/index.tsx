@@ -16,7 +16,12 @@ import { MaterialSymbolsToolsWrench } from "@/assets/icon";
 import { ipcDevtoolMain, ipcExportCsv, ipcOpenFolder } from "@/service/ipc";
 import { RaycastCMDK } from "@/components/Command";
 import ExportModal from "@/components/ExportModal";
-import { BookAtom, ShowExportModalAtom } from "@/globals";
+import {
+  AccountModalTypeAtom,
+  BookAtom,
+  ShowBatchAddAccountModalAtom,
+  ShowExportModalAtom,
+} from "@/globals";
 import { useAtom, useAtomValue } from "jotai";
 import dayjs from "dayjs";
 import { operationTranslations } from "@/components/Transactions/contant";
@@ -28,6 +33,7 @@ import { useLiabilityService } from "@/api/hooks/liability";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useHotkeys } from "react-hotkeys-hook";
+import BatchAddAccountModal from "@/components/BatchAddAccountModal";
 export interface AppLayoutProps {}
 const AppLayout: FC<AppLayoutProps> = () => {
   const navigate = useNavigate();
@@ -161,7 +167,10 @@ const AppLayout: FC<AppLayoutProps> = () => {
     },
   });
   const isMac = window.platform.getOS() === "darwin";
-
+  const [showBatchAddAccountModal, setShowBatchAddAccountModal] = useAtom(
+    ShowBatchAddAccountModalAtom
+  );
+  const accountType = useAtomValue(AccountModalTypeAtom);
   return (
     <>
       <NextUIProvider navigate={navigate}>
@@ -216,6 +225,11 @@ const AppLayout: FC<AppLayoutProps> = () => {
           isLoading={loading}
           onClose={() => setShowExportModal(false)}
           onExport={handleExport}
+        />
+        <BatchAddAccountModal
+          isOpen={showBatchAddAccountModal}
+          onOpenChange={setShowBatchAddAccountModal}
+          type={accountType}
         />
       </NextUIProvider>
       <RaycastCMDK />

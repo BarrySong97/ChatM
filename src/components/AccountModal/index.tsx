@@ -36,8 +36,8 @@ import {
 import BankIconPicker from "../BankIconPicker";
 import { MaterialSymbolsArrowBackIosNewRounded } from "@/assets/icon";
 import AccountIconRender from "../AccountIconRender";
-import { useAtomValue } from "jotai";
-import { BookAtom } from "@/globals";
+import { useAtomValue, useSetAtom } from "jotai";
+import { BookAtom, ShowBatchAddAccountModalAtom } from "@/globals";
 import { useQueryClient } from "react-query";
 import { useFormError } from "@/hooks/useFormError";
 export interface AccountModalProps {
@@ -520,6 +520,7 @@ const AccountModal: FC<AccountModalProps> = ({
 
   const { isSubmitDisabled } = useFormError(form);
 
+  const setShowBatchAddAccountModal = useSetAtom(ShowBatchAddAccountModalAtom);
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
@@ -556,26 +557,38 @@ const AccountModal: FC<AccountModalProps> = ({
                 </Form.List>
               </Form>
             </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose}>
-                取消
-              </Button>
+            <ModalFooter className="justify-between">
               <Button
-                color="primary"
-                isDisabled={
-                  !accounts?.some(
-                    (account: { name: string }) => account?.name
-                  ) || isSubmitDisabled
-                }
-                isLoading={submitLoading}
-                onPress={async () => {
-                  await onCreate();
-                  form.resetFields();
+                color="default"
+                variant="flat"
+                onPress={() => {
+                  setShowBatchAddAccountModal(true);
                   onClose();
                 }}
               >
-                确认
+                批量添加
               </Button>
+              <div>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  取消
+                </Button>
+                <Button
+                  color="primary"
+                  isDisabled={
+                    !accounts?.some(
+                      (account: { name: string }) => account?.name
+                    ) || isSubmitDisabled
+                  }
+                  isLoading={submitLoading}
+                  onPress={async () => {
+                    await onCreate();
+                    form.resetFields();
+                    onClose();
+                  }}
+                >
+                  确认
+                </Button>
+              </div>
             </ModalFooter>
           </>
         )}

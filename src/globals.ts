@@ -17,3 +17,4 @@ export const AccountModalTypeAtom = atom<
   "income" | "expense" | "asset" | "liability"
 >("income");
 export const ShowCommandModalAtom = atom(false);
+export const ShowBatchAddAccountModalAtom = atom(false);
