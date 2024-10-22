@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useRef, useState } from "react";
-import { Select, SelectItem, Input } from "@nextui-org/react";
+import { Select, SelectItem, Input, Chip } from "@nextui-org/react";
 import { useClickAway } from "ahooks";
 import { Assets, Expenses, Incomes, Liabilities } from "@db/schema";
 import { useAssetsService } from "@/api/hooks/assets";
@@ -8,6 +8,7 @@ import { useExpenseService } from "@/api/hooks/expense";
 import { useIncomeService } from "@/api/hooks/income";
 import AccountIconRender from "../AccountIconRender";
 import { message } from "antd";
+import { zhMap } from "../LineChart";
 export interface AccountSelectProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -28,6 +29,7 @@ const AccountSelect: FC<AccountSelectProps> = ({
   radius,
   table = false,
 }) => {
+  const title = zhMap[type as keyof typeof zhMap];
   const [inputValue, setInputValue] = useState("");
   const { createAsset } = useAssetsService();
   const { createLiability } = useLiabilityService();
@@ -64,9 +66,18 @@ const AccountSelect: FC<AccountSelectProps> = ({
       }
     });
     if (filteredLength === 0 && inputValue) {
-      return <SelectItem key="new">新建账户 {inputValue}</SelectItem>;
+      return (
+        <SelectItem key="new">
+          新建{title}账户 <Chip size="sm">{inputValue}</Chip>
+        </SelectItem>
+      );
     }
-    return temp;
+    if (temp?.length === 0) {
+      return (
+        <SelectItem key="new">{`当前${title}账户分类为空，请输入${title}名称创建`}</SelectItem>
+      );
+    }
+    return temp ?? [];
   }, [data, inputValue]);
   const ref = useRef<HTMLDivElement>(null);
   useClickAway(() => {

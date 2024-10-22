@@ -49,7 +49,9 @@ const TagInput: React.FC<TagInputProps> = ({
       temp?.push(<SelectItem key="new">{`创建标签 ${inputValue}`}</SelectItem>);
     }
     if (temp?.length === 0) {
-      temp?.push(<SelectItem key="new">{`创建标签 ${inputValue}`}</SelectItem>);
+      temp?.push(
+        <SelectItem key="new">{`当前标签为空，请输入标签名称创建`}</SelectItem>
+      );
     }
     return temp;
   }, [tags, inputValue]);
@@ -82,6 +84,9 @@ const TagInput: React.FC<TagInputProps> = ({
       selectedKeys={new Set(value)}
       popoverProps={{
         ref: ref,
+        classNames: {
+          content: table ? "w-[180px]" : "w-[350px]",
+        },
       }}
       endContent={
         value?.length ? (

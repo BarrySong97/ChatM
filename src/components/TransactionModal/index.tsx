@@ -206,6 +206,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                         </div>
                       );
                     }}
+                    placeholder="请选择类型，支出，收入，借款，还款等"
                     size="sm"
                     aria-label="type"
                   >
