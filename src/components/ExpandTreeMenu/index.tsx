@@ -10,10 +10,12 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Tooltip,
 } from "@nextui-org/react";
 
 export interface TreeNode {
   key: string;
+  tooltip?: string;
   label: string | React.ReactNode;
   icon?: React.ReactNode;
   children?: TreeNode[];
@@ -115,29 +117,57 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
             <IcBaselineKeyboardArrowRight />
           </motion.div>
         )}
-        <div className="ml-1 flex items-center gap-1 flex-1">
-          {node.icon ? (
+        {hasChildren ? (
+          <Tooltip radius="sm" content={node.tooltip} placement="right">
+            <div className="ml-1 flex items-center gap-1 flex-1">
+              {node.icon ? (
+                <div
+                  className="text-[18px]"
+                  style={{
+                    paddingLeft: isLeaf ? "0.5rem" : "0",
+                  }}
+                >
+                  {node.icon}
+                </div>
+              ) : null}
+              <div
+                className="flex-1"
+                onClick={(e) => {
+                  node.onTitleClick?.(node.key);
+                }}
+                style={{
+                  paddingLeft: isLeaf && !node.icon ? "1.8rem" : "0",
+                }}
+              >
+                {node.label}
+              </div>
+            </div>
+          </Tooltip>
+        ) : (
+          <div className="ml-1 flex items-center gap-1 flex-1">
+            {node.icon ? (
+              <div
+                className="text-[18px]"
+                style={{
+                  paddingLeft: isLeaf ? "0.5rem" : "0",
+                }}
+              >
+                {node.icon}
+              </div>
+            ) : null}
             <div
-              className="text-[18px]"
+              className="flex-1"
+              onClick={(e) => {
+                node.onTitleClick?.(node.key);
+              }}
               style={{
-                paddingLeft: isLeaf ? "0.5rem" : "0",
+                paddingLeft: isLeaf && !node.icon ? "1.8rem" : "0",
               }}
             >
-              {node.icon}
+              {node.label}
             </div>
-          ) : null}
-          <div
-            className="flex-1"
-            onClick={(e) => {
-              node.onTitleClick?.(node.key);
-            }}
-            style={{
-              paddingLeft: isLeaf && !node.icon ? "1.8rem" : "0",
-            }}
-          >
-            {node.label}
           </div>
-        </div>
+        )}
 
         {isLeaf && node.hasMore !== false ? (
           <AnimatePresence>

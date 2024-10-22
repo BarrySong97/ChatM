@@ -1,4 +1,11 @@
-import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Divider,
+  Tooltip,
+} from "@nextui-org/react";
 import { FC, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useExpenseCategoryService } from "@/api/hooks/expense";
@@ -9,6 +16,8 @@ import { CategoryBarChart } from "@/components/PieChart";
 import { ExpenseSectionCard } from "@/components/IndexSectionCard/ExpenseSectionCard";
 import AccountModal from "@/components/AccountModal";
 import dayjs from "dayjs";
+import { useSetAtom } from "jotai";
+import { AccountModalTypeAtom, ShowAccountModalAtom } from "@/globals";
 
 export interface PageProps {}
 
@@ -28,7 +37,8 @@ const Page: FC<PageProps> = () => {
     startDate: value.start,
     endDate: value.end,
   });
-  const [showAccountModal, setShowAccountModal] = useState(false);
+  const setShowAccountModal = useSetAtom(ShowAccountModalAtom);
+  const setAccountType = useSetAtom(AccountModalTypeAtom);
   return (
     <PageWrapper>
       <div className="flex justify-between items-end">
@@ -37,13 +47,18 @@ const Page: FC<PageProps> = () => {
             支出(总:{expenditureData?.totalAmount})
           </h1>
         </div>
-        <Button
-          size="sm"
-          color="primary"
-          onClick={() => setShowAccountModal(true)}
-        >
-          添加
-        </Button>
+        <Tooltip content="快捷键 Shift + E 唤起">
+          <Button
+            size="sm"
+            color="primary"
+            onClick={() => {
+              setShowAccountModal(true);
+              setAccountType("expense");
+            }}
+          >
+            添加
+          </Button>
+        </Tooltip>
       </div>
       <Divider className="my-6" />
       <div className="mt-8">
@@ -77,13 +92,6 @@ const Page: FC<PageProps> = () => {
           </CardBody>
         </Card>
       </div>
-      <AccountModal
-        isOpen={showAccountModal}
-        onOpenChange={(value) => {
-          setShowAccountModal(value);
-        }}
-        type="expense"
-      />
     </PageWrapper>
   );
 };

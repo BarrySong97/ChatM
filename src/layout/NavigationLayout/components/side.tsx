@@ -95,6 +95,7 @@ const Side: FC<SideProps> = () => {
         navigate("/assets");
       },
       key: "asset",
+      tooltip: "快捷键 G + A 跳转",
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>资产</div>
@@ -136,6 +137,7 @@ const Side: FC<SideProps> = () => {
     },
     {
       key: "liability",
+      tooltip: "快捷键 G + L 跳转",
       onTitleClick: () => {
         navigate("/liabilities");
       },
@@ -193,6 +195,7 @@ const Side: FC<SideProps> = () => {
       onTitleClick: () => {
         navigate("/income");
       },
+      tooltip: "快捷键 G + I 跳转",
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>收入</div>
@@ -234,6 +237,7 @@ const Side: FC<SideProps> = () => {
       onTitleClick: () => {
         navigate("/expense");
       },
+      tooltip: "快捷键 G + E 跳转",
       label: (
         <div className="flex text-xs items-center justify-between">
           <div>支出</div>

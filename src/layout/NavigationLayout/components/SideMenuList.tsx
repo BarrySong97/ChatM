@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@nextui-org/react";
+import { Button, Tooltip } from "@nextui-org/react";
 import { cn } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { message } from "antd";
@@ -23,37 +23,39 @@ const SideMenuList: React.FC<SideMenuListProps> = ({ setShowSettingModal }) => {
       {menuList.map((item: MenuItem, index: number) => {
         const isActive = pathname === item.href;
         return (
-          <Button
-            key={item.key}
-            className={cn("justify-start h-full py-2 items-center", {
-              "font-semibold": isActive,
-            })}
-            onClick={() => {
-              if (item.key === "books") {
-                message.info("开发中");
-              } else {
-                switch (item.key) {
-                  case "settings":
-                    setShowSettingModal(true);
-                    break;
-                  case "devtool":
-                    ipcDevtoolMain();
-                    break;
-                  default:
-                    navigate(item.href);
-                    break;
+          <Tooltip key={item.key} radius="sm" content={item.tooltip}>
+            <Button
+              key={item.key}
+              className={cn("justify-start h-full py-2 items-center", {
+                "font-semibold": isActive,
+              })}
+              onClick={() => {
+                if (item.key === "books") {
+                  message.info("开发中");
+                } else {
+                  switch (item.key) {
+                    case "settings":
+                      setShowSettingModal(true);
+                      break;
+                    case "devtool":
+                      ipcDevtoolMain();
+                      break;
+                    default:
+                      navigate(item.href);
+                      break;
+                  }
                 }
+              }}
+              startContent={
+                <span className="text-lg text-[#575859]">{item.icon}</span>
               }
-            }}
-            startContent={
-              <span className="text-lg text-[#575859]">{item.icon}</span>
-            }
-            variant={isActive ? "flat" : "light"}
-            size="sm"
-            radius="sm"
-          >
-            {item.title}
-          </Button>
+              variant={isActive ? "flat" : "light"}
+              size="sm"
+              radius="sm"
+            >
+              {item.title}
+            </Button>
+          </Tooltip>
         );
       })}
     </div>
