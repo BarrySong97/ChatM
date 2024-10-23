@@ -11,6 +11,7 @@ import {
 import { colors } from "./constant";
 import dayjs from "dayjs";
 import { useAssetSankeyService } from "@/api/hooks/assets";
+import { useLocalStorageState } from "ahooks";
 
 const timeFilter = ["当前月", "近1月", "近3月", "近1年", "近3年", "近5年"];
 
@@ -38,8 +39,15 @@ export const ExpenseSectionCard: React.FC<{
     end: now.endOf("month").valueOf(),
   });
   const [isOpen, setIsOpen] = useState(false);
-  const [categoryType, setCategoryType] = useState("rank");
-  const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
+  const [categoryType, setCategoryType] = useLocalStorageState(
+    "expenseCategoryType",
+    {
+      defaultValue: "rank",
+    }
+  );
+  const [chartType, setChartType] = useLocalStorageState("expenseChartType", {
+    defaultValue: showSankey ? "sankey" : "line",
+  });
 
   useEffect(() => {
     switch (time) {
@@ -124,7 +132,7 @@ export const ExpenseSectionCard: React.FC<{
           <Card className="gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
             <CardHeader className="!mb-0 flex justify-end items-center">
               <CategoryChart
-                categoryType={categoryType}
+                categoryType={categoryType ?? "rank"}
                 type="expense"
                 setCategoryType={setCategoryType}
                 categoryData={categoryData}
@@ -138,7 +146,7 @@ export const ExpenseSectionCard: React.FC<{
             <TrendChart
               title={title}
               showDefaultTitle={showDefaultTitle}
-              chartType={chartType}
+              chartType={chartType ?? (showSankey ? "sankey" : "line")}
               type="expense"
               chartTabPlaceHolder={chartTabPlaceHolder}
               showSankey={showSankey}

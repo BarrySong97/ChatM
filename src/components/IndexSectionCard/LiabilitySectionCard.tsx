@@ -11,6 +11,7 @@ import {
 import { colors } from "./constant";
 import dayjs from "dayjs";
 import { useAssetSankeyService } from "@/api/hooks/assets";
+import { useLocalStorageState } from "ahooks";
 
 const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
@@ -37,8 +38,15 @@ export const LiabilitySectionCard: React.FC<{
     start: now.subtract(3, "months").valueOf(),
     end: now.valueOf(),
   });
-  const [categoryType, setCategoryType] = useState("rank");
-  const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
+  const [categoryType, setCategoryType] = useLocalStorageState(
+    "liabilityCategoryType",
+    {
+      defaultValue: "rank",
+    }
+  );
+  const [chartType, setChartType] = useLocalStorageState("liabilityChartType", {
+    defaultValue: showSankey ? "sankey" : "line",
+  });
 
   useEffect(() => {
     switch (time) {
@@ -118,7 +126,7 @@ export const LiabilitySectionCard: React.FC<{
           <Card className="block gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
             <CardHeader className="!mb-0 flex justify-end items-center">
               <CategoryChart
-                categoryType={categoryType}
+                categoryType={categoryType ?? "rank"}
                 type="liability"
                 setCategoryType={setCategoryType}
                 categoryData={categoryData}
@@ -131,7 +139,7 @@ export const LiabilitySectionCard: React.FC<{
           <CardHeader className="!mb-0 flex justify-end items-start">
             <TrendChart
               title={title}
-              chartType={chartType}
+              chartType={chartType ?? (showSankey ? "sankey" : "line")}
               setChartType={setChartType}
               accountId={accountId}
               lineData={lineData}

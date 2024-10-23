@@ -10,9 +10,10 @@ import {
 import { Card } from "@nextui-org/react";
 import React from "react";
 import NewworthChart from "./newworth-chart";
+import { Icon } from "@iconify/react";
 
 interface FinancialItemProps {
-  title: string;
+  title: string | React.ReactNode;
   value: string;
   type: "asset" | "liability" | "expense" | "income";
   chartData?: {
@@ -27,16 +28,31 @@ const FinancialItem: React.FC<FinancialItemProps> = ({
   type,
   chartData,
 }) => {
+  const getIcon = () => {
+    switch (type) {
+      case "asset":
+        return <Icon icon={"material-symbols:account-balance-wallet"} />;
+      case "liability":
+        return <Icon icon={"solar:card-bold-duotone"} />;
+      case "expense":
+        return <Icon icon={"mdi:arrow-up-circle"} />;
+      case "income":
+        return <Icon icon={"mdi:arrow-down-circle"} />;
+    }
+  };
   return (
     <Card shadow="sm" radius="sm" className="bg-white p-4 rounded-lg h-full">
       <div className="h-full flex-1 flex flex-col">
         <div>
-          <div
-            className="text-gray-400 text-sm font-medium  border-l-4 pl-2"
-            style={{
-              borderColor: `var(--chart-${type}-color)`,
-            }}
-          >
+          <div className=" text-sm font-medium flex items-center gap-1">
+            <div
+              className="text-lg"
+              style={{
+                color: `var(--chart-${type}-color)`,
+              }}
+            >
+              {getIcon()}
+            </div>
             {title}
           </div>
           <div

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Tooltip } from "@nextui-org/react";
 import { MaterialSymbolsHelpOutline } from "./icon";
 import ExpandTreeMenu, { TreeNode } from "@/components/ExpandTreeMenu";
 import Decimal from "decimal.js";
+import { useLocalStorageState } from "ahooks";
 
 interface AccountTreeMenuProps {
   items: TreeNode[];
@@ -23,6 +24,12 @@ const AccountTreeMenu: React.FC<AccountTreeMenuProps> = ({
   netWorth,
   month,
 }) => {
+  const [openKeys, setOpenKeys] = useLocalStorageState<string[]>(
+    "accountTreeOpenKeys",
+    {
+      defaultValue: [],
+    }
+  );
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between pl-6 pr-3 text-xs font-medium text-default-500 mb-2">
@@ -46,8 +53,10 @@ const AccountTreeMenu: React.FC<AccountTreeMenuProps> = ({
           data={items}
           selectedKey={selectedKey}
           onDelete={onDelete}
+          openKeys={openKeys}
           onEdit={onEdit}
           onSelectionChange={onSelectionChange}
+          onOpenChange={setOpenKeys}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type ClassValue, clsx } from "clsx";
 import { IcBaselineKeyboardArrowRight, IonMdMore } from "./icon";
@@ -29,6 +29,8 @@ interface TreeMenuProps {
   onSelectionChange?: (key: string) => void;
   onDelete?: (key: string, type: string) => void;
   onEdit?: (key: string, type: string, data: any) => void;
+  onOpenChange?: (keys: string[]) => void;
+  openKeys?: string[];
 }
 
 interface TreeMenuItemProps {
@@ -40,6 +42,8 @@ interface TreeMenuItemProps {
   onEdit?: (key: string, type: string, data: any) => void;
   onSelectionChange?: (key: string) => void;
   root?: string;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 }
 const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
   node,
@@ -50,8 +54,10 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
   onDelete,
   onEdit,
   root,
+  isOpen,
+  setIsOpen,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [_isOpen, _setIsOpen] = useState(isOpen ?? false);
   const [isHovered, setIsHovered] = useState(false);
 
   const hasChildren = node.children && node.children.length > 0;
@@ -109,7 +115,9 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
             className="w-4.5 h-4.5 text-lg flex  items-center justify-center rounded-md  hover:bg-default/100 transition-colors duration-200"
             onClick={(e) => {
               e.stopPropagation();
-              hasChildren && setIsOpen(!isOpen);
+              if (hasChildren) {
+                setIsOpen ? setIsOpen(!isOpen) : _setIsOpen(!_isOpen);
+              }
             }}
             animate={{ rotate: isOpen ? 90 : 0 }}
             transition={{ duration: 0.3 }}
@@ -217,7 +225,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
         ) : null}
       </div>
       <AnimatePresence initial={false}>
-        {hasChildren && isOpen && (
+        {hasChildren && (_isOpen || isOpen) && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -250,6 +258,8 @@ const ExpandTreeMenu: React.FC<TreeMenuProps> = ({
   onSelectionChange,
   onDelete,
   onEdit,
+  onOpenChange,
+  openKeys,
 }) => {
   return (
     <div className=" overflow-hidden space-y-0.5">
@@ -263,6 +273,14 @@ const ExpandTreeMenu: React.FC<TreeMenuProps> = ({
           selectedKey={selectedKey}
           level={0}
           isSelected={selectedKey === node.key}
+          isOpen={openKeys?.includes(node.key)}
+          setIsOpen={(isOpen) => {
+            if (isOpen) {
+              onOpenChange?.(openKeys ? [...openKeys, node.key] : [node.key]);
+            } else {
+              onOpenChange?.(openKeys?.filter((key) => key !== node.key) ?? []);
+            }
+          }}
         />
       ))}
     </div>

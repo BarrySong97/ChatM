@@ -58,6 +58,7 @@ import BookSelector from "./BookSelector";
 import { TreeNode } from "@/components/ExpandTreeMenu";
 import { useQueryClient } from "react-query";
 import { useHotkeys } from "react-hotkeys-hook";
+import { Icon } from "@iconify/react";
 
 export interface SideProps {}
 const now = new Date();
@@ -89,6 +90,46 @@ const Side: FC<SideProps> = () => {
   const { assetsData, liabilitiesData, expenditureData, incomeData } =
     useSideData(timeFilter);
 
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "asset":
+        return (
+          <Icon
+            style={{
+              color: `var(--chart-${type}-color)`,
+            }}
+            icon={"material-symbols:account-balance-wallet"}
+          />
+        );
+      case "liability":
+        return (
+          <Icon
+            style={{
+              color: `var(--chart-${type}-color)`,
+            }}
+            icon={"solar:card-bold-duotone"}
+          />
+        );
+      case "expense":
+        return (
+          <Icon
+            style={{
+              color: `var(--chart-${type}-color)`,
+            }}
+            icon={"mdi:arrow-up-circle"}
+          />
+        );
+      case "income":
+        return (
+          <Icon
+            style={{
+              color: `var(--chart-${type}-color)`,
+            }}
+            icon={"mdi:arrow-down-circle"}
+          />
+        );
+    }
+  };
   const items1: TreeNode[] = [
     {
       onTitleClick: () => {
@@ -104,7 +145,7 @@ const Side: FC<SideProps> = () => {
           </span>
         </div>
       ),
-      icon: <MaterialSymbolsAccountBalanceWallet />,
+      icon: getIcon("asset"),
       children: [
         {
           key: "new_assets",
@@ -149,7 +190,7 @@ const Side: FC<SideProps> = () => {
           </span>
         </div>
       ),
-      icon: <SolarCardBoldDuotone />,
+      icon: getIcon("liability"),
       children: [
         {
           key: "new_liability",
@@ -202,7 +243,7 @@ const Side: FC<SideProps> = () => {
           <span className=" text-default-500">{incomeData?.totalAmount}</span>
         </div>
       ),
-      icon: <MdiArrowDownCircle />,
+      icon: getIcon("income"),
       children: [
         {
           key: "new_income",
@@ -246,7 +287,7 @@ const Side: FC<SideProps> = () => {
           </span>
         </div>
       ),
-      icon: <MdiArrowUpCircle />,
+      icon: getIcon("expense"),
       children: [
         {
           key: "new_expense",

@@ -11,6 +11,7 @@ import {
 import dayjs from "dayjs";
 import { colors } from "./constant";
 import { CustomDatePopover } from "./CustomDatePopover";
+import { useLocalStorageState } from "ahooks";
 
 const timeFilter = ["近3月", "近1年", "近3年", "近5年", "近十年"];
 
@@ -38,8 +39,15 @@ export const AssetsSectionCard: React.FC<{
     end: now.valueOf(),
   });
   // const [isOpen, setIsOpen] = useState(false);
-  const [categoryType, setCategoryType] = useState("rank");
-  const [chartType, setChartType] = useState(showSankey ? "sankey" : "line");
+  const [categoryType, setCategoryType] = useLocalStorageState(
+    "assetsCategoryType",
+    {
+      defaultValue: "rank",
+    }
+  );
+  const [chartType, setChartType] = useLocalStorageState("assetsChartType", {
+    defaultValue: showSankey ? "sankey" : "line",
+  });
 
   useEffect(() => {
     switch (time) {
@@ -119,7 +127,7 @@ export const AssetsSectionCard: React.FC<{
           <Card className="block gap-8 flex-[2] mb-8" shadow="sm" radius="sm">
             <CardHeader className="!mb-0 flex justify-end items-center">
               <CategoryChart
-                categoryType={categoryType}
+                categoryType={categoryType ?? "rank"}
                 setCategoryType={setCategoryType}
                 type="asset"
                 categoryData={categoryData}
@@ -132,7 +140,7 @@ export const AssetsSectionCard: React.FC<{
           <CardHeader className="!mb-0 flex justify-end items-start">
             <TrendChart
               accountId={accountId}
-              chartType={chartType}
+              chartType={chartType ?? (showSankey ? "sankey" : "line")}
               type="asset"
               showDefaultTitle={showDefaultTitle}
               setChartType={setChartType}
