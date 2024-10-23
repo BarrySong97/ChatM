@@ -157,6 +157,7 @@ export const provider = sqliteTable("provider", {
   apiKey: text("api_key"),
   baseUrl: text("base_url"),
   is_default: integer("is_default"),
+  concurrency: integer("concurrency").notNull().default(30),
   defaultModel: text("default_model"), // Add this line
 });
 

@@ -9,6 +9,7 @@ export type EditProvider = {
   baseUrl?: string;
   defaultModel?: string;
   is_default?: number;
+  concurrency?: number;
 };
 
 export class ProviderService {
@@ -21,6 +22,7 @@ export class ProviderService {
         name: body.name ?? "",
         apiKey: body.apiKey,
         baseUrl: body.baseUrl,
+        is_default: body.is_default ?? 0,
         defaultModel: body.defaultModel,
       })
       .returning();
@@ -30,6 +32,7 @@ export class ProviderService {
   // list providers
   public static async listProviders() {
     const res = await db.select().from(provider);
+
     return res;
   }
 

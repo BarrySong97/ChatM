@@ -1,27 +1,16 @@
 import { useRef, useState } from "react";
-import {
-  ConfigProvider,
-  DatePicker,
-  message,
-  Table,
-  TableProps,
-  Tag,
-} from "antd";
+import { ConfigProvider } from "antd";
 import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
 import { useAssetsService } from "@/api/hooks/assets";
 import { useLiabilityService } from "@/api/hooks/liability";
-import { FinancialOperation } from "@/api/db/manager";
 import { AIService, AIServiceParams } from "@/api/services/AIService";
-import to from "await-to-js";
 import TableContent from "@/components/Transactions/components/TableContent";
 import TitleComponent from "./TitleComponent"; // Add this import
 import { Button } from "@nextui-org/react";
 import PopoverConfirm from "@/components/PopoverConfirm";
 import { useTagService } from "@/api/hooks/tag";
-import { useAtomValue } from "jotai";
-import { LicenseAtom } from "@/globals";
 
 export interface TransactionsTableProps {
   data?: Array<
@@ -51,17 +40,17 @@ export default function ImportDataTable({
   const { liabilities } = useLiabilityService();
   const [processLoading, setProcessLoading] = useState(false);
   const [processedCount, setProcessedCount] = useState(0);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const abortControllerRef = useRef<AbortController[]>([]);
   const isAbort = useRef<boolean>(false);
   const { tags } = useTagService();
   const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
   latestData.current = data ?? [];
   const batchAiProcess = async ({
     provider,
-
     model,
     apiKey,
     baseURL,
+    concurrency,
   }: Omit<
     AIServiceParams,
     "expense" | "income" | "liabilities" | "assets" | "data" | "importSource"
@@ -70,45 +59,42 @@ export default function ImportDataTable({
       return;
     }
 
-    const batchSize = 10;
-    const totalBatches = Math.ceil(latestData.current.length / batchSize);
+    const batchSize = concurrency ?? 30;
     setProcessLoading(true);
-    data.forEach((v, i) => {
+    data.forEach((v) => {
       v.status = true;
     });
     onDataChange?.([...data]);
-    for (let i = 0; i < totalBatches; i++) {
-      const startIndex = i * batchSize;
-      const endIndex = Math.min((i + 1) * batchSize, pureData.length);
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
-      if (isAbort.current) {
-        break;
-      }
-      const [err] = await to(
-        aiProcess(
-          startIndex,
-          endIndex,
-          provider,
-          model,
-          apiKey,
-          baseURL,
-          abortController
-        )
-      );
 
-      if (err) {
-        // If aiProcess returns false, stop processing
-        message.error(`AI处理失败，${err.message}`);
-        data.forEach((v) => {
-          v.status = false;
-        });
-
-        break;
+    const processBatch = async (startIndex: number, endIndex: number) => {
+      const promises = [];
+      for (let i = startIndex; i < endIndex; i += 1) {
+        if (i >= latestData.current.length || isAbort.current) {
+          break;
+        }
+        const abortController = new AbortController();
+        abortControllerRef.current[i] = abortController;
+        promises.push(
+          aiProcess(i, provider, model, apiKey, baseURL, abortController)
+        );
       }
+      await Promise.all(promises);
+    };
+
+    try {
+      for (let i = 0; i < latestData.current.length; i += batchSize) {
+        if (isAbort.current) {
+          break;
+        }
+        const endIndex = Math.min(i + batchSize, latestData.current.length);
+        await processBatch(i, endIndex);
+      }
+    } catch (error) {
+      console.log(error);
     }
-    // Sort data to prioritize incomplete entries
+
     if (!isAbort.current) {
+      // Existing sorting logic
       latestData.current.sort((a, b) => {
         const isValidAccount = (id: string) => {
           return (
@@ -163,6 +149,7 @@ export default function ImportDataTable({
         return 0;
       });
     }
+
     isAbort.current = false;
     latestData.current.forEach((v) => {
       v.status = false;
@@ -173,8 +160,7 @@ export default function ImportDataTable({
     setProcessLoading(false);
   };
   const aiProcess = async (
-    startIndex: number,
-    endIndex: number,
+    index: number,
     provider: string,
     model: string,
     apiKey: string,
@@ -197,7 +183,7 @@ export default function ImportDataTable({
       income: incomes,
       liabilities: liabilities,
       assets: assets,
-      data: data.slice(startIndex, endIndex),
+      data: data[index],
       importSource,
       provider,
       model,
@@ -207,8 +193,6 @@ export default function ImportDataTable({
     };
 
     const stream = await AIService.getAIResponse(params, abortController);
-    let dataIndex = startIndex;
-    let innerIndex = 0;
     let rawText = "";
     for await (const chunk of stream) {
       rawText += chunk.choices[0].delta.content;
@@ -216,40 +200,33 @@ export default function ImportDataTable({
         /\{[\s\S]*?"type":\s*"([^"]*)"[\s\S]*?"source_account_id":\s*"([^"]*)"[\s\S]*?"destination_account_id":\s*"([^"]*)"[\s\S]*?"transactionTags":\s*(\[[\s\S]*?\])[\s\S]*?\}/g;
 
       const matches = Array.from(rawText.matchAll(regex));
-      const sub = matches.length - innerIndex;
-      if (sub > 0) {
-        for (let i = 0; i < sub; i++) {
-          const match = matches[innerIndex];
-          const [
-            fullMatch,
-            type,
-            sourceAccountId,
-            destinationAccountId,
-            transactionTags,
-          ] = match;
-          data[dataIndex] = {
-            ...data[dataIndex],
-            type,
-            source_account_id: sourceAccountId,
-            transactionTags: transactionTags
-              ? (JSON.parse(transactionTags) as Array<string>).map((v) => ({
-                  tag: {
-                    name: tags?.find((tag) => tag.id === v)?.name ?? "",
-                    id: v,
-                  },
-                }))
-              : [],
-            destination_account_id: destinationAccountId,
-            status: false, // Set status to false after processing
-          };
-
-          innerIndex++;
-          dataIndex++;
-          setProcessedCount(dataIndex);
-        }
-        const res = [...data];
-        onDataChange?.(res);
+      const match = matches?.[0];
+      if (!match) {
+        continue;
       }
+
+      const [_, type, sourceAccountId, destinationAccountId, transactionTags] =
+        match;
+
+      data[index] = {
+        ...data[index],
+        type,
+        source_account_id: sourceAccountId,
+        transactionTags: transactionTags
+          ? (JSON.parse(transactionTags) as Array<string>).map((v) => ({
+              tag: {
+                name: tags?.find((tag) => tag.id === v)?.name ?? "",
+                id: v,
+              },
+            }))
+          : [],
+        destination_account_id: destinationAccountId,
+        status: false, // Set status to false after processing
+      };
+
+      setProcessedCount(index);
+      const res = [...data];
+      onDataChange?.(res);
     }
 
     return true;

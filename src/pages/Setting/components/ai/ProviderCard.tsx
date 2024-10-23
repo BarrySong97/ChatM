@@ -42,25 +42,30 @@ const ProviderCard: React.FC<ProviderCardProps> = ({ provider }) => {
   const [newModelName, setNewModelName] = useState("");
 
   useEffect(() => {
-    if (provider) {
-      form.setFieldsValue({
-        baseUrl: provider.baseUrl || "",
-        apiKey: provider.apiKey || "",
-        defaultModel: new Set([provider.defaultModel]),
-      });
-    }
+    const defaultModel = localStorage.getItem(`selectedModel-${provider.id}`);
+    const model = models?.find((m) => m.id === defaultModel);
+    form.setFieldsValue({
+      baseUrl: provider.baseUrl || "",
+      apiKey: provider.apiKey || "",
+      defaultModel: new Set([model?.name ?? provider.defaultModel]),
+    });
   }, [provider, form]);
 
   const handleSave = async (values: any) => {
+    const defaultModel = Array.from(values.defaultModel)[0] as string;
     await editProvider({
       providerId: provider.id,
       provider: {
         name: provider.name,
         apiKey: values.apiKey,
         baseUrl: values.baseUrl,
-        defaultModel: Array.from(values.defaultModel)[0] as string,
+        defaultModel,
       },
     });
+    const model = models?.find((m) => m.name === defaultModel);
+    if (model) {
+      localStorage.setItem(`selectedModel-${provider.id}`, model.id);
+    }
     message.success("保存成功");
   };
 

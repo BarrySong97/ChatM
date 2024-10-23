@@ -14,13 +14,14 @@ export interface AIServiceParams {
   income: Income[];
   liabilities: Liability[];
   assets: Asset[];
-  data: Array<Transaction>;
+  data: Transaction;
   importSource: string;
   provider: string;
   model: string;
   apiKey: string;
   baseURL: string;
   tags: Tag[];
+  concurrency?: number;
 }
 
 export class AIService {
@@ -40,11 +41,7 @@ export class AIService {
     }: AIServiceParams,
     abortController: AbortController
   ) {
-    const dataString = JSON.stringify(
-      data.map(({ content, ...rest }) => {
-        return content;
-      })
-    );
+    const dataString = data.content;
     const prompt = `
 <role>你是一位资深的财务管理专家，专注于资金流动分类、账户匹配和财务分析，给数据打标签</role>
 
@@ -84,6 +81,7 @@ export class AIService {
 11. 如果交易内容数据的语义能够匹配到标签，则匹配标签，否则不匹配标签, 标签数据来源于上面的**标签信息**
 12. 请确保账户匹配和标签匹配的一致性，比如标签是剪头发，那么来源账户和目标账户的语义就要相关联, 而不是餐饮这类毫无相关的语义
 13. 匹配账户的时候一定要注意账户名称的语义和交易内容的语义的关联性.
+14. 如果微信或者支付宝，以及任何银行账户如果里面包含转账字段，可能是支出或者收入，并不是系统内部的转账，系统内部的转账是在自己提供的资产账户之间转账
 </instructions>
 
 <task>

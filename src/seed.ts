@@ -133,17 +133,16 @@ export async function seed() {
           baseUrl: providerData.baseURL || "", // Set default base URL
           defaultModel: providerData.defaultModel || "", // Set default model
           is_default: providerData.name === "DeepSeek" ? 1 : 0,
-          // Note: We're not setting apiKey here as it should be set by the user
         });
 
         for (const modelData of providerData.chatModels) {
-          if (modelData.id === "deepseek-chat") {
-            localStorage.setItem("selectedModel", modelData.id);
-          }
-          await ModelService.createModel({
+          const res = await ModelService.createModel({
             name: modelData.id,
             providerId: provider.id,
           });
+          if (modelData.id === provider.defaultModel) {
+            localStorage.setItem(`selectedModel-${provider.id}`, res.id);
+          }
         }
       }
     }

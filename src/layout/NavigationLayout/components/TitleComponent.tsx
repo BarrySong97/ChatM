@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Select, SelectItem, Tooltip } from "@nextui-org/react";
+import { Button, Input, Select, SelectItem, Tooltip } from "@nextui-org/react";
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider, Model } from "@db/schema";
@@ -9,12 +9,13 @@ import { LicenseAtom } from "@/globals";
 import { useLocalStorageState } from "ahooks";
 import { License } from "@/api/models/license";
 import { MaterialSymbolsContactSupportOutline } from "./icon";
+import { useQueryClient } from "react-query";
 
 interface TitleComponentProps {
   totalCount: number;
   processedCount: number;
   processLoading: boolean;
-  abortControllerRef: React.RefObject<AbortController>;
+  abortControllerRef: React.RefObject<AbortController[]>;
   isAbort: React.MutableRefObject<boolean>;
   onAIProcess: (
     params: Omit<
@@ -37,40 +38,57 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
   const { models } = useModelService(selectedProvider);
   const [selectedModel, setSelectedModel] = useState<string>("");
   const ref = useRef<number>(0);
+  const [concurrency, setConcurrency] = useState<number>(30);
 
   useEffect(() => {
     if (providers && providers.length > 0 && ref.current === 0) {
       const defaultProvider = providers.find((p) => p.is_default === 1);
+
       if (defaultProvider) {
         setSelectedProvider(defaultProvider.id);
       }
+      const defaultConcurrency = defaultProvider?.concurrency ?? 30;
+      setConcurrency(defaultConcurrency);
       const savedModel = localStorage.getItem(
         `selectedModel-${defaultProvider?.id}`
       );
+
       if (savedModel) {
         setSelectedModel(savedModel);
-      } else {
-        const defaultModel = models?.[0]?.id;
-        if (defaultModel) {
-          handleModelChange(defaultModel);
-        }
       }
       ref.current = 1;
     }
   }, [providers]);
-
   const handleProviderChange = async (providerId: string) => {
     setSelectedProvider(providerId);
-    await editProvider({ providerId, provider: { is_default: 1 } });
+    setConcurrency(
+      providers?.find((p) => p.id === providerId)?.concurrency ?? 30
+    );
+    await editProvider({
+      providerId,
+      provider: { is_default: 1 },
+    });
     const savedModel = localStorage.getItem(`selectedModel-${providerId}`);
     if (savedModel) {
       setSelectedModel(savedModel);
     }
   };
 
-  const handleModelChange = (modelId: string) => {
+  const selectModelItem = models?.find((model) => model.id === selectedModel);
+  const handleModelChange = async (modelId: string) => {
     setSelectedModel(modelId);
     localStorage.setItem(`selectedModel-${selectedProvider}`, modelId);
+    await editProvider({
+      providerId: selectedProvider,
+      provider: { defaultModel: selectModelItem?.name ?? "" },
+    });
+  };
+  const handleConcurrencyChange = async (concurrency: number) => {
+    setConcurrency(concurrency);
+    await editProvider({
+      providerId: selectedProvider,
+      provider: { concurrency },
+    });
   };
 
   const processedPercent = Math.round((processedCount / totalCount) * 100);
@@ -78,11 +96,7 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
   const selectProviderItem = providers?.find(
     (provider) => provider.id === selectedProvider
   );
-  const selectModelItem = models?.find((model) => model.id === selectedModel);
 
-  const [License] = useLocalStorageState<License | null>("license", {
-    defaultValue: null,
-  });
   return (
     <div className="flex justify-between items-center">
       <div>
@@ -100,8 +114,24 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
             AI处理需要AI API key，请先在设置中配置
           </div>
         ) : null}
+        <Input
+          size="sm"
+          startContent={
+            <div className="text-xs w-[80px] text-default-400">并发数</div>
+          }
+          className="w-[100px]"
+          placeholder="并发数"
+          type="number"
+          value={concurrency.toString()}
+          onChange={(e) => {
+            handleConcurrencyChange(Number(e.target.value));
+          }}
+        />
         <Select
-          className="w-[200px]"
+          startContent={
+            <div className="text-xs w-[60px] text-default-400">提供商</div>
+          }
+          className="w-[180px]"
           size="sm"
           selectedKeys={selectedProvider ? [selectedProvider] : []}
           onSelectionChange={(keys) =>
@@ -118,6 +148,9 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
         <Select
           className="w-[200px]"
           size="sm"
+          startContent={
+            <div className="text-xs w-[40px] text-default-400">模型</div>
+          }
           selectedKeys={selectedModel ? [selectedModel] : undefined}
           placeholder="请选择模型"
           onSelectionChange={(keys) =>
@@ -134,7 +167,9 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
         {processLoading ? (
           <Button
             onClick={() => {
-              abortControllerRef.current?.abort();
+              abortControllerRef.current?.forEach((controller) => {
+                controller.abort();
+              });
               isAbort.current = true;
             }}
             radius="sm"
@@ -152,6 +187,7 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
                   model: selectModelItem?.name ?? "",
                   apiKey: selectProviderItem?.apiKey ?? "",
                   baseURL: selectProviderItem?.baseUrl ?? "",
+                  concurrency: selectProviderItem?.concurrency ?? 30,
                 })
               }
               radius="sm"
