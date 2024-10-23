@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { useClickAway } from "ahooks";
 import { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
@@ -122,7 +122,12 @@ const TableContent: React.FC<TableContentProps> = ({
   const contentWrap = {
     autoHeight: true,
     wrapText: true,
-    cellStyle: { whiteSpace: "normal", lineHeight: "24px" },
+    cellStyle: {
+      whiteSpace: "normal",
+      lineHeight: "24px",
+      // height: "120px",
+      // padding: "0.5rem 0.5rem",
+    },
   };
   const queryClient = useQueryClient();
   const [colDefs, setColDefs] = useState<
@@ -147,7 +152,9 @@ const TableContent: React.FC<TableContentProps> = ({
       field: "transaction_date",
       headerName: "日期",
       width: 120,
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       cellEditor: ({ value, onValueChange }) => {
         return (
           <DatePicker
@@ -171,7 +178,9 @@ const TableContent: React.FC<TableContentProps> = ({
     {
       field: "content",
       width: 400,
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       headerName: "交易内容",
       ...(isContentWrap ? contentWrap : {}),
     },
@@ -179,7 +188,9 @@ const TableContent: React.FC<TableContentProps> = ({
       field: "amount",
       type: "rightAligned",
       width: 100,
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       cellEditor: ({ value, onValueChange }) => {
         return (
           <div className="flex items-stretch">
@@ -207,7 +218,9 @@ const TableContent: React.FC<TableContentProps> = ({
       field: "type",
       width: 110,
       headerName: "类型",
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       cellEditor: ({ value, onValueChange, api }) => {
         return (
           <Select
@@ -288,7 +301,9 @@ const TableContent: React.FC<TableContentProps> = ({
       field: "source_account_id",
       headerName: "来源账户",
       width: 130,
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       cellRenderer: (params: any) => {
         if (params?.data?.status) {
           return (
@@ -352,7 +367,9 @@ const TableContent: React.FC<TableContentProps> = ({
     {
       field: "destination_account_id",
       headerName: "目标账户",
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       width: 130,
       cellRenderer: (params: any) => {
         if (params?.data?.status) {
@@ -417,7 +434,9 @@ const TableContent: React.FC<TableContentProps> = ({
     {
       field: "transactionTags",
       headerName: "标签",
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
       cellRenderer: (params: any) => {
         const tagstring = params?.value
           ?.map((tag: { tag: { name: string; id: string } }) => {
@@ -458,7 +477,9 @@ const TableContent: React.FC<TableContentProps> = ({
     {
       field: "remark",
       headerName: "备注",
-      editable: true,
+      editable: (params) => {
+        return params.data?.type !== "loading";
+      },
     },
   ]);
   useEffect(() => {
@@ -486,6 +507,7 @@ const TableContent: React.FC<TableContentProps> = ({
       }
     }
   }, [selectedTransactions]);
+
   return (
     <div className="ag-theme-custom mt-4" style={{ height: 500 }}>
       <AgGridReact
@@ -524,6 +546,9 @@ const TableContent: React.FC<TableContentProps> = ({
         }}
         suppressScrollOnNewData
         columnDefs={colDefs}
+        getRowId={(params) => params.data.id}
+        domLayout="autoHeight"
+        suppressAnimationFrame
         rowSelection="multiple"
         overlayNoRowsTemplate="暂无数据"
         suppressRowClickSelection={true}

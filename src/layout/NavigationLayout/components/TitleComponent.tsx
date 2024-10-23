@@ -1,11 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Input, Select, SelectItem, Tooltip } from "@nextui-org/react";
+import {
+  Button,
+  Input,
+  Link,
+  Select,
+  SelectItem,
+  Tooltip,
+} from "@nextui-org/react";
 import { useProviderService } from "@/api/hooks/provider";
 import { useModelService } from "@/api/hooks/model";
 import { Provider, Model } from "@db/schema";
 import { AIServiceParams } from "@/api/services/AIService";
-import { useAtomValue } from "jotai";
-import { LicenseAtom } from "@/globals";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  LicenseAtom,
+  SettingActiveKeyAtom,
+  ShowSettingModalAtom,
+} from "@/globals";
 import { useLocalStorageState } from "ahooks";
 import { License } from "@/api/models/license";
 import { MaterialSymbolsContactSupportOutline } from "./icon";
@@ -96,6 +107,8 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
   const selectProviderItem = providers?.find(
     (provider) => provider.id === selectedProvider
   );
+  const setSettingModal = useSetAtom(ShowSettingModalAtom);
+  const setActiveKey = useSetAtom(SettingActiveKeyAtom);
 
   return (
     <div className="flex justify-between items-center">
@@ -111,7 +124,19 @@ const TitleComponent: React.FC<TitleComponentProps> = ({
       <div className="flex items-center space-x-4">
         {!selectProviderItem?.apiKey || !selectProviderItem?.baseUrl ? (
           <div className="text-sm text-danger">
-            AI处理需要AI API key，请先在设置中配置
+            AI处理需要AI API key，请先在
+            <Link
+              onClick={() => {
+                setSettingModal(true);
+                setActiveKey("ai");
+              }}
+              size="sm"
+              underline="always"
+              className="text-sm cursor-pointer"
+            >
+              设置
+            </Link>
+            中配置
           </div>
         ) : null}
         <Input

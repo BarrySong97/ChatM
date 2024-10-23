@@ -74,6 +74,7 @@ function getWechatData(data: string[][]) {
         transaction_date: item[0],
         amount: Number(item[5].slice(1)),
         type: item[4],
+        status: false,
         content: `交易类型: ${item[1]} | 交易对方:${item[2]} | 商品:${item[3]} | 收/付款方式:${item[6]}`,
       });
     }
@@ -89,6 +90,7 @@ function getAlipayData(data: string[][]) {
         id: uuidv4(),
         transaction_date: item[0],
         amount: Number(item[6]),
+        status: false,
         type: item[5],
         content: `交易类型：${item[1]} | 交易对方:${item[2]} | 商品: ${item[4]} | 收/付款方式:${item[7]}`,
       });
@@ -125,6 +127,7 @@ function getTemplateData(
         content: item[1],
         source_account_id: source_account_id,
         destination_account_id: destination_account_id,
+        status: false,
       });
     }
   }
@@ -165,6 +168,7 @@ function getPixiuData(
         content: item[9],
         destination_account_id: destination_account_id,
         source_account_id: source_account_id,
+        status: false,
       });
     }
   }

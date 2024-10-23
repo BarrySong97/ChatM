@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import { Modal, ModalContent, ModalBody, Button } from "@nextui-org/react";
 import { cn } from "@/lib/utils";
 import { MdiRobotOutline, PhCreditCardLight, PhQuestion } from "./icon";
-import { BookAtom, isSettingOpenAtom } from "@/globals";
+import { BookAtom, isSettingOpenAtom, SettingActiveKeyAtom } from "@/globals";
 import { useAtom, useSetAtom } from "jotai";
 import { useBookService } from "@/api/hooks/book";
 import Pricing from "./components/pricing";
@@ -32,7 +32,7 @@ const Setting: FC<SettingProps> = ({ isOpen, setIsOpen }) => {
       icon: <MdiRobotOutline />,
     },
   ];
-  const [activeKey, setActiveKey] = useState<string>("about");
+  const [activeKey, setActiveKey] = useAtom(SettingActiveKeyAtom);
   const [selectMenuBook, setselectMemnuBook] = useState<Book>();
   const { books, isLoadingBooks, editBook, deleteBook, createBook } =
     useBookService();

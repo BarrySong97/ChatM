@@ -197,7 +197,13 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
   }, [isOpen]);
 
   const isAllDataComplete = fileData?.every(
-    (item) => item.type && item.destination_account_id && item.source_account_id
+    (item) =>
+      item.type &&
+      item.destination_account_id &&
+      item.source_account_id &&
+      !["aborted", "loading"].includes(item.type) &&
+      !["aborted", "loading"].includes(item.destination_account_id) &&
+      !["aborted", "loading"].includes(item.source_account_id)
   );
 
   const [daownLoading, setDaownLoading] = useState(false);

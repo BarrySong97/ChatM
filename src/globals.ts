@@ -18,3 +18,4 @@ export const AccountModalTypeAtom = atom<
 >("income");
 export const ShowCommandModalAtom = atom(false);
 export const ShowBatchAddAccountModalAtom = atom(false);
+export const SettingActiveKeyAtom = atom<string>("about");

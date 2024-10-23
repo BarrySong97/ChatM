@@ -60,11 +60,6 @@ export default function ImportDataTable({
     }
 
     const batchSize = concurrency ?? 30;
-    setProcessLoading(true);
-    data.forEach((v) => {
-      v.status = true;
-    });
-    onDataChange?.([...data]);
 
     const processBatch = async (startIndex: number, endIndex: number) => {
       const promises = [];
@@ -82,6 +77,21 @@ export default function ImportDataTable({
     };
 
     try {
+      setProcessLoading(true);
+      const newData = latestData.current.map((v) => {
+        return {
+          ...v,
+          status: true,
+          destination_account_id: "loading",
+          pre_destination_account_id: v.destination_account_id,
+          source_account_id: "loading",
+          pre_source_account_id: v.source_account_id,
+          type: "loading",
+          pre_type: v.type,
+          transactionTags: [],
+        };
+      });
+      onDataChange?.(newData);
       for (let i = 0; i < latestData.current.length; i += batchSize) {
         if (isAbort.current) {
           break;
@@ -148,12 +158,30 @@ export default function ImportDataTable({
         // If both are complete, maintain their original order
         return 0;
       });
+    } else {
+      console.log("aborted");
+
+      const newData = latestData.current.map((v) => {
+        const { pre_destination_account_id, pre_source_account_id, pre_type } =
+          v as any;
+        return {
+          ...v,
+          status: false,
+          destination_account_id:
+            v.destination_account_id === "loading"
+              ? pre_destination_account_id
+              : "aborted",
+          source_account_id:
+            v.source_account_id === "loading"
+              ? pre_source_account_id
+              : "aborted",
+          type: v.type === "loading" ? pre_type : "aborted",
+        };
+      });
+      latestData.current = newData;
     }
 
     isAbort.current = false;
-    latestData.current.forEach((v) => {
-      v.status = false;
-    });
 
     // Update the sorted data
     onDataChange?.([...latestData.current]);
