@@ -47,7 +47,9 @@ interface TableContentProps {
   onRowEdit?: (row: any, rowIndex: number) => void;
   selectedTransactions: Transaction[];
   importTable?: boolean;
+  isInverseSelection?: boolean;
   isContentWrap?: boolean;
+  onInverseSelectionChanged?: () => void;
 }
 
 const TableContent: React.FC<TableContentProps> = ({
@@ -62,6 +64,8 @@ const TableContent: React.FC<TableContentProps> = ({
   importTable = false,
   onRowEdit,
   isContentWrap = false,
+  isInverseSelection = false,
+  onInverseSelectionChanged,
 }) => {
   const { tags } = useTagService();
   const asssetsRef = useRef<Asset[]>([]);
@@ -498,6 +502,31 @@ const TableContent: React.FC<TableContentProps> = ({
 
   const { editTransaction } = useTransactionService(transactionListParams);
   const gridRef = useRef<AgGridReact>(null);
+
+  useEffect(() => {
+    if (gridRef.current && gridRef.current.api && isInverseSelection) {
+      const api: GridApi = gridRef.current.api;
+      const selectedNodes = api.getSelectedNodes();
+      const allNodesSelected =
+        transactions.length - selectedTransactions.length ===
+        selectedNodes.length;
+
+      if (isInverseSelection && allNodesSelected) {
+        // Inverse selection: deselect all nodes and select the ones not in selectedTransactions
+        api.deselectAll();
+        transactions.forEach((transaction, index) => {
+          if (
+            selectedTransactions.find(
+              (selected) => selected.id === transaction.id
+            )
+          ) {
+            api.getDisplayedRowAtIndex(index)?.setSelected(true);
+          }
+        });
+      }
+      onInverseSelectionChanged?.();
+    }
+  }, [selectedTransactions, isInverseSelection, transactions]);
   useEffect(() => {
     if (gridRef.current && gridRef.current.api) {
       const api: GridApi = gridRef.current.api;
@@ -542,7 +571,10 @@ const TableContent: React.FC<TableContentProps> = ({
         onSelectionChanged={(e) => {
           const nodes = e.api.getSelectedNodes();
           const rows = nodes.map((node) => node.data);
-          onSelectionChanged(rows);
+          if (!isInverseSelection) {
+            onSelectionChanged(rows);
+            return;
+          }
         }}
         suppressScrollOnNewData
         columnDefs={colDefs}

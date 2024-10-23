@@ -44,6 +44,7 @@ export default function ImportDataTable({
   const isAbort = useRef<boolean>(false);
   const { tags } = useTagService();
   const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
+  const [isInverseSelection, setIsInverseSelection] = useState(false);
   latestData.current = data ?? [];
   const batchAiProcess = async ({
     provider,
@@ -314,8 +315,12 @@ export default function ImportDataTable({
           totalPages={0}
           totalCount={0}
           importTable
+          isInverseSelection={isInverseSelection}
           selectedTransactions={selectedRows}
           onSelectionChanged={setSelectedRows}
+          onInverseSelectionChanged={() => {
+            setIsInverseSelection(false);
+          }}
         />
         <div
           className="absolute bottom-[70px] left-0 right-0 bg-background border-t border-b-none  rounded-b-none border-divider shadow-none transition-transform duration-300 ease-in-out transform translate-y-0"
@@ -333,6 +338,20 @@ export default function ImportDataTable({
               已选择 <span className="font-bold">{selectedRows.length}</span> 项
             </div>
             <div className="space-x-2">
+              <Button
+                onClick={() => {
+                  const newSelectedRows = data?.filter(
+                    (v) => !selectedRows.find((s) => s.id === v.id)
+                  );
+                  setSelectedRows(newSelectedRows ?? []);
+                  setIsInverseSelection(true);
+                }}
+                variant="flat"
+                size="sm"
+                radius="sm"
+              >
+                反选
+              </Button>
               <Button
                 onClick={() => setSelectedRows([])}
                 variant="flat"
