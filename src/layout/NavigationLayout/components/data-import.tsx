@@ -12,6 +12,8 @@ import { InputCategoryList } from "./import-category";
 import FileUploader from "./FileUploader";
 import ImportDataTable from "./data-table";
 import ConfirmImportModal from "./ConfirmImportModal";
+import Papa from "papaparse";
+
 import { Transaction } from "@db/schema";
 import {
   getWechatData,
@@ -56,103 +58,62 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
     const file = info.file.originFileObj as File;
     setFile(file);
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const csvData = event.target?.result as string;
-      let results: Array<Array<string>> = [];
+    Papa.parse(file, {
+      encoding: fileSource === "alipay" ? "GBK" : "UTF-8",
+      complete: (results) => {
+        setSteps(2);
+        switch (fileSource) {
+          case "alipay":
+            let lineData: string[] = results.data?.[24] as string[];
+            let lineData2: string[] = lineData?.slice(12);
+            const groupedData = [];
+            for (let i = 0; i < lineData2.length; i += 12) {
+              const group = lineData2.slice(i, i + 12);
+              if (group.length === 12) {
+                groupedData.push(group);
+              }
+            }
+            setPureData(groupedData);
+            setFileData(getAlipayData(groupedData) as unknown as Transaction[]);
+            break;
+          case "template":
+            const templateData = results.data?.slice(1) as Array<Array<string>>;
+            setPureData(templateData);
+            setFileData(
+              getTemplateData(
+                templateData,
+                incomes,
+                assets,
+                expenses,
+                liabilities
+              ) as unknown as Transaction[]
+            );
+            break;
+          case "wechat":
+            const wechatData = results.data?.slice(17) as Array<Array<string>>;
 
-      const lines = csvData.split("\n");
+            setPureData(wechatData);
+            setFileData(getWechatData(wechatData) as unknown as Transaction[]);
+            break;
+          case "pixiu":
+            const pixiuData = results.data?.slice(1) as Array<Array<string>>;
+            setPureData(pixiuData);
 
-      // 这个正则表达式用于分割CSV文件的行，同时处理引号内的逗号和分号
-      // 解释如下：
-      // 1. ,(?=(?:(?:[^"]*"){2})*[^"]*$) 匹配逗号，但不匹配引号内的逗号
-      //    - (?=...) 是正向预查，确保后面的模式匹配，但不消耗字符
-      //    - (?:[^"]*"){2} 匹配偶数个引号之间的内容（包括引号）
-      //    - (?:...)*[^"]*$ 确保从当前位置到行尾有偶数个引号
-      // 2. |;(?=(?:(?:[^"]*"){2})*[^"]*$) 对分号进行相同的处理
-      // 3. 然后对每个分割后的值进行trim()和去除首尾引号的处理
-      // 分割CSV行的正则表达式
-      // 这个正则表达式能够处理以下情况：
-      // 1. 标准的逗号分隔
-      // 2. 分号分隔（某些地区使用）
-      // 3. 引号内的逗号和分号（不会被当作分隔符）
-      // 4. 连续的逗号或分号（会创建空字段）
-      // 5. 行末的逗号或分号（会创建一个额外的空字段）
-      //
-      // 注意：这个方法可能在处理非常大的文件时性能较低
-      // 对于大文件，考虑使用流式解析或专门的CSV解析库
-      const csvSplitRegex =
-        /,(?=(?:(?:[^"]*"){2})*[^"]*$)|;(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-
-      // 处理每一行
-      results = lines.map((line) => {
-        // 分割行并处理每个字段
-        return line.split(csvSplitRegex).map((value) => {
-          // 去除首尾空白字符
-          value = value.trim();
-          // 如果字段被引号包围，去除引号
-          if (value.startsWith('"') && value.endsWith('"')) {
-            value = value.slice(1, -1);
-          }
-          // 处理双引号转义（两个连续的双引号表示一个实际的双引号）
-          value = value.replace(/""/g, '"');
-          return value;
-        });
-      });
-
-      // 移除可能的空行（例如文件末尾的空行）
-      results = results.filter((row) => row.some((cell) => cell.length > 0));
-      results = lines.map((line) =>
-        line
-          .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)|;(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-          .map((value) => value.trim().replace(/^"|"$/g, ""))
-      );
-
-      setSteps(2);
-      switch (fileSource) {
-        case "alipay":
-          const alipayData = results.slice(25);
-          setPureData(alipayData);
-          setFileData(getAlipayData(alipayData) as unknown as Transaction[]);
-          break;
-        case "template":
-          const templateData = results.slice(1);
-          setPureData(templateData);
-          setFileData(
-            getTemplateData(
-              templateData,
-              incomes,
-              assets,
-              expenses,
-              liabilities
-            ) as unknown as Transaction[]
-          );
-          break;
-        case "wechat":
-          const wechatData = results.slice(17);
-          setPureData(wechatData);
-          setFileData(getWechatData(wechatData) as unknown as Transaction[]);
-          break;
-        case "pixiu":
-          const pixiuData = results.slice(1);
-
-          setPureData(pixiuData);
-
-          setFileData(
-            getPixiuData(
-              pixiuData,
-              incomes,
-              assets,
-              expenses
-            ) as unknown as Transaction[]
-          );
-          break;
-      }
-    };
-    if (fileSource === "alipay") {
-      reader.readAsText(file, "GBK");
-    } else {
-      reader.readAsText(file);
-    }
+            setFileData(
+              getPixiuData(
+                pixiuData,
+                incomes,
+                assets,
+                expenses
+              ) as unknown as Transaction[]
+            );
+            break;
+        }
+      },
+      error: (error) => {
+        console.error("Error parsing file:", error);
+      },
+    });
   };
 
   const handleCategoryChange = (key: string) => {

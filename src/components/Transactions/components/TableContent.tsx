@@ -1,4 +1,10 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import { useClickAway } from "ahooks";
 import { ColDef, GridApi, GridReadyEvent } from "ag-grid-community";
@@ -124,7 +130,6 @@ const TableContent: React.FC<TableContentProps> = ({
   };
 
   const contentWrap = {
-    autoHeight: true,
     wrapText: true,
     cellStyle: {
       whiteSpace: "normal",
@@ -536,11 +541,41 @@ const TableContent: React.FC<TableContentProps> = ({
       }
     }
   }, [selectedTransactions]);
-
+  const datasource = useMemo(
+    () => ({
+      getRows: (params: {
+        startRow: number;
+        endRow: number;
+        successCallback: (rows: Transaction[], lastRow: number) => void;
+      }) => {
+        // 处理数据获取逻辑
+        const rowsThisPage = transactions.slice(params.startRow, params.endRow);
+        // if on or after the last page, work out the last row.
+        let lastRow = -1;
+        if (transactions.length <= params.endRow) {
+          lastRow = transactions.length;
+        }
+        // call the success callback
+        params.successCallback(rowsThisPage, lastRow);
+      },
+    }),
+    [transactions]
+  );
+  const getRowHeight = useCallback(
+    (params: { node: { rowPinned: boolean }; data: any }) => {
+      // 根据行数据内容动态返回高度
+      if (params.node.rowPinned) {
+        return 100; // 如果是固定行，可以设置固定高度
+      }
+      return 300;
+    },
+    []
+  );
   return (
     <div className="ag-theme-custom mt-4" style={{ height: 500 }}>
       <AgGridReact
-        rowData={transactions}
+        datasource={importTable ? datasource : undefined}
+        rowData={importTable ? undefined : transactions}
         ref={gridRef}
         onCellValueChanged={(e) => {
           if (importTable) {
@@ -576,10 +611,15 @@ const TableContent: React.FC<TableContentProps> = ({
             return;
           }
         }}
+        rowModelType={importTable ? "infinite" : "clientSide"}
+        cacheBlockSize={20}
+        cacheOverflowSize={2}
+        infiniteInitialRowCount={20}
+        maxBlocksInCache={10}
         suppressScrollOnNewData
         columnDefs={colDefs}
         getRowId={(params) => params.data.id}
-        domLayout="autoHeight"
+        // domLayout="autoHeight"
         suppressAnimationFrame
         rowSelection="multiple"
         overlayNoRowsTemplate="暂无数据"

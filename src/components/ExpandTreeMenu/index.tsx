@@ -59,9 +59,6 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
 }) => {
   const [_isOpen, _setIsOpen] = useState(isOpen ?? false);
   const [isHovered, setIsHovered] = useState(false);
-  if (node.key === "asset") {
-    console.log(node.key, isOpen, _isOpen);
-  }
 
   const hasChildren = node.children && node.children.length > 0;
   const isLeaf = !hasChildren;
@@ -267,9 +264,6 @@ const ExpandTreeMenu: React.FC<TreeMenuProps> = ({
   return (
     <div className=" overflow-hidden space-y-0.5">
       {data.map((node) => {
-        if (node.key === "asset") {
-          console.log(openKeys?.includes(node.key));
-        }
         return (
           <TreeMenuItem
             key={node.key}

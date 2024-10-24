@@ -160,8 +160,6 @@ export default function ImportDataTable({
         return 0;
       });
     } else {
-      console.log("aborted");
-
       const newData = latestData.current.map((v) => {
         const { pre_destination_account_id, pre_source_account_id, pre_type } =
           v as any;
@@ -254,8 +252,7 @@ export default function ImportDataTable({
       };
 
       setProcessedCount(index);
-      const res = [...data];
-      onDataChange?.(res);
+      onDataChange?.([...data]);
     }
 
     return true;

@@ -27,15 +27,12 @@ const TrafficLight: FC<TrafficLightProps> = ({
   const maximizeRef = useRef(false);
   useEffect(() => {
     window.ipcRenderer.on(MAIN_SEND_RENDER_KEYS.MAXIMIZE, () => {
-      console.log("ipcRenderer.on", MAIN_SEND_RENDER_KEYS.MAXIMIZE);
       setmaximize(true);
     });
     window.ipcRenderer.on(MAIN_SEND_RENDER_KEYS.RESTORE, () => {
-      console.log("ipcRenderer.on", MAIN_SEND_RENDER_KEYS.RESTORE);
       setmaximize(false);
     });
     window.ipcRenderer.on(MAIN_SEND_RENDER_KEYS.MINIMIZE, () => {
-      console.log("ipcRenderer.on", MAIN_SEND_RENDER_KEYS.MINIMIZE);
       setmaximize(true);
     });
   }, []);
