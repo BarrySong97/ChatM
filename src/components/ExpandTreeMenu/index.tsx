@@ -59,6 +59,9 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
 }) => {
   const [_isOpen, _setIsOpen] = useState(isOpen ?? false);
   const [isHovered, setIsHovered] = useState(false);
+  if (node.key === "asset") {
+    console.log(node.key, isOpen, _isOpen);
+  }
 
   const hasChildren = node.children && node.children.length > 0;
   const isLeaf = !hasChildren;
@@ -225,7 +228,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
         ) : null}
       </div>
       <AnimatePresence initial={false}>
-        {hasChildren && (_isOpen || isOpen) && (
+        {hasChildren && (isOpen ?? _isOpen) ? (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -246,7 +249,7 @@ const TreeMenuItem: React.FC<TreeMenuItemProps> = ({
               />
             ))}
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );
@@ -263,26 +266,33 @@ const ExpandTreeMenu: React.FC<TreeMenuProps> = ({
 }) => {
   return (
     <div className=" overflow-hidden space-y-0.5">
-      {data.map((node) => (
-        <TreeMenuItem
-          key={node.key}
-          onSelectionChange={onSelectionChange}
-          node={node}
-          onDelete={onDelete}
-          onEdit={onEdit}
-          selectedKey={selectedKey}
-          level={0}
-          isSelected={selectedKey === node.key}
-          isOpen={openKeys?.includes(node.key)}
-          setIsOpen={(isOpen) => {
-            if (isOpen) {
-              onOpenChange?.(openKeys ? [...openKeys, node.key] : [node.key]);
-            } else {
-              onOpenChange?.(openKeys?.filter((key) => key !== node.key) ?? []);
-            }
-          }}
-        />
-      ))}
+      {data.map((node) => {
+        if (node.key === "asset") {
+          console.log(openKeys?.includes(node.key));
+        }
+        return (
+          <TreeMenuItem
+            key={node.key}
+            onSelectionChange={onSelectionChange}
+            node={node}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            selectedKey={selectedKey}
+            level={0}
+            isSelected={selectedKey === node.key}
+            isOpen={openKeys?.includes(node.key)}
+            setIsOpen={(isOpen) => {
+              if (isOpen) {
+                onOpenChange?.(openKeys ? [...openKeys, node.key] : [node.key]);
+              } else {
+                onOpenChange?.(
+                  openKeys?.filter((key) => key !== node.key) ?? []
+                );
+              }
+            }}
+          />
+        );
+      })}
     </div>
   );
 };
