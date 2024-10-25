@@ -1,4 +1,5 @@
 import { AppPathAtom } from "@/globals";
+import { usePublicPath } from "@/hooks";
 import { useAtom } from "jotai";
 import React from "react";
 
@@ -12,9 +13,7 @@ const ElectronImage: React.FC<ImageProps> = ({
   delay = 520,
   ...props
 }) => {
-  const [appPath] = useAtom(AppPathAtom);
-
-  const imageSrc = import.meta.env.DEV ? src : `${appPath}/dist${src}`;
+  const imageSrc = usePublicPath(src);
 
   return <img src={imageSrc} {...props} />;
 };

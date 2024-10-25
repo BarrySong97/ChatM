@@ -124,6 +124,7 @@ async function createWindow() {
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
+
     win?.webContents.send("app-path", app.getAppPath());
   });
 
@@ -144,12 +145,8 @@ async function createWindow() {
   update(win);
 }
 
-ipcMain.handle("get-image-path", (_, relativePath) => {
-  return path.join(app.getAppPath(), relativePath);
-});
-
-ipcMain.on("get-app-path", (event) => {
-  event.returnValue = app.getAppPath();
+ipcMain.handle("get-app-path", (_, relativePath) => {
+  return app.getAppPath();
 });
 
 app.whenReady().then(() => {

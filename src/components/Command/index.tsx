@@ -489,7 +489,7 @@ export function RaycastCMDK() {
               <div cmdk-raycast-footer="">
                 <div className="flex-1">
                   <ElectronImage
-                    src={"/icon-side.png"}
+                    src={"icon-side.png"}
                     className="rounded-sm  h-4 w-4"
                     alt="logo"
                   />

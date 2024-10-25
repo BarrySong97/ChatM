@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       </ModalProvider>
     </QueryClientProvider>
 
-    {import.meta.env.DEV && (
+    {!import.meta.env.DEV && (
       <Button
         isIconOnly
         radius="full"

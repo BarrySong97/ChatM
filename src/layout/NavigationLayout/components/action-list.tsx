@@ -15,19 +15,19 @@ import SideMenuList from "./SideMenuList";
 import { BookService } from "@/api/services/BookService";
 import { IPC_EVENT_KEYS } from "@/constant";
 import { useUserService } from "@/api/hooks/user";
+import { usePublicPath } from "@/hooks";
 export interface ActionListProps {}
 const ActionList: FC<ActionListProps> = () => {
   const { books } = useBookService();
-  const [appPath] = useAtom(AppPathAtom);
-  const iconSrc = "/icon-side.webp";
-  const imageSrc = import.meta.env.DEV ? iconSrc : `${appPath}/dist/${iconSrc}`;
+  const isMac = window.platform.getOS() === "darwin";
+  const imageSrc = usePublicPath("icon-side.webp");
 
   const [SelectedBook, setSelectedBook] = useAtom(BookAtom);
   const { user, editUser } = useUserService();
-  const avatarSrc = user?.avatar ?? imageSrc;
+  const avatarSrc = user?.avatar;
+
   const [editBook, setEditBook] = useState<Book>();
   const [isShowBookModal, setIsShowBookModal] = useState(false);
-  const isMac = window.platform.getOS() === "darwin";
   return (
     <div
       className={cn(
@@ -100,7 +100,7 @@ const ActionList: FC<ActionListProps> = () => {
       <div className="">
         <Tooltip radius="sm" content="修改头像">
           <Avatar
-            src={avatarSrc ?? ""}
+            src={avatarSrc}
             onClick={async () => {
               const base64Image = await window.ipcRenderer.invoke(
                 IPC_EVENT_KEYS.OPEN_FILE

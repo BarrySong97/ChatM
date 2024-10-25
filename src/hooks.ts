@@ -13,7 +13,10 @@ export function useRouteQuery() {
 }
 export function usePublicPath(src: string) {
   const [appPath] = useAtom(AppPathAtom);
-  const imageSrc = import.meta.env.DEV ? src : `${appPath}/dist${src}`;
+  const isMac = window.platform.getOS() === "darwin";
+  const imageSrc = import.meta.env.DEV
+    ? src
+    : `${appPath}${isMac ? "/" : "\\"}dist${isMac ? "/" : "\\"}${src}`;
   return imageSrc;
 }
 

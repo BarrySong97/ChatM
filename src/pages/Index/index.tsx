@@ -81,7 +81,7 @@ const Index: FC<IndexProps> = () => {
   ];
   const setAppPath = useSetAtom(AppPathAtom);
   useEffect(() => {
-    window.ipcRenderer.on("app-path", (_, path) => {
+    window.ipcRenderer.invoke("get-app-path").then((path) => {
       setAppPath(path);
     });
 
