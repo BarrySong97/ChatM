@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import { Transaction } from "@db/schema";
 import { useIncomeService } from "@/api/hooks/income";
 import { useExpenseService } from "@/api/hooks/expense";
@@ -11,6 +11,7 @@ import TitleComponent from "./TitleComponent"; // Add this import
 import { Button } from "@nextui-org/react";
 import PopoverConfirm from "@/components/PopoverConfirm";
 import { useTagService } from "@/api/hooks/tag";
+import { AgGridReact } from "ag-grid-react";
 
 export interface TransactionsTableProps {
   data?: Array<
@@ -46,6 +47,7 @@ export default function ImportDataTable({
   const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
   const [isInverseSelection, setIsInverseSelection] = useState(false);
   latestData.current = data ?? [];
+  const gridRef = useRef<AgGridReact>(null);
   const batchAiProcess = async ({
     provider,
     model,
@@ -79,20 +81,26 @@ export default function ImportDataTable({
 
     try {
       setProcessLoading(true);
-      const newData = latestData.current.map((v) => {
-        return {
-          ...v,
-          status: true,
-          destination_account_id: "loading",
-          pre_destination_account_id: v.destination_account_id,
-          source_account_id: "loading",
-          pre_source_account_id: v.source_account_id,
-          type: "loading",
-          pre_type: v.type,
-          transactionTags: [],
-        };
+      latestData.current.forEach((v, index) => {
+        setTimeout(() => {
+          const item = {
+            ...v,
+            status: true,
+            destination_account_id: "loading",
+            pre_destination_account_id: v.destination_account_id,
+            source_account_id: "loading",
+            pre_source_account_id: v.source_account_id,
+            type: "loading",
+            pre_type: v.type,
+            transactionTags: [],
+          };
+          latestData.current[index] = item;
+
+          gridRef.current?.api.applyTransactionAsync({
+            update: [item],
+          });
+        }, 0);
       });
-      onDataChange?.(newData);
       for (let i = 0; i < latestData.current.length; i += batchSize) {
         if (isAbort.current) {
           break;
@@ -101,7 +109,7 @@ export default function ImportDataTable({
         await processBatch(i, endIndex);
       }
     } catch (error) {
-      console.log(error);
+      message.error("ai报错");
     }
 
     if (!isAbort.current) {
@@ -183,7 +191,7 @@ export default function ImportDataTable({
     isAbort.current = false;
 
     // Update the sorted data
-    onDataChange?.([...latestData.current]);
+    // onDataChange?.([...latestData.current]);
     setProcessLoading(false);
   };
   const aiProcess = async (
@@ -252,7 +260,10 @@ export default function ImportDataTable({
       };
 
       setProcessedCount(index);
-      onDataChange?.([...data]);
+
+      gridRef.current?.api.applyTransactionAsync({
+        update: [data[index]],
+      });
     }
 
     return true;
@@ -300,8 +311,8 @@ export default function ImportDataTable({
                 };
               }),
             };
-            // onDataChange?.([...latestData.current]);
           }}
+          ref={gridRef}
           assets={assets ?? []}
           liabilities={liabilities ?? []}
           incomes={incomes ?? []}
