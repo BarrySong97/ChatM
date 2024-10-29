@@ -41,6 +41,7 @@ const SelectedRowsActions: React.FC<SelectedRowsActionsProps> = ({
             desc="删除所选多个流水将无法恢复，请谨慎操作"
             onOk={async () => {
               await deleteTransactions(selectedRows.map((row) => row.id));
+
               return Promise.resolve();
             }}
           >

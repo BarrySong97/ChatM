@@ -1,4 +1,16 @@
-import { and, eq, gt, gte, inArray, like, lt, lte, or, sql } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  gt,
+  gte,
+  inArray,
+  like,
+  lt,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 import { Transaction, transaction, transactionTags } from "@db/schema";
 import { db } from "../db/manager";
 import { v4 as uuidv4 } from "uuid";
@@ -220,6 +232,7 @@ export class TransactionService {
       where: and(finalCondition),
       limit: pageSize,
       offset: offset,
+      orderBy: [desc(transaction.transaction_date)],
       extras: {
         totalCount: sql<number>`COUNT(*) OVER()`.as("totalCount"),
       },

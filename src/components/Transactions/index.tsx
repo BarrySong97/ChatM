@@ -9,6 +9,8 @@ import TableContent from "./components/TableContent";
 import BottomContent from "./components/BottomContent";
 import { Transaction } from "@db/schema";
 import SelectedRowsActions from "./components/SelectedRowsActions";
+import { BookAtom } from "@/globals";
+import { useAtomValue } from "jotai";
 
 export default function TransactionsTable({
   accountId,
@@ -55,6 +57,10 @@ export default function TransactionsTable({
     endDate: endDate ? endDate.getTime() : undefined,
     filterConditions: filterConditions,
   };
+  const book = useAtomValue(BookAtom);
+  useEffect(() => {
+    setPage(1);
+  }, [book]);
   const { transactions, deleteTransactions } =
     useTransactionService(queryFilter);
 
@@ -125,7 +131,12 @@ export default function TransactionsTable({
       <SelectedRowsActions
         selectedRows={selectedRows}
         setSelectedRows={setSelectedRows}
-        deleteTransactions={deleteTransactions as any}
+        deleteTransactions={async (ids: string[]) => {
+          await deleteTransactions(ids);
+          if (page > 1 && ids.length === transactions?.list.length) {
+            setPage(page - 1);
+          }
+        }}
       />
     </div>
   );

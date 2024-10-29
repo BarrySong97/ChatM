@@ -87,25 +87,6 @@ export function useTransactionService(
       },
       onSuccess(data) {
         message.success("创建成功");
-        // queryClient.setQueryData<Page<Transaction>>(
-        //   queryKey,
-        //   (
-        //     oldTransactions: Page<Transaction> = {
-        //       list: [],
-        //       totalCount: 0,
-        //       currentPage: 0,
-        //       pageSize: 0,
-        //       totalPages: 0,
-        //     }
-        //   ) => {
-        //     return {
-        //       ...oldTransactions,
-        //     };
-        //   }
-        // );
-        queryClient.invalidateQueries(["side"]);
-
-        queryClient.invalidateQueries(queryKey);
       },
       onSettled() {
         setIsCreateLoading(false);
@@ -152,27 +133,12 @@ export function useTransactionService(
         await queryClient.cancelQueries(queryKey);
         const previousTransactions =
           queryClient.getQueryData<Page<Transaction>>(queryKey);
-        queryClient.setQueryData<Page<Transaction>>(
-          queryKey,
-          (
-            oldTransactions: Page<Transaction> = {
-              list: [],
-              totalCount: 0,
-              currentPage: 0,
-              pageSize: 0,
-              totalPages: 0,
-            }
-          ) => {
-            return {
-              ...oldTransactions,
-              list: oldTransactions.list.filter((t) => t.id !== transactionId),
-            };
-          }
-        );
         return { previousTransactions };
       },
       onSuccess() {
         message.success("删除成功");
+        queryClient.invalidateQueries(["side"]);
+        queryClient.invalidateQueries(queryKey);
       },
       onSettled() {
         setIsDeleteLoading(false);

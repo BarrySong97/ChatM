@@ -30,6 +30,7 @@ export interface TransactionsTableProps {
   importSource: string;
   provider: string;
   model: string;
+  onEdit?: () => void;
 }
 export default function ImportDataTable({
   data,
@@ -40,6 +41,7 @@ export default function ImportDataTable({
   isContentWrap,
   processLoading,
   onProcessLoadingChange,
+  onEdit,
 }: TransactionsTableProps) {
   const { incomes } = useIncomeService();
   const { expenses } = useExpenseService();
@@ -113,9 +115,11 @@ export default function ImportDataTable({
       try {
         await processBatch(i, endIndex);
       } catch (error) {
-        message.error(`AI报错: ${error}`);
-        abortControllerRef.current.forEach((v) => v.abort());
-        isAbort.current = true;
+        if (!isAbort.current) {
+          message.error(`AI报错: ${error}`);
+          abortControllerRef.current.forEach((v) => v.abort());
+          isAbort.current = true;
+        }
       }
     }
 
@@ -219,6 +223,7 @@ export default function ImportDataTable({
 
     isAbort.current = false;
 
+    setProcessedCount(0);
     onProcessLoadingChange(false);
   };
   const aiProcess = async (
@@ -339,6 +344,7 @@ export default function ImportDataTable({
                 };
               }),
             };
+            onEdit?.();
           }}
           ref={gridRef}
           assets={assets ?? []}
@@ -359,13 +365,14 @@ export default function ImportDataTable({
           }}
         />
         <div
-          className="absolute bottom-[70px] left-0 right-0 bg-background border-t border-b-none  rounded-b-none border-divider shadow-none transition-transform duration-300 ease-in-out transform translate-y-0"
+          className="absolute z-0 bottom-[70px] left-0 right-0 bg-background border-t border-b-none  rounded-b-none border-divider shadow-none transition-transform duration-300 ease-in-out transform translate-y-0"
           style={{
             transform:
               selectedRows.length > 0
                 ? "translateY(0)"
-                : "translateY(calc(100% - 20px))",
+                : "translateY(calc(100% + 20px))",
             opacity: selectedRows.length > 0 ? 1 : 0,
+            display: selectedRows.length > 0 ? "block" : "none",
             transition: "transform 0.3s ease-in-out, opacity 0.3s ease-in-out",
           }}
         >

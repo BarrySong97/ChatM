@@ -128,6 +128,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
   );
   const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
   const [processLoading, setProcessLoading] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   const renderStep = () => {
     switch (steps) {
       case 0:
@@ -140,6 +141,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
             processLoading={processLoading}
             onProcessLoadingChange={setProcessLoading}
             onDataChange={setFileData}
+            onEdit={() => setIsEdit(true)}
             latestData={latestData}
             isContentWrap={isContentWrap ?? true}
             importSource={fileSource}
