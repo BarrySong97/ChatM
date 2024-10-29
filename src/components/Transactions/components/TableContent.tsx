@@ -149,6 +149,7 @@ const TableContent = React.forwardRef<
     const [colDefs, setColDefs] = useState<
       ColDef<
         Transaction & {
+          status?: boolean;
           transactionTags: {
             tag: { name: string; id: string };
           };
@@ -169,7 +170,7 @@ const TableContent = React.forwardRef<
         headerName: "日期",
         width: 120,
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         cellEditor: ({ value, onValueChange }) => {
           return (
@@ -195,7 +196,7 @@ const TableContent = React.forwardRef<
         field: "content",
         width: 400,
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         headerName: "交易内容",
         ...(isContentWrap ? contentWrap : {}),
@@ -205,7 +206,7 @@ const TableContent = React.forwardRef<
         type: "rightAligned",
         width: 100,
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         cellEditor: ({ value, onValueChange }) => {
           return (
@@ -235,7 +236,7 @@ const TableContent = React.forwardRef<
         width: 110,
         headerName: "类型",
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         cellEditor: ({ value, onValueChange, api }) => {
           return (
@@ -319,7 +320,7 @@ const TableContent = React.forwardRef<
         headerName: "来源账户",
         width: 130,
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         cellRenderer: (params: any) => {
           if (params?.data?.status) {
@@ -385,7 +386,7 @@ const TableContent = React.forwardRef<
         field: "destination_account_id",
         headerName: "目标账户",
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         width: 130,
         cellRenderer: (params: any) => {
@@ -452,7 +453,7 @@ const TableContent = React.forwardRef<
         field: "transactionTags",
         headerName: "标签",
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
         cellRenderer: (params: any) => {
           const tagstring = params?.value
@@ -495,7 +496,7 @@ const TableContent = React.forwardRef<
         field: "remark",
         headerName: "备注",
         editable: (params) => {
-          return params.data?.type !== "loading";
+          return params.data?.status !== undefined && !params.data?.status;
         },
       },
     ]);

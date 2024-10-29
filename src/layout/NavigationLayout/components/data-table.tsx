@@ -23,6 +23,9 @@ export interface TransactionsTableProps {
   >;
   pureData?: Array<Array<string>>;
   onDataChange?: (data: Array<Transaction & { status: boolean }>) => void;
+  processLoading: boolean;
+  onProcessLoadingChange: (loading: boolean) => void;
+  latestData: React.MutableRefObject<Array<Transaction & { status: boolean }>>;
   isContentWrap: boolean;
   importSource: string;
   provider: string;
@@ -33,21 +36,22 @@ export default function ImportDataTable({
   pureData,
   importSource,
   onDataChange,
+  latestData,
   isContentWrap,
+  processLoading,
+  onProcessLoadingChange,
 }: TransactionsTableProps) {
   const { incomes } = useIncomeService();
   const { expenses } = useExpenseService();
   const { assets } = useAssetsService();
   const { liabilities } = useLiabilityService();
-  const [processLoading, setProcessLoading] = useState(false);
   const [processedCount, setProcessedCount] = useState(0);
   const abortControllerRef = useRef<AbortController[]>([]);
   const isAbort = useRef<boolean>(false);
   const { tags } = useTagService();
-  const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
   const [isInverseSelection, setIsInverseSelection] = useState(false);
-  latestData.current = data ?? [];
   const gridRef = useRef<AgGridReact>(null);
+  latestData.current = data ?? [];
   const batchAiProcess = async ({
     provider,
     model,
@@ -79,37 +83,40 @@ export default function ImportDataTable({
       await Promise.all(promises);
     };
 
-    try {
-      setProcessLoading(true);
-      latestData.current.forEach((v, index) => {
-        setTimeout(() => {
-          const item = {
-            ...v,
-            status: true,
-            destination_account_id: "loading",
-            pre_destination_account_id: v.destination_account_id,
-            source_account_id: "loading",
-            pre_source_account_id: v.source_account_id,
-            type: "loading",
-            pre_type: v.type,
-            transactionTags: [],
-          };
-          latestData.current[index] = item;
+    onProcessLoadingChange(true);
+    latestData.current.forEach((v, index) => {
+      setTimeout(() => {
+        const item = {
+          ...v,
+          status: true,
+          destination_account_id: "loading",
+          pre_destination_account_id: v.destination_account_id,
+          source_account_id: "loading",
+          pre_source_account_id: v.source_account_id,
+          type: "loading",
+          pre_type: v.type,
+          transactionTags: [],
+        };
+        latestData.current[index] = item;
 
-          gridRef.current?.api.applyTransactionAsync({
-            update: [item],
-          });
-        }, 0);
-      });
-      for (let i = 0; i < latestData.current.length; i += batchSize) {
-        if (isAbort.current) {
-          break;
-        }
-        const endIndex = Math.min(i + batchSize, latestData.current.length);
-        await processBatch(i, endIndex);
+        gridRef.current?.api.applyTransactionAsync({
+          update: [item],
+        });
+      }, 0);
+    });
+    for (let i = 0; i < latestData.current.length; i += batchSize) {
+      if (isAbort.current) {
+        break;
       }
-    } catch (error) {
-      message.error("ai报错");
+      const endIndex = Math.min(i + batchSize, latestData.current.length);
+
+      try {
+        await processBatch(i, endIndex);
+      } catch (error) {
+        message.error(`AI报错: ${error}`);
+        abortControllerRef.current.forEach((v) => v.abort());
+        isAbort.current = true;
+      }
     }
 
     if (!isAbort.current) {
@@ -168,31 +175,51 @@ export default function ImportDataTable({
         return 0;
       });
     } else {
-      const newData = latestData.current.map((v) => {
-        const { pre_destination_account_id, pre_source_account_id, pre_type } =
-          v as any;
-        return {
-          ...v,
-          status: false,
-          destination_account_id:
-            v.destination_account_id === "loading"
-              ? pre_destination_account_id
-              : "aborted",
-          source_account_id:
-            v.source_account_id === "loading"
-              ? pre_source_account_id
-              : "aborted",
-          type: v.type === "loading" ? pre_type : "aborted",
-        };
+      latestData.current.forEach((v, index) => {
+        setTimeout(() => {
+          const {
+            pre_destination_account_id,
+            pre_source_account_id,
+            pre_type,
+          } = v as any;
+
+          const item = {
+            ...v,
+            source_account_id:
+              v.source_account_id === "loading"
+                ? pre_source_account_id
+                : v.source_account_id && v.source_account_id !== "loading"
+                ? v.source_account_id
+                : "aborted",
+            destination_account_id:
+              v.destination_account_id === "loading" &&
+              pre_destination_account_id
+                ? pre_destination_account_id
+                : v.destination_account_id &&
+                  v.destination_account_id !== "loading"
+                ? v.destination_account_id
+                : "aborted",
+            type:
+              v.type === "loading"
+                ? pre_type
+                : v.type && v.type !== "loading"
+                ? v.type
+                : "aborted",
+            status: false,
+          };
+
+          latestData.current[index] = item;
+
+          gridRef.current?.api.applyTransactionAsync({
+            update: [item],
+          });
+        }, 0);
       });
-      latestData.current = newData;
     }
 
     isAbort.current = false;
 
-    // Update the sorted data
-    // onDataChange?.([...latestData.current]);
-    setProcessLoading(false);
+    onProcessLoadingChange(false);
   };
   const aiProcess = async (
     index: number,
@@ -243,8 +270,8 @@ export default function ImportDataTable({
       const [_, type, sourceAccountId, destinationAccountId, transactionTags] =
         match;
 
-      data[index] = {
-        ...data[index],
+      const newItem = {
+        ...latestData.current[index],
         type,
         source_account_id: sourceAccountId,
         transactionTags: transactionTags
@@ -258,11 +285,12 @@ export default function ImportDataTable({
         destination_account_id: destinationAccountId,
         status: false, // Set status to false after processing
       };
+      latestData.current[index] = newItem;
 
       setProcessedCount(index);
 
       gridRef.current?.api.applyTransactionAsync({
-        update: [data[index]],
+        update: [newItem],
       });
     }
 
@@ -271,7 +299,7 @@ export default function ImportDataTable({
 
   const [selectedRows, setSelectedRows] = useState<Transaction[]>([]);
   const deleteTransactions = (ids: string[]) => {
-    const newData = data?.filter((v) => !ids.includes(v.id));
+    const newData = latestData.current.filter((v) => !ids.includes(v.id));
     onDataChange?.(newData ?? []);
   };
   return (

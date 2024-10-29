@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   ModalContent,
@@ -57,7 +57,6 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
   const handleFileChange = (info: UploadChangeParam<UploadFile<any>>) => {
     const file = info.file.originFileObj as File;
     setFile(file);
-    const reader = new FileReader();
     Papa.parse(file, {
       encoding: fileSource === "alipay" ? "GBK" : "UTF-8",
       complete: (results) => {
@@ -127,6 +126,8 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       defaultValue: true,
     }
   );
+  const latestData = useRef<Array<Transaction & { status: boolean }>>([]);
+  const [processLoading, setProcessLoading] = useState(false);
   const renderStep = () => {
     switch (steps) {
       case 0:
@@ -136,7 +137,10 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       case 2: // Changed from 3 to 2
         return (
           <ImportDataTable
+            processLoading={processLoading}
+            onProcessLoadingChange={setProcessLoading}
             onDataChange={setFileData}
+            latestData={latestData}
             isContentWrap={isContentWrap ?? true}
             importSource={fileSource}
             data={fileData}
@@ -154,10 +158,11 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
       setFile(null);
       setFileData([]);
       setFileSource("");
+      latestData.current = [];
     }
   }, [isOpen]);
 
-  const isAllDataComplete = fileData?.every(
+  const isAllDataComplete = latestData.current?.every(
     (item) =>
       item.type &&
       item.destination_account_id &&
