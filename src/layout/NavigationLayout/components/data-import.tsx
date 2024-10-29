@@ -141,7 +141,7 @@ const DataImportModal: React.FC<DataImportModalProps> = ({
             processLoading={processLoading}
             onProcessLoadingChange={setProcessLoading}
             onDataChange={setFileData}
-            onEdit={() => setIsEdit(true)}
+            onEdit={() => setIsEdit((v) => !v)}
             latestData={latestData}
             isContentWrap={isContentWrap ?? true}
             importSource={fileSource}
